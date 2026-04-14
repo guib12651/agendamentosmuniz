@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      meetings: {
+        Row: {
+          consultant: string
+          created_at: string
+          date: string
+          down_payment: string | null
+          id: string
+          installment: string | null
+          lead_name: string
+          notes: string | null
+          phone: string
+          pre_seller: string
+          restriction: string
+          time: string
+        }
+        Insert: {
+          consultant: string
+          created_at?: string
+          date: string
+          down_payment?: string | null
+          id?: string
+          installment?: string | null
+          lead_name: string
+          notes?: string | null
+          phone: string
+          pre_seller: string
+          restriction?: string
+          time: string
+        }
+        Update: {
+          consultant?: string
+          created_at?: string
+          date?: string
+          down_payment?: string | null
+          id?: string
+          installment?: string | null
+          lead_name?: string
+          notes?: string | null
+          phone?: string
+          pre_seller?: string
+          restriction?: string
+          time?: string
+        }
+        Relationships: []
+      }
+      time_blocks: {
+        Row: {
+          created_at: string
+          date: string
+          end_time: string
+          id: string
+          reason: string | null
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          end_time: string
+          id?: string
+          reason?: string | null
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          end_time?: string
+          id?: string
+          reason?: string | null
+          start_time?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
