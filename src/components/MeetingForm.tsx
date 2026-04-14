@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 interface MeetingFormProps {
-  onSave: () => void;
+  onSave: (savedDate?: string) => void;
   editMeeting?: Meeting | null;
   onCancel?: () => void;
 }
@@ -44,6 +44,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
       return;
     }
 
+    const savedDate = form.date;
     if (editMeeting) {
       updateMeeting({ ...form, id: editMeeting.id });
       toast.success("Reunião atualizada!");
@@ -52,7 +53,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
       toast.success("Reunião agendada com sucesso!");
       setForm({ ...emptyForm });
     }
-    onSave();
+    onSave(savedDate);
   };
 
   return (

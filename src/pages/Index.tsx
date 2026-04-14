@@ -23,6 +23,7 @@ export default function Index() {
   const [showBlockForm, setShowBlockForm] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
+  
 
   const reload = useCallback(() => {
     setMeetings(getMeetings());
@@ -162,7 +163,11 @@ export default function Index() {
           </DialogHeader>
           <MeetingForm
             editMeeting={editingMeeting}
-            onSave={() => { reload(); setShowMeetingForm(false); }}
+            onSave={(savedDate?: string) => { 
+              reload(); 
+              setShowMeetingForm(false); 
+              if (savedDate) setFilterDate(savedDate);
+            }}
             onCancel={() => setShowMeetingForm(false)}
           />
         </DialogContent>
