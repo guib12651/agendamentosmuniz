@@ -23,7 +23,7 @@ export default function Index() {
   const [showBlockForm, setShowBlockForm] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
-  const [pendingFilterDate, setPendingFilterDate] = useState<string | null>(null);
+  
 
   const reload = useCallback(() => {
     setMeetings(getMeetings());
