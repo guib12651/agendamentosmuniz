@@ -163,7 +163,11 @@ export default function Index() {
           </DialogHeader>
           <MeetingForm
             editMeeting={editingMeeting}
-            onSave={() => { reload(); setShowMeetingForm(false); }}
+            onSave={(savedDate?: string) => { 
+              reload(); 
+              setShowMeetingForm(false); 
+              if (savedDate) setFilterDate(savedDate);
+            }}
             onCancel={() => setShowMeetingForm(false)}
           />
         </DialogContent>
