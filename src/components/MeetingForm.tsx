@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 interface MeetingFormProps {
-  onSave: () => void;
+  onSave: (savedDate?: string) => void;
   editMeeting?: Meeting | null;
   onCancel?: () => void;
 }
