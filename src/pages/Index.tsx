@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock } from "@/lib/store";
 import { Plus, Ban, CalendarDays } from "lucide-react";
@@ -14,8 +14,8 @@ import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
 
 export default function Index() {
-  const [meetings, setMeetings] = useState<Meeting[]>(getMeetings());
-  const [blocks, setBlocks] = useState<TimeBlock[]>(getBlocks());
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [filterConsultant, setFilterConsultant] = useState("");
   const [filterSeller, setFilterSeller] = useState("");
@@ -23,12 +23,14 @@ export default function Index() {
   const [showBlockForm, setShowBlockForm] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
-  
 
-  const reload = useCallback(() => {
-    setMeetings(getMeetings());
-    setBlocks(getBlocks());
+  const reload = useCallback(async () => {
+    const [m, b] = await Promise.all([getMeetings(), getBlocks()]);
+    setMeetings(m);
+    setBlocks(b);
   }, []);
+
+  useEffect(() => { reload(); }, [reload]);
 
   const now = useMemo(() => new Date(), []);
 
@@ -52,19 +54,18 @@ export default function Index() {
     return meetingMin >= nowMin && meetingMin <= nowMin + 60;
   };
 
-  const handleDeleteMeeting = (id: string) => {
-    deleteMeeting(id);
-    reload();
+  const handleDeleteMeeting = async (id: string) => {
+    await deleteMeeting(id);
+    await reload();
     toast.success("Reunião excluída.");
   };
 
-  const handleDeleteBlock = (id: string) => {
-    deleteBlock(id);
-    reload();
+  const handleDeleteBlock = async (id: string) => {
+    await deleteBlock(id);
+    await reload();
     toast.success("Bloqueio removido.");
   };
 
-  // Merge meetings and blocks into a unified timeline
   type TimelineItem =
     | { type: "meeting"; data: Meeting; sortKey: string }
     | { type: "block"; data: TimeBlock; sortKey: string };
@@ -81,7 +82,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-8">
-      {/* Header */}
       <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between py-3">
           <div className="flex items-center gap-3">
@@ -103,10 +103,8 @@ export default function Index() {
       </header>
 
       <main className="container mt-4 space-y-4">
-        {/* Stats */}
         <StatsBar meetings={filteredMeetings} />
 
-        {/* Filters */}
         <div className="flex flex-wrap items-end gap-3">
           <div className="space-y-1">
             <label className="text-xs text-muted-foreground">Data</label>
@@ -125,7 +123,6 @@ export default function Index() {
           </Button>
         </div>
 
-        {/* Timeline */}
         <div className="space-y-3">
           {timeline.length === 0 && (
             <div className="text-center py-16 text-muted-foreground">
@@ -155,7 +152,6 @@ export default function Index() {
         </div>
       </main>
 
-      {/* Meeting Dialog */}
       <Dialog open={showMeetingForm} onOpenChange={setShowMeetingForm}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -163,9 +159,9 @@ export default function Index() {
           </DialogHeader>
           <MeetingForm
             editMeeting={editingMeeting}
-            onSave={(savedDate?: string) => { 
-              reload(); 
-              setShowMeetingForm(false); 
+            onSave={async (savedDate?: string) => {
+              await reload();
+              setShowMeetingForm(false);
               if (savedDate) setFilterDate(savedDate);
             }}
             onCancel={() => setShowMeetingForm(false)}
@@ -173,7 +169,6 @@ export default function Index() {
         </DialogContent>
       </Dialog>
 
-      {/* Block Dialog */}
       <Dialog open={showBlockForm} onOpenChange={setShowBlockForm}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -181,7 +176,7 @@ export default function Index() {
           </DialogHeader>
           <BlockForm
             editBlock={editingBlock}
-            onSave={() => { reload(); setShowBlockForm(false); }}
+            onSave={async () => { await reload(); setShowBlockForm(false); }}
             onCancel={() => setShowBlockForm(false)}
           />
         </DialogContent>
