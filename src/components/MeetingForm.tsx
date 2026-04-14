@@ -44,6 +44,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
       return;
     }
 
+    const savedDate = form.date;
     if (editMeeting) {
       updateMeeting({ ...form, id: editMeeting.id });
       toast.success("Reunião atualizada!");
@@ -52,7 +53,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
       toast.success("Reunião agendada com sucesso!");
       setForm({ ...emptyForm });
     }
-    onSave();
+    onSave(savedDate);
   };
 
   return (
