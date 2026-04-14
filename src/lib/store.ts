@@ -1,57 +1,131 @@
-import { Meeting, TimeBlock } from "./types";
+import { supabase } from "@/integrations/supabase/client";
+import { Meeting, TimeBlock, RestrictionType } from "./types";
 
-const MEETINGS_KEY = "muniz_meetings";
-const BLOCKS_KEY = "muniz_blocks";
+export async function getMeetings(): Promise<Meeting[]> {
+  const { data, error } = await supabase
+    .from("meetings")
+    .select("*")
+    .order("time", { ascending: true });
 
-export function getMeetings(): Meeting[] {
-  const data = localStorage.getItem(MEETINGS_KEY);
-  return data ? JSON.parse(data) : [];
+  if (error) {
+    console.error("Error fetching meetings:", error);
+    return [];
+  }
+
+  return (data || []).map((row) => ({
+    id: row.id,
+    leadName: row.lead_name,
+    phone: row.phone,
+    date: row.date,
+    time: row.time.slice(0, 5), // HH:mm
+    preSeller: row.pre_seller,
+    consultant: row.consultant,
+    downPayment: row.down_payment || "",
+    installment: row.installment || "",
+    restriction: row.restriction as RestrictionType,
+    notes: row.notes || "",
+  }));
 }
 
-export function saveMeetings(meetings: Meeting[]) {
-  localStorage.setItem(MEETINGS_KEY, JSON.stringify(meetings));
+export async function addMeeting(meeting: Omit<Meeting, "id">): Promise<void> {
+  const { error } = await supabase.from("meetings").insert({
+    lead_name: meeting.leadName,
+    phone: meeting.phone,
+    date: meeting.date,
+    time: meeting.time,
+    pre_seller: meeting.preSeller,
+    consultant: meeting.consultant,
+    down_payment: meeting.downPayment,
+    installment: meeting.installment,
+    restriction: meeting.restriction,
+    notes: meeting.notes,
+  });
+  if (error) throw error;
 }
 
-export function addMeeting(meeting: Meeting) {
-  const meetings = getMeetings();
-  meetings.push(meeting);
-  saveMeetings(meetings);
+export async function updateMeeting(meeting: Meeting): Promise<void> {
+  const { error } = await supabase
+    .from("meetings")
+    .update({
+      lead_name: meeting.leadName,
+      phone: meeting.phone,
+      date: meeting.date,
+      time: meeting.time,
+      pre_seller: meeting.preSeller,
+      consultant: meeting.consultant,
+      down_payment: meeting.downPayment,
+      installment: meeting.installment,
+      restriction: meeting.restriction,
+      notes: meeting.notes,
+    })
+    .eq("id", meeting.id);
+  if (error) throw error;
 }
 
-export function updateMeeting(updated: Meeting) {
-  const meetings = getMeetings().map((m) => (m.id === updated.id ? updated : m));
-  saveMeetings(meetings);
+export async function deleteMeeting(id: string): Promise<void> {
+  const { error } = await supabase.from("meetings").delete().eq("id", id);
+  if (error) throw error;
 }
 
-export function deleteMeeting(id: string) {
-  saveMeetings(getMeetings().filter((m) => m.id !== id));
+export async function getBlocks(): Promise<TimeBlock[]> {
+  const { data, error } = await supabase
+    .from("time_blocks")
+    .select("*")
+    .order("start_time", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching blocks:", error);
+    return [];
+  }
+
+  return (data || []).map((row) => ({
+    id: row.id,
+    date: row.date,
+    startTime: row.start_time.slice(0, 5),
+    endTime: row.end_time.slice(0, 5),
+    reason: row.reason || "",
+  }));
 }
 
-export function getBlocks(): TimeBlock[] {
-  const data = localStorage.getItem(BLOCKS_KEY);
-  return data ? JSON.parse(data) : [];
+export async function addBlock(block: Omit<TimeBlock, "id">): Promise<void> {
+  const { error } = await supabase.from("time_blocks").insert({
+    date: block.date,
+    start_time: block.startTime,
+    end_time: block.endTime,
+    reason: block.reason,
+  });
+  if (error) throw error;
 }
 
-export function saveBlocks(blocks: TimeBlock[]) {
-  localStorage.setItem(BLOCKS_KEY, JSON.stringify(blocks));
+export async function updateBlock(block: TimeBlock): Promise<void> {
+  const { error } = await supabase
+    .from("time_blocks")
+    .update({
+      date: block.date,
+      start_time: block.startTime,
+      end_time: block.endTime,
+      reason: block.reason,
+    })
+    .eq("id", block.id);
+  if (error) throw error;
 }
 
-export function addBlock(block: TimeBlock) {
-  const blocks = getBlocks();
-  blocks.push(block);
-  saveBlocks(blocks);
+export async function deleteBlock(id: string): Promise<void> {
+  const { error } = await supabase.from("time_blocks").delete().eq("id", id);
+  if (error) throw error;
 }
 
-export function updateBlock(updated: TimeBlock) {
-  const blocks = getBlocks().map((b) => (b.id === updated.id ? updated : b));
-  saveBlocks(blocks);
-}
+export async function isTimeBlocked(date: string, time: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("time_blocks")
+    .select("*")
+    .eq("date", date)
+    .lte("start_time", time)
+    .gt("end_time", time);
 
-export function deleteBlock(id: string) {
-  saveBlocks(getBlocks().filter((b) => b.id !== id));
-}
-
-export function isTimeBlocked(date: string, time: string): boolean {
-  const blocks = getBlocks().filter((b) => b.date === date);
-  return blocks.some((b) => time >= b.startTime && time < b.endTime);
+  if (error) {
+    console.error("Error checking blocks:", error);
+    return false;
+  }
+  return (data || []).length > 0;
 }
