@@ -19,10 +19,11 @@ export default function BlockForm({ onSave, editBlock, onCancel }: BlockFormProp
     endTime: editBlock?.endTime || "",
     reason: editBlock?.reason || "",
   });
+  const [saving, setSaving] = useState(false);
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.date || !form.startTime || !form.endTime) {
       toast.error("Preencha data e horários.");
@@ -33,14 +34,22 @@ export default function BlockForm({ onSave, editBlock, onCancel }: BlockFormProp
       return;
     }
 
-    if (editBlock) {
-      updateBlock({ ...form, id: editBlock.id });
-      toast.success("Bloqueio atualizado!");
-    } else {
-      addBlock({ ...form, id: crypto.randomUUID() });
-      toast.success("Horário bloqueado!");
+    setSaving(true);
+    try {
+      if (editBlock) {
+        await updateBlock({ ...form, id: editBlock.id });
+        toast.success("Bloqueio atualizado!");
+      } else {
+        await addBlock(form);
+        toast.success("Horário bloqueado!");
+      }
+      onSave();
+    } catch (err) {
+      toast.error("Erro ao salvar. Tente novamente.");
+      console.error(err);
+    } finally {
+      setSaving(false);
     }
-    onSave();
   };
 
   return (
@@ -64,7 +73,9 @@ export default function BlockForm({ onSave, editBlock, onCancel }: BlockFormProp
         <Input value={form.reason} onChange={(e) => set("reason", e.target.value)} placeholder="Ex: Almoço, Reunião interna..." />
       </div>
       <div className="flex gap-2">
-        <Button type="submit" className="flex-1">{editBlock ? "Salvar alterações" : "Bloquear Horário"}</Button>
+        <Button type="submit" className="flex-1" disabled={saving}>
+          {saving ? "Salvando..." : editBlock ? "Salvar alterações" : "Bloquear Horário"}
+        </Button>
         {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>}
       </div>
     </form>

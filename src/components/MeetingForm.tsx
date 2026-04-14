@@ -29,31 +29,42 @@ const emptyForm = {
 
 export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFormProps) {
   const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm });
+  const [saving, setSaving] = useState(false);
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.consultant) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    if (!editMeeting && isTimeBlocked(form.date, form.time)) {
-      toast.error("Este horário está indisponível. Escolha outro horário.");
-      return;
-    }
+    setSaving(true);
+    try {
+      if (!editMeeting && await isTimeBlocked(form.date, form.time)) {
+        toast.error("Este horário está indisponível. Escolha outro horário.");
+        setSaving(false);
+        return;
+      }
 
-    const savedDate = form.date;
-    if (editMeeting) {
-      updateMeeting({ ...form, id: editMeeting.id });
-      toast.success("Reunião atualizada!");
-    } else {
-      addMeeting({ ...form, id: crypto.randomUUID() });
-      toast.success("Reunião agendada com sucesso!");
-      setForm({ ...emptyForm });
+      const savedDate = form.date;
+      if (editMeeting) {
+        await updateMeeting({ ...form, id: editMeeting.id });
+        toast.success("Reunião atualizada!");
+      } else {
+        const { id, ...rest } = form as any;
+        await addMeeting(rest);
+        toast.success("Reunião agendada com sucesso!");
+        setForm({ ...emptyForm });
+      }
+      onSave(savedDate);
+    } catch (err) {
+      toast.error("Erro ao salvar. Tente novamente.");
+      console.error(err);
+    } finally {
+      setSaving(false);
     }
-    onSave(savedDate);
   };
 
   return (
@@ -110,7 +121,9 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
         <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Observações opcionais..." rows={2} />
       </div>
       <div className="flex gap-2">
-        <Button type="submit" className="flex-1">{editMeeting ? "Salvar alterações" : "Agendar Reunião"}</Button>
+        <Button type="submit" className="flex-1" disabled={saving}>
+          {saving ? "Salvando..." : editMeeting ? "Salvar alterações" : "Agendar Reunião"}
+        </Button>
         {onCancel && <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>}
       </div>
     </form>
