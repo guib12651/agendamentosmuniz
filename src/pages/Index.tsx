@@ -1,10 +1,11 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MeetingForm from "@/components/MeetingForm";
 import BlockForm from "@/components/BlockForm";
@@ -29,6 +30,7 @@ export default function Index() {
   const [showBlockForm, setShowBlockForm] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
+  const [preSellerSearch, setPreSellerSearch] = useState("");
 
   const reload = useCallback(async () => {
     const [m, b] = await Promise.all([getMeetings(), getBlocks()]);
@@ -42,17 +44,37 @@ export default function Index() {
 
   const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
 
+  // All unique pre-seller names for autocomplete
+  const preSellerNames = useMemo(() => {
+    const names = new Set(meetings.map((m) => m.preSeller));
+    return Array.from(names).sort();
+  }, [meetings]);
+
+  // Filtered suggestions
+  const searchSuggestions = useMemo(() => {
+    if (!preSellerSearch.trim()) return [];
+    const q = preSellerSearch.toLowerCase();
+    return preSellerNames.filter((n) => n.toLowerCase().includes(q));
+  }, [preSellerSearch, preSellerNames]);
+
+  // Apply pre-seller filter to meetings
+  const filteredMeetings = useMemo(() => {
+    if (!isAdmin || !preSellerSearch.trim()) return meetings;
+    const q = preSellerSearch.toLowerCase().trim();
+    return meetings.filter((m) => m.preSeller.toLowerCase().includes(q));
+  }, [meetings, preSellerSearch, isAdmin]);
+
   // Meetings filtered by the selected period (for stats)
   const periodMeetings = useMemo(() => {
-    return meetings
+    return filteredMeetings
       .filter((m) => m.date >= dateRange.start && m.date <= dateRange.end)
       .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  }, [meetings, dateRange]);
+  }, [filteredMeetings, dateRange]);
 
   // For the timeline and time slot grid, always use filterDate (daily view)
   const dayMeetings = useMemo(() => {
-    return meetings.filter((m) => m.date === filterDate).sort((a, b) => a.time.localeCompare(b.time));
-  }, [meetings, filterDate]);
+    return filteredMeetings.filter((m) => m.date === filterDate).sort((a, b) => a.time.localeCompare(b.time));
+  }, [filteredMeetings, filterDate]);
 
   const dayBlocks = useMemo(() => {
     return blocks.filter((b) => b.date === filterDate).sort((a, b) => a.startTime.localeCompare(b.startTime));
@@ -134,6 +156,47 @@ export default function Index() {
       </header>
 
       <main className="container mt-3 sm:mt-4 space-y-3 sm:space-y-4 px-3 sm:px-6">
+        {/* Admin pre-seller search */}
+        {isAdmin && (
+          <div className="relative">
+            <div className="flex gap-2 items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={preSellerSearch}
+                  onChange={(e) => setPreSellerSearch(e.target.value)}
+                  placeholder="Buscar pré-vendedor..."
+                  className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
+                />
+              </div>
+              {preSellerSearch && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setPreSellerSearch("")}
+                  className="h-11 px-3 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4 mr-1" /> Limpar
+                </Button>
+              )}
+            </div>
+            {/* Autocomplete suggestions */}
+            {preSellerSearch && searchSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
+                {searchSuggestions.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => setPreSellerSearch(name)}
+                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
+                  >
+                    {name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Period filter */}
         <PeriodFilter
           selectedDate={filterDate}
@@ -146,20 +209,22 @@ export default function Index() {
           onCustomEndChange={setCustomEnd}
         />
 
-        {/* Stats use period-filtered meetings */}
+        {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
-        {/* Performance chart */}
-        <MeetingsChart meetings={periodMeetings} period={period} dateRange={dateRange} />
-
-        {/* Time slot grid always shows the selected day */}
+        {/* 2. Time slot grid (prominent, right after stats) */}
         {period === "daily" && <TimeSlotGrid slots={timeSlots} />}
 
-        {/* Timeline */}
+        {/* 3. Meeting list / timeline */}
         <div className="space-y-3">
           {period !== "daily" && (
             <p className="text-xs text-muted-foreground">
               Mostrando {periodMeetings.length} reunião(ões) de {dateRange.start} a {dateRange.end}
+            </p>
+          )}
+          {preSellerSearch && (
+            <p className="text-xs text-primary font-medium">
+              Filtrando por: {preSellerSearch}
             </p>
           )}
           {(period === "daily" ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
@@ -202,6 +267,9 @@ export default function Index() {
             ))
           )}
         </div>
+
+        {/* 4. Chart at the bottom */}
+        <MeetingsChart meetings={periodMeetings} period={period} dateRange={dateRange} />
       </main>
 
       <Dialog open={showMeetingForm} onOpenChange={setShowMeetingForm}>
