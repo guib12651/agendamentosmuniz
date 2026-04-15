@@ -212,6 +212,9 @@ export default function Index() {
           <MeetingForm
             editMeeting={editingMeeting}
             occupiedSlots={timeSlots}
+            userId={profile?.id || ""}
+            userDisplayName={profile?.displayName || ""}
+            isAdmin={isAdmin}
             onSave={async (savedDate?: string) => {
               await reload();
               setShowMeetingForm(false);
