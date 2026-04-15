@@ -43,8 +43,8 @@ const emptyForm = {
   meetingType: "" as MeetingType | "",
 };
 
-export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots }: MeetingFormProps) {
-  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm });
+export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
+  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
 
@@ -88,10 +88,10 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
       } else {
-        const { id, ...rest } = form as any;
-        await addMeeting(rest);
+        const { id, userId: _uid, ...rest } = form as any;
+        await addMeeting(rest, userId);
         toast.success("Reunião agendada com sucesso!");
-        setForm({ ...emptyForm });
+        setForm({ ...emptyForm, preSeller: userDisplayName });
       }
       onSave(savedDate);
     } catch (err) {
