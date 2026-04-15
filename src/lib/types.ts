@@ -1,6 +1,8 @@
 export type RestrictionType = "clean" | "up_to_10k" | "above_10k";
 export type MeetingStatus = "pending" | "compareceu" | "nao_compareceu";
 export type MarkingType = "lead_quente" | "cnpj" | "lista_fria" | "instagram" | "indicacao";
+export type MeetingType = "presencial" | "online";
+export type MarkingType = "lead_quente" | "cnpj" | "lista_fria" | "instagram" | "indicacao";
 
 export interface Meeting {
   id: string;
@@ -15,6 +17,9 @@ export interface Meeting {
   restriction: RestrictionType;
   notes: string;
   status: MeetingStatus;
+  markingType: MarkingType;
+  meetingType: MeetingType;
+}
   markingType: MarkingType;
 }
 
