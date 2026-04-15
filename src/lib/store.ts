@@ -161,16 +161,3 @@ export async function isTimeBlocked(date: string, time: string): Promise<boolean
   }
   return (data || []).length > 0;
 }
-  const { data, error } = await supabase
-    .from("time_blocks")
-    .select("*")
-    .eq("date", date)
-    .lte("start_time", time)
-    .gt("end_time", time);
-
-  if (error) {
-    console.error("Error checking blocks:", error);
-    return false;
-  }
-  return (data || []).length > 0;
-}
