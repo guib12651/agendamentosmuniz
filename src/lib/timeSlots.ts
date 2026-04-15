@@ -14,4 +14,5 @@ export interface TimeSlotInfo {
   time: string;
   status: SlotStatus;
   meetingLeadName?: string;
+  meetingId?: string;
 }

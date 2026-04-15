@@ -3,9 +3,10 @@ import { Clock, User, Ban } from "lucide-react";
 
 interface TimeSlotGridProps {
   slots: TimeSlotInfo[];
+  onOccupiedClick?: (meetingId: string) => void;
 }
 
-export default function TimeSlotGrid({ slots }: TimeSlotGridProps) {
+export default function TimeSlotGrid({ slots, onOccupiedClick }: TimeSlotGridProps) {
   return (
     <div>
       <div className="flex items-center gap-2 mb-3">
@@ -26,10 +27,15 @@ export default function TimeSlotGrid({ slots }: TimeSlotGridProps) {
           return (
             <div
               key={slot.time}
+              onClick={() => {
+                if (isOccupied && slot.meetingId && onOccupiedClick) {
+                  onOccupiedClick(slot.meetingId);
+                }
+              }}
               className={`
                 rounded-lg border px-3 py-2.5 sm:py-2 text-center transition-colors select-none
                 ${isAvailable ? "bg-success/15 border-success/30 text-success" : ""}
-                ${isOccupied ? "bg-destructive/15 border-destructive/30 text-destructive opacity-80" : ""}
+                ${isOccupied ? "bg-destructive/15 border-destructive/30 text-destructive opacity-80 cursor-pointer hover:opacity-100 hover:border-destructive/60" : ""}
                 ${isBlocked ? "bg-muted border-border text-muted-foreground opacity-60" : ""}
               `}
             >
