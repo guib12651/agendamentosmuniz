@@ -27,6 +27,7 @@ export type Database = {
           phone: string
           pre_seller: string
           restriction: string
+          status: string
           time: string
         }
         Insert: {
@@ -41,6 +42,7 @@ export type Database = {
           phone: string
           pre_seller: string
           restriction?: string
+          status?: string
           time: string
         }
         Update: {
@@ -55,6 +57,7 @@ export type Database = {
           phone?: string
           pre_seller?: string
           restriction?: string
+          status?: string
           time?: string
         }
         Relationships: []
