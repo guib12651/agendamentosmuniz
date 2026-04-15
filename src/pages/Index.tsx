@@ -188,6 +188,7 @@ export default function Index() {
           </DialogHeader>
           <MeetingForm
             editMeeting={editingMeeting}
+            occupiedSlots={timeSlots}
             onSave={async (savedDate?: string) => {
               await reload();
               setShowMeetingForm(false);
