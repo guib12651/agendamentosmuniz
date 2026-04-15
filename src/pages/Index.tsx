@@ -18,6 +18,7 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
+  const { profile, isAdmin, signOut } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
