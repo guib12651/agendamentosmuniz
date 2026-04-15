@@ -214,7 +214,15 @@ export default function Index() {
         <StatsBar meetings={periodMeetings} />
 
         {/* 2. Time slot grid (prominent, right after stats) */}
-        {period === "daily" && <TimeSlotGrid slots={timeSlots} />}
+        {period === "daily" && (
+          <TimeSlotGrid
+            slots={timeSlots}
+            onOccupiedClick={(meetingId) => {
+              const m = dayMeetings.find((mt) => mt.id === meetingId);
+              if (m) setViewingMeeting(m);
+            }}
+          />
+        )}
 
         {/* 3. Meeting list / timeline */}
         <div className="space-y-3">
