@@ -18,6 +18,7 @@ export interface Meeting {
   status: MeetingStatus;
   markingType: MarkingType;
   meetingType: MeetingType;
+  userId?: string | null;
 }
 
 export interface TimeBlock {

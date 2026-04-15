@@ -14,6 +14,9 @@ interface MeetingFormProps {
   editMeeting?: Meeting | null;
   onCancel?: () => void;
   occupiedSlots?: TimeSlotInfo[];
+  userId: string;
+  userDisplayName: string;
+  isAdmin: boolean;
 }
 
 const markingTypeLabels: Record<MarkingType, string> = {
