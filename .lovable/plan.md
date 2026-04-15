@@ -1,27 +1,37 @@
 
 
-# Plano: Atualização em tempo real dos horários
+# Plano: 2 reuniões por horário
 
 ## O que muda
 
-Quando alguém agendar uma reunião, todos os outros usuários verão o horário ficar indisponível **automaticamente**, sem precisar recarregar a página.
+Cada horário passa a permitir **2 agendamentos**. Só fica indisponível (vermelho) após o segundo. Com 1 reunião, fica em estado intermediário (amarelo/parcial).
 
-## Como funciona
+## Alterações
 
-### 1. Migração: habilitar Realtime na tabela `meetings`
+### 1. Atualizar `TimeSlotInfo` (`src/lib/timeSlots.ts`)
+- Adicionar novo status `"partial"` ao tipo `SlotStatus` (1 reunião de 2).
+- Adicionar campo opcional `occupiedCount` e arrays para múltiplos leads/IDs.
 
-```sql
-ALTER PUBLICATION supabase_realtime ADD TABLE public.meetings;
-```
+### 2. Atualizar lógica de slots (`src/pages/Index.tsx`)
+- Ao montar os `timeSlots`, contar quantas reuniões existem no mesmo horário via `globalOccupiedSlots.filter()`.
+- Se count === 0 → `available`
+- Se count === 1 → `partial` (amarelo, mostra nome do lead)
+- Se count >= 2 → `occupied` (vermelho, indisponível)
 
-### 2. Atualizar `src/pages/Index.tsx`
+### 3. Atualizar grid visual (`src/components/TimeSlotGrid.tsx`)
+- Adicionar estilo amarelo/laranja para status `"partial"` (ex: "1/2 vagas").
+- Clicar em partial ou occupied abre detalhes normalmente.
+- Adicionar legenda "Parcial" na barra de legendas.
 
-- Adicionar um listener Realtime no canal `meetings` que escuta eventos `INSERT`, `UPDATE` e `DELETE`.
-- Quando qualquer mudança ocorrer, re-buscar os slots ocupados via `getOccupiedSlots(filterDate)` e a lista de reuniões.
-- Desmontar o canal no cleanup do `useEffect`.
+### 4. Atualizar formulário (`src/components/MeetingForm.tsx`)
+- Permitir seleção de horários que têm apenas 1 reunião (partial).
+- Bloquear apenas horários com 2+ reuniões.
 
-### Resultado
+### 5. Validação no banco (opcional mas recomendado)
+- Criar trigger ou constraint para impedir mais de 2 reuniões no mesmo horário+data, como camada de segurança adicional.
 
-- Pré-vendedor A agenda 09:15 → horário fica vermelho instantaneamente para todos os outros usuários conectados.
-- Funciona para criação, edição e exclusão de reuniões.
+## Resultado
+- Horário com 0 reuniões → verde (Disponível)
+- Horário com 1 reunião → amarelo (1/2 vagas)
+- Horário com 2 reuniões → vermelho (Indisponível)
 
