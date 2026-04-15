@@ -146,9 +146,11 @@ export default function Index() {
             <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
               <Plus className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden xs:inline">Reunião</span><span className="xs:hidden">Nova</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
-              <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
-            </Button>
+            {isAdmin && (
+              <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
+                <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
+              </Button>
+            )}
             <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
               <LogOut className="w-4 h-4" />
             </Button>
