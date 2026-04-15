@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType } from "@/lib/types";
-import { addMeeting, updateMeeting, getMeetings, getBlocks } from "@/lib/store";
+import { addMeeting, updateMeeting, getOccupiedSlots, getBlocks } from "@/lib/store";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,14 +57,12 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
       setDateSlots(occupiedSlots);
       return;
     }
-    // Fetch slots for the selected date
     const fetchSlots = async () => {
-      const [meetings, blocks] = await Promise.all([getMeetings(), getBlocks()]);
-      const dayMeetings = meetings.filter((m) => m.date === form.date);
-      const dayBlocks = blocks.filter((b) => b.date === form.date);
+      const [occupied, allBlocks] = await Promise.all([getOccupiedSlots(form.date), getBlocks()]);
+      const dayBlocks = allBlocks.filter((b) => b.date === form.date);
       const slots: TimeSlotInfo[] = FIXED_TIME_SLOTS.map((time) => {
-        const meeting = dayMeetings.find((m) => m.time === time);
-        if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
+        const occ = occupied.find((o) => o.time === time);
+        if (occ) return { time, status: "occupied" as const, meetingLeadName: occ.leadName, meetingId: occ.meetingId };
         const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
         if (blocked) return { time, status: "blocked" as const };
         return { time, status: "available" as const };
