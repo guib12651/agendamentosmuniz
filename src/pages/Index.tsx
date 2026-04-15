@@ -11,6 +11,7 @@ import BlockForm from "@/components/BlockForm";
 import MeetingCard from "@/components/MeetingCard";
 import BlockCard from "@/components/BlockCard";
 import StatsBar from "@/components/StatsBar";
+import MeetingsChart from "@/components/MeetingsChart";
 import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
 import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
@@ -140,6 +141,9 @@ export default function Index() {
 
         {/* Stats use period-filtered meetings */}
         <StatsBar meetings={periodMeetings} />
+
+        {/* Performance chart */}
+        <MeetingsChart meetings={periodMeetings} period={period} dateRange={dateRange} />
 
         {/* Time slot grid always shows the selected day */}
         {period === "daily" && <TimeSlotGrid slots={timeSlots} />}
