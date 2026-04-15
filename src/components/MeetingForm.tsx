@@ -119,7 +119,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         </div>
         <div className="space-y-1.5">
           <Label>Pré-vendedor *</Label>
-          <Input value={form.preSeller} onChange={(e) => set("preSeller", e.target.value)} placeholder="Nome do pré-vendedor" className="h-12 sm:h-10 text-base sm:text-sm" />
+          <Input value={form.preSeller} onChange={(e) => set("preSeller", e.target.value)} placeholder="Nome do pré-vendedor" className="h-12 sm:h-10 text-base sm:text-sm" readOnly={!isAdmin} />
         </div>
         <div className="space-y-1.5">
           <Label>Consultor responsável *</Label>
