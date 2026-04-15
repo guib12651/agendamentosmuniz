@@ -134,7 +134,33 @@ export async function deleteBlock(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function getOccupiedSlots(date: string): Promise<{ time: string; leadName: string; meetingId: string }[]> {
+  const { data, error } = await supabase.rpc("get_occupied_slots", { _date: date });
+  if (error) {
+    console.error("Error fetching occupied slots:", error);
+    return [];
+  }
+  return (data || []).map((row: any) => ({
+    time: row.slot_time.slice(0, 5),
+    leadName: row.lead_name,
+    meetingId: row.meeting_id,
+  }));
+}
+
 export async function isTimeBlocked(date: string, time: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("time_blocks")
+    .select("*")
+    .eq("date", date)
+    .lte("start_time", time)
+    .gt("end_time", time);
+
+  if (error) {
+    console.error("Error checking blocks:", error);
+    return false;
+  }
+  return (data || []).length > 0;
+}
   const { data, error } = await supabase
     .from("time_blocks")
     .select("*")

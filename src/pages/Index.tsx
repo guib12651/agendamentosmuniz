@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
-import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
+import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
 import { Plus, Ban, CalendarDays, LogOut, Search, X } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
@@ -90,15 +90,21 @@ export default function Index() {
     return blocks.filter((b) => b.date === filterDate).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [blocks, filterDate]);
 
+  // Global occupied slots (visible to all users via security definer function)
+  const [globalOccupiedSlots, setGlobalOccupiedSlots] = useState<{ time: string; leadName: string; meetingId: string }[]>([]);
+  useEffect(() => {
+    getOccupiedSlots(filterDate).then(setGlobalOccupiedSlots);
+  }, [filterDate, meetings]); // re-fetch when meetings change or date changes
+
   const timeSlots: TimeSlotInfo[] = useMemo(() => {
     return FIXED_TIME_SLOTS.map((time) => {
-      const meeting = dayMeetings.find((m) => m.time === time);
-      if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName, meetingId: meeting.id };
+      const occupied = globalOccupiedSlots.find((s) => s.time === time);
+      if (occupied) return { time, status: "occupied" as const, meetingLeadName: occupied.leadName, meetingId: occupied.meetingId };
       const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
       if (blocked) return { time, status: "blocked" as const };
       return { time, status: "available" as const };
     });
-  }, [dayMeetings, dayBlocks]);
+  }, [globalOccupiedSlots, dayBlocks]);
 
   const isSoon = (meeting: Meeting) => {
     if (meeting.date !== now.toISOString().split("T")[0]) return false;
