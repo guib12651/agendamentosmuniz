@@ -1,5 +1,5 @@
 import { Meeting, MeetingStatus, MarkingType } from "@/lib/types";
-import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag } from "lucide-react";
+import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MeetingCardProps {
@@ -69,6 +69,10 @@ export default function MeetingCard({ meeting, isSoon, onEdit, onDelete, onStatu
             <span className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 shrink-0" />
               Tipo: {markingTypeLabels[meeting.markingType] || meeting.markingType}
+            </span>
+            <span className="flex items-center gap-1.5">
+              {meeting.meetingType === "online" ? <Video className="w-3.5 h-3.5 shrink-0 text-purple-400" /> : <MapPin className="w-3.5 h-3.5 shrink-0 text-blue-400" />}
+              {meeting.meetingType === "online" ? "Online" : "Presencial"}
             </span>
           </div>
 
