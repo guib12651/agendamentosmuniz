@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
 import { Plus, Ban, CalendarDays } from "lucide-react";
+import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
+import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -45,6 +47,23 @@ export default function Index() {
   const filteredBlocks = useMemo(() => {
     return blocks.filter((b) => b.date === filterDate).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [blocks, filterDate]);
+
+  const timeSlots: TimeSlotInfo[] = useMemo(() => {
+    const dayMeetings = meetings.filter((m) => m.date === filterDate);
+    const dayBlocks = blocks.filter((b) => b.date === filterDate);
+
+    return FIXED_TIME_SLOTS.map((time) => {
+      const meeting = dayMeetings.find((m) => m.time === time);
+      if (meeting) {
+        return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
+      }
+      const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
+      if (blocked) {
+        return { time, status: "blocked" as const };
+      }
+      return { time, status: "available" as const };
+    });
+  }, [meetings, blocks, filterDate]);
 
   const isSoon = (meeting: Meeting) => {
     if (meeting.date !== now.toISOString().split("T")[0]) return false;
@@ -110,6 +129,7 @@ export default function Index() {
 
       <main className="container mt-3 sm:mt-4 space-y-3 sm:space-y-4 px-3 sm:px-6">
         <StatsBar meetings={filteredMeetings} />
+        <TimeSlotGrid slots={timeSlots} />
 
         {/* Filters */}
         <div className="flex flex-wrap items-end gap-2 sm:gap-3">
@@ -168,6 +188,7 @@ export default function Index() {
           </DialogHeader>
           <MeetingForm
             editMeeting={editingMeeting}
+            occupiedSlots={timeSlots}
             onSave={async (savedDate?: string) => {
               await reload();
               setShowMeetingForm(false);
