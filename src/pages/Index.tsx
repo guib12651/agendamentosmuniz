@@ -235,9 +235,34 @@ export default function Index() {
         {period === "daily" && (
           <TimeSlotGrid
             slots={timeSlots}
-            onOccupiedClick={(meetingId) => {
+            onOccupiedClick={async (meetingId) => {
+              // First check local meetings, then fetch from occupied slots
               const m = dayMeetings.find((mt) => mt.id === meetingId);
-              if (m) setViewingMeeting(m);
+              if (m) {
+                setViewingMeeting(m);
+              } else {
+                // For pre-sellers viewing other users' slots, show basic info from global slots
+                const slot = globalOccupiedSlots.find((s) => s.meetingId === meetingId);
+                if (slot) {
+                  setViewingMeeting({
+                    id: meetingId,
+                    leadName: slot.leadName,
+                    phone: "",
+                    date: filterDate,
+                    time: slot.time,
+                    preSeller: "",
+                    consultant: "",
+                    downPayment: "",
+                    installment: "",
+                    restriction: "clean" as any,
+                    notes: "",
+                    status: "pending" as any,
+                    markingType: "lead_quente" as any,
+                    meetingType: "presencial" as any,
+                    userId: null,
+                  });
+                }
+              }
             }}
           />
         )}
