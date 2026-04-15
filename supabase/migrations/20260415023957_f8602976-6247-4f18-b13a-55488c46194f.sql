@@ -1,0 +1,1 @@
+ALTER TABLE public.meetings ADD COLUMN meeting_type text NOT NULL DEFAULT 'presencial';

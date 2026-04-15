@@ -24,6 +24,7 @@ export type Database = {
           installment: string | null
           lead_name: string
           marking_type: string
+          meeting_type: string
           notes: string | null
           phone: string
           pre_seller: string
@@ -40,6 +41,7 @@ export type Database = {
           installment?: string | null
           lead_name: string
           marking_type?: string
+          meeting_type?: string
           notes?: string | null
           phone: string
           pre_seller: string
@@ -56,6 +58,7 @@ export type Database = {
           installment?: string | null
           lead_name?: string
           marking_type?: string
+          meeting_type?: string
           notes?: string | null
           phone?: string
           pre_seller?: string
