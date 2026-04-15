@@ -14,6 +14,9 @@ interface MeetingFormProps {
   editMeeting?: Meeting | null;
   onCancel?: () => void;
   occupiedSlots?: TimeSlotInfo[];
+  userId: string;
+  userDisplayName: string;
+  isAdmin: boolean;
 }
 
 const markingTypeLabels: Record<MarkingType, string> = {
@@ -40,8 +43,8 @@ const emptyForm = {
   meetingType: "" as MeetingType | "",
 };
 
-export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots }: MeetingFormProps) {
-  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm });
+export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
+  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
 
@@ -85,10 +88,10 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
       } else {
-        const { id, ...rest } = form as any;
-        await addMeeting(rest);
+        const { id, userId: _uid, ...rest } = form as any;
+        await addMeeting(rest, userId);
         toast.success("Reunião agendada com sucesso!");
-        setForm({ ...emptyForm });
+        setForm({ ...emptyForm, preSeller: userDisplayName });
       }
       onSave(savedDate);
     } catch (err) {
@@ -116,7 +119,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         </div>
         <div className="space-y-1.5">
           <Label>Pré-vendedor *</Label>
-          <Input value={form.preSeller} onChange={(e) => set("preSeller", e.target.value)} placeholder="Nome do pré-vendedor" className="h-12 sm:h-10 text-base sm:text-sm" />
+          <Input value={form.preSeller} onChange={(e) => set("preSeller", e.target.value)} placeholder="Nome do pré-vendedor" className="h-12 sm:h-10 text-base sm:text-sm" readOnly={!isAdmin} />
         </div>
         <div className="space-y-1.5">
           <Label>Consultor responsável *</Label>

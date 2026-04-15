@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
-import { Plus, Ban, CalendarDays } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,10 @@ import MeetingsChart from "@/components/MeetingsChart";
 import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
 import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
+  const { profile, isAdmin, signOut } = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
@@ -112,7 +114,9 @@ export default function Index() {
             <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
             <div>
               <h1 className="text-base sm:text-lg font-display font-bold text-primary leading-tight">Muniz Consultorias</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Agendamento de Reuniões</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {profile?.displayName} • {isAdmin ? "Admin" : "Pré-venda"}
+              </p>
             </div>
           </div>
           <div className="flex gap-1.5 sm:gap-2">
@@ -121,6 +125,9 @@ export default function Index() {
             </Button>
             <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
               <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -205,6 +212,9 @@ export default function Index() {
           <MeetingForm
             editMeeting={editingMeeting}
             occupiedSlots={timeSlots}
+            userId={profile?.id || ""}
+            userDisplayName={profile?.displayName || ""}
+            isAdmin={isAdmin}
             onSave={async (savedDate?: string) => {
               await reload();
               setShowMeetingForm(false);
