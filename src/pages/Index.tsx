@@ -46,18 +46,25 @@ export default function Index() {
 
   const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
 
-  // All unique pre-seller names for autocomplete
-  const preSellerNames = useMemo(() => {
-    const names = new Set(meetings.map((m) => m.preSeller));
-    return Array.from(names).sort();
-  }, [meetings]);
+  // Fetch registered pre-sellers from profiles table
+  const [registeredPreSellers, setRegisteredPreSellers] = useState<string[]>([]);
+  useEffect(() => {
+    if (!isAdmin) return;
+    supabase
+      .from("profiles")
+      .select("display_name, role")
+      .eq("role", "pre_seller")
+      .then(({ data }) => {
+        if (data) setRegisteredPreSellers(data.map((p: any) => p.display_name).sort());
+      });
+  }, [isAdmin]);
 
-  // Filtered suggestions
+  // Filtered suggestions from registered pre-sellers only
   const searchSuggestions = useMemo(() => {
-    if (!preSellerSearch.trim()) return [];
+    if (!preSellerSearch.trim()) return registeredPreSellers;
     const q = preSellerSearch.toLowerCase();
-    return preSellerNames.filter((n) => n.toLowerCase().includes(q));
-  }, [preSellerSearch, preSellerNames]);
+    return registeredPreSellers.filter((n) => n.toLowerCase().includes(q));
+  }, [preSellerSearch, registeredPreSellers]);
 
   // Apply pre-seller filter to meetings
   const filteredMeetings = useMemo(() => {
