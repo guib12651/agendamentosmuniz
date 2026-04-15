@@ -3,7 +3,7 @@ import { Clock, User, Ban } from "lucide-react";
 
 interface TimeSlotGridProps {
   slots: TimeSlotInfo[];
-  onOccupiedClick?: (meetingId: string) => void;
+  onOccupiedClick?: (meetingIds: string[]) => void;
 }
 
 export default function TimeSlotGrid({ slots, onOccupiedClick }: TimeSlotGridProps) {
@@ -32,7 +32,7 @@ export default function TimeSlotGrid({ slots, onOccupiedClick }: TimeSlotGridPro
               key={slot.time}
               onClick={() => {
                 if (clickable && slot.meetingIds && onOccupiedClick) {
-                  onOccupiedClick(slot.meetingIds[0]);
+                  onOccupiedClick(slot.meetingIds);
                 }
               }}
               className={`
