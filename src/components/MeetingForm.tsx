@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Meeting, RestrictionType } from "@/lib/types";
+import { Meeting, RestrictionType, MeetingStatus } from "@/lib/types";
 import { addMeeting, isTimeBlocked, updateMeeting } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ const emptyForm = {
   installment: "",
   restriction: "clean" as RestrictionType,
   notes: "",
+  status: "pending" as MeetingStatus,
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFormProps) {
