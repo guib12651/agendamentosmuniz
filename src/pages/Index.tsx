@@ -32,6 +32,7 @@ export default function Index() {
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [preSellerSearch, setPreSellerSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
 
   const reload = useCallback(async () => {
