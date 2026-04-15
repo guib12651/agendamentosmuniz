@@ -43,6 +43,25 @@ export default function Index() {
 
   useEffect(() => { reload(); }, [reload]);
 
+  // Realtime: listen for changes on meetings table and auto-refresh
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime-meetings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meetings' },
+        () => {
+          reload();
+          getOccupiedSlots(filterDate).then(setGlobalOccupiedSlots);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [reload, filterDate]);
+
   const now = useMemo(() => new Date(), []);
 
   const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
