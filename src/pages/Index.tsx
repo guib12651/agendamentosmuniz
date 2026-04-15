@@ -2,6 +2,8 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
 import { Plus, Ban, CalendarDays } from "lucide-react";
+import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
+import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
