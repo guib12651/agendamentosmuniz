@@ -8,11 +8,14 @@ export const FIXED_TIME_SLOTS = [
   "17:15", "17:45",
 ] as const;
 
-export type SlotStatus = "available" | "occupied" | "blocked";
+export const MAX_MEETINGS_PER_SLOT = 2;
+
+export type SlotStatus = "available" | "partial" | "occupied" | "blocked";
 
 export interface TimeSlotInfo {
   time: string;
   status: SlotStatus;
-  meetingLeadName?: string;
-  meetingId?: string;
+  occupiedCount: number;
+  meetingLeadNames?: string[];
+  meetingIds?: string[];
 }

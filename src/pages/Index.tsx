@@ -117,11 +117,21 @@ export default function Index() {
 
   const timeSlots: TimeSlotInfo[] = useMemo(() => {
     return FIXED_TIME_SLOTS.map((time) => {
-      const occupied = globalOccupiedSlots.find((s) => s.time === time);
-      if (occupied) return { time, status: "occupied" as const, meetingLeadName: occupied.leadName, meetingId: occupied.meetingId };
+      const occupiedForSlot = globalOccupiedSlots.filter((s) => s.time === time);
+      const count = occupiedForSlot.length;
       const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
-      if (blocked) return { time, status: "blocked" as const };
-      return { time, status: "available" as const };
+      if (blocked) return { time, status: "blocked" as const, occupiedCount: 0 };
+      if (count >= 2) return {
+        time, status: "occupied" as const, occupiedCount: count,
+        meetingLeadNames: occupiedForSlot.map((o) => o.leadName),
+        meetingIds: occupiedForSlot.map((o) => o.meetingId),
+      };
+      if (count === 1) return {
+        time, status: "partial" as const, occupiedCount: count,
+        meetingLeadNames: occupiedForSlot.map((o) => o.leadName),
+        meetingIds: occupiedForSlot.map((o) => o.meetingId),
+      };
+      return { time, status: "available" as const, occupiedCount: 0 };
     });
   }, [globalOccupiedSlots, dayBlocks]);
 
