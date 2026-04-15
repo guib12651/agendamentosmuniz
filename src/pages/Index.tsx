@@ -314,6 +314,34 @@ export default function Index() {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Meeting detail dialog (from time slot click) */}
+      <Dialog open={!!viewingMeeting} onOpenChange={(open) => { if (!open) setViewingMeeting(null); }}>
+        <DialogContent className="max-w-md mx-2 sm:mx-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes do Agendamento</DialogTitle>
+          </DialogHeader>
+          {viewingMeeting && (
+            <div className="space-y-3 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div><span className="text-muted-foreground block text-xs">Lead</span><span className="font-semibold">{viewingMeeting.leadName}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Telefone</span><span className="font-semibold">{viewingMeeting.phone}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Data</span><span className="font-semibold">{viewingMeeting.date}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Horário</span><span className="font-semibold">{viewingMeeting.time}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Pré-vendedor</span><span className="font-semibold">{viewingMeeting.preSeller}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Consultor</span><span className="font-semibold">{viewingMeeting.consultant}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Tipo de Reunião</span><span className="font-semibold">{viewingMeeting.meetingType === "presencial" ? "📍 Presencial" : "💻 Online"}</span></div>
+                <div><span className="text-muted-foreground block text-xs">Restrição</span><span className="font-semibold">{viewingMeeting.restriction === "clean" ? "Limpo" : viewingMeeting.restriction === "up_to_10k" ? "Até R$10 mil" : "Acima de R$10 mil"}</span></div>
+                {viewingMeeting.downPayment && <div><span className="text-muted-foreground block text-xs">Entrada</span><span className="font-semibold">{viewingMeeting.downPayment}</span></div>}
+                {viewingMeeting.installment && <div><span className="text-muted-foreground block text-xs">Parcela</span><span className="font-semibold">{viewingMeeting.installment}</span></div>}
+              </div>
+              {viewingMeeting.notes && (
+                <div><span className="text-muted-foreground block text-xs mb-1">Observações</span><p className="text-foreground">{viewingMeeting.notes}</p></div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
