@@ -142,6 +142,9 @@ export default function Index() {
         {/* Stats use period-filtered meetings */}
         <StatsBar meetings={periodMeetings} />
 
+        {/* Performance chart */}
+        <MeetingsChart meetings={periodMeetings} period={period} dateRange={dateRange} />
+
         {/* Time slot grid always shows the selected day */}
         {period === "daily" && <TimeSlotGrid slots={timeSlots} />}
 
