@@ -5,13 +5,13 @@ import { Plus, Ban, CalendarDays } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MeetingForm from "@/components/MeetingForm";
 import BlockForm from "@/components/BlockForm";
 import MeetingCard from "@/components/MeetingCard";
 import BlockCard from "@/components/BlockCard";
 import StatsBar from "@/components/StatsBar";
+import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
 import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
 
@@ -19,8 +19,9 @@ export default function Index() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
-  const [filterConsultant, setFilterConsultant] = useState("");
-  const [filterSeller, setFilterSeller] = useState("");
+  const [period, setPeriod] = useState<PeriodType>("daily");
+  const [customStart, setCustomStart] = useState(new Date().toISOString().split("T")[0]);
+  const [customEnd, setCustomEnd] = useState(new Date().toISOString().split("T")[0]);
   const [showMeetingForm, setShowMeetingForm] = useState(false);
   const [showBlockForm, setShowBlockForm] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
@@ -36,34 +37,33 @@ export default function Index() {
 
   const now = useMemo(() => new Date(), []);
 
-  const filteredMeetings = useMemo(() => {
-    return meetings
-      .filter((m) => m.date === filterDate)
-      .filter((m) => !filterConsultant || m.consultant.toLowerCase().includes(filterConsultant.toLowerCase()))
-      .filter((m) => !filterSeller || m.preSeller.toLowerCase().includes(filterSeller.toLowerCase()))
-      .sort((a, b) => a.time.localeCompare(b.time));
-  }, [meetings, filterDate, filterConsultant, filterSeller]);
+  const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
 
-  const filteredBlocks = useMemo(() => {
+  // Meetings filtered by the selected period (for stats)
+  const periodMeetings = useMemo(() => {
+    return meetings
+      .filter((m) => m.date >= dateRange.start && m.date <= dateRange.end)
+      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  }, [meetings, dateRange]);
+
+  // For the timeline and time slot grid, always use filterDate (daily view)
+  const dayMeetings = useMemo(() => {
+    return meetings.filter((m) => m.date === filterDate).sort((a, b) => a.time.localeCompare(b.time));
+  }, [meetings, filterDate]);
+
+  const dayBlocks = useMemo(() => {
     return blocks.filter((b) => b.date === filterDate).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [blocks, filterDate]);
 
   const timeSlots: TimeSlotInfo[] = useMemo(() => {
-    const dayMeetings = meetings.filter((m) => m.date === filterDate);
-    const dayBlocks = blocks.filter((b) => b.date === filterDate);
-
     return FIXED_TIME_SLOTS.map((time) => {
       const meeting = dayMeetings.find((m) => m.time === time);
-      if (meeting) {
-        return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
-      }
+      if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
       const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
-      if (blocked) {
-        return { time, status: "blocked" as const };
-      }
+      if (blocked) return { time, status: "blocked" as const };
       return { time, status: "available" as const };
     });
-  }, [meetings, blocks, filterDate]);
+  }, [dayMeetings, dayBlocks]);
 
   const isSoon = (meeting: Meeting) => {
     if (meeting.date !== now.toISOString().split("T")[0]) return false;
@@ -97,13 +97,11 @@ export default function Index() {
 
   const timeline: TimelineItem[] = useMemo(() => {
     const items: TimelineItem[] = [
-      ...filteredMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.time })),
-      ...filteredBlocks.map((b) => ({ type: "block" as const, data: b, sortKey: b.startTime })),
+      ...dayMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.time })),
+      ...dayBlocks.map((b) => ({ type: "block" as const, data: b, sortKey: b.startTime })),
     ];
     return items.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  }, [filteredMeetings, filteredBlocks]);
-
-  const today = new Date().toISOString().split("T")[0];
+  }, [dayMeetings, dayBlocks]);
 
   return (
     <div className="min-h-screen pb-8">
@@ -128,55 +126,69 @@ export default function Index() {
       </header>
 
       <main className="container mt-3 sm:mt-4 space-y-3 sm:space-y-4 px-3 sm:px-6">
-        <StatsBar meetings={filteredMeetings} />
-        <TimeSlotGrid slots={timeSlots} />
+        {/* Period filter */}
+        <PeriodFilter
+          selectedDate={filterDate}
+          onDateChange={setFilterDate}
+          period={period}
+          onPeriodChange={setPeriod}
+          customStart={customStart}
+          customEnd={customEnd}
+          onCustomStartChange={setCustomStart}
+          onCustomEndChange={setCustomEnd}
+        />
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
-          <div className="space-y-1 flex-1 min-w-[120px]">
-            <label className="text-xs text-muted-foreground">Data</label>
-            <Input type="date" className="h-10 sm:h-9 text-base sm:text-sm" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
-          </div>
-          <div className="space-y-1 flex-1 min-w-[100px]">
-            <label className="text-xs text-muted-foreground">Consultor</label>
-            <Input className="h-10 sm:h-9 text-base sm:text-sm" placeholder="Filtrar..." value={filterConsultant} onChange={(e) => setFilterConsultant(e.target.value)} />
-          </div>
-          <div className="space-y-1 flex-1 min-w-[100px]">
-            <label className="text-xs text-muted-foreground">Pré-vendedor</label>
-            <Input className="h-10 sm:h-9 text-base sm:text-sm" placeholder="Filtrar..." value={filterSeller} onChange={(e) => setFilterSeller(e.target.value)} />
-          </div>
-          <Button size="sm" variant="outline" className="h-10 sm:h-9 whitespace-nowrap" onClick={() => { setFilterDate(today); setFilterConsultant(""); setFilterSeller(""); }}>
-            <CalendarDays className="w-4 h-4 mr-1" /> Hoje
-          </Button>
-        </div>
+        {/* Stats use period-filtered meetings */}
+        <StatsBar meetings={periodMeetings} />
+
+        {/* Time slot grid always shows the selected day */}
+        {period === "daily" && <TimeSlotGrid slots={timeSlots} />}
 
         {/* Timeline */}
         <div className="space-y-3">
-          {timeline.length === 0 && (
+          {period !== "daily" && (
+            <p className="text-xs text-muted-foreground">
+              Mostrando {periodMeetings.length} reunião(ões) de {dateRange.start} a {dateRange.end}
+            </p>
+          )}
+          {(period === "daily" ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
             <div className="text-center py-12 sm:py-16 text-muted-foreground">
               <CalendarDays className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-display text-base sm:text-lg">Nenhum compromisso nesta data</p>
+              <p className="font-display text-base sm:text-lg">Nenhum compromisso neste período</p>
               <p className="text-sm">Agende uma reunião ou bloqueie um horário.</p>
             </div>
           )}
-          {timeline.map((item) =>
-            item.type === "meeting" ? (
-              <MeetingCard
-                key={item.data.id}
-                meeting={item.data}
-                isSoon={isSoon(item.data)}
-                onEdit={() => { setEditingMeeting(item.data); setShowMeetingForm(true); }}
-                onDelete={() => handleDeleteMeeting(item.data.id)}
-                onStatusChange={(status) => handleStatusChange(item.data.id, status)}
-              />
-            ) : (
-              <BlockCard
-                key={item.data.id}
-                block={item.data}
-                onEdit={() => { setEditingBlock(item.data); setShowBlockForm(true); }}
-                onDelete={() => handleDeleteBlock(item.data.id)}
-              />
+          {period === "daily" ? (
+            timeline.map((item) =>
+              item.type === "meeting" ? (
+                <MeetingCard
+                  key={item.data.id}
+                  meeting={item.data}
+                  isSoon={isSoon(item.data)}
+                  onEdit={() => { setEditingMeeting(item.data); setShowMeetingForm(true); }}
+                  onDelete={() => handleDeleteMeeting(item.data.id)}
+                  onStatusChange={(status) => handleStatusChange(item.data.id, status)}
+                />
+              ) : (
+                <BlockCard
+                  key={item.data.id}
+                  block={item.data}
+                  onEdit={() => { setEditingBlock(item.data); setShowBlockForm(true); }}
+                  onDelete={() => handleDeleteBlock(item.data.id)}
+                />
+              )
             )
+          ) : (
+            periodMeetings.map((m) => (
+              <MeetingCard
+                key={m.id}
+                meeting={m}
+                isSoon={false}
+                onEdit={() => { setEditingMeeting(m); setShowMeetingForm(true); }}
+                onDelete={() => handleDeleteMeeting(m.id)}
+                onStatusChange={(status) => handleStatusChange(m.id, status)}
+              />
+            ))
           )}
         </div>
       </main>
