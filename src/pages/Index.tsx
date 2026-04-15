@@ -186,7 +186,7 @@ export default function Index() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setPreSellerSearch("")}
+                  onClick={() => { setPreSellerSearch(""); setShowSuggestions(false); }}
                   className="h-11 px-3 text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-4 h-4 mr-1" /> Limpar
