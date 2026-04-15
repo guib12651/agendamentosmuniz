@@ -48,6 +48,23 @@ export default function Index() {
     return blocks.filter((b) => b.date === filterDate).sort((a, b) => a.startTime.localeCompare(b.startTime));
   }, [blocks, filterDate]);
 
+  const timeSlots: TimeSlotInfo[] = useMemo(() => {
+    const dayMeetings = meetings.filter((m) => m.date === filterDate);
+    const dayBlocks = blocks.filter((b) => b.date === filterDate);
+
+    return FIXED_TIME_SLOTS.map((time) => {
+      const meeting = dayMeetings.find((m) => m.time === time);
+      if (meeting) {
+        return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
+      }
+      const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
+      if (blocked) {
+        return { time, status: "blocked" as const };
+      }
+      return { time, status: "available" as const };
+    });
+  }, [meetings, blocks, filterDate]);
+
   const isSoon = (meeting: Meeting) => {
     if (meeting.date !== now.toISOString().split("T")[0]) return false;
     const [h, m] = meeting.time.split(":").map(Number);
