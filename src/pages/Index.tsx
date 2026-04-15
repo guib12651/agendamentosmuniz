@@ -194,12 +194,12 @@ export default function Index() {
               )}
             </div>
             {/* Autocomplete suggestions */}
-            {preSellerSearch && searchSuggestions.length > 0 && (
+            {showSuggestions && searchSuggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
                 {searchSuggestions.map((name) => (
                   <button
                     key={name}
-                    onClick={() => setPreSellerSearch(name)}
+                    onClick={() => { setPreSellerSearch(name); setShowSuggestions(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
                   >
                     {name}
