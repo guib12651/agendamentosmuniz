@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Meeting, RestrictionType, MeetingStatus, MarkingType } from "@/lib/types";
+import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType } from "@/lib/types";
 import { addMeeting, updateMeeting, getMeetings, getBlocks } from "@/lib/store";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const emptyForm = {
   notes: "",
   status: "pending" as MeetingStatus,
   markingType: "" as MarkingType | "",
+  meetingType: "" as MeetingType | "",
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots }: MeetingFormProps) {
@@ -72,7 +73,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.consultant || !form.markingType) {
+    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.consultant || !form.markingType || !form.meetingType) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -141,6 +142,26 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Tipo de Reunião *</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {(["presencial", "online"] as MeetingType[]).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => set("meetingType", type)}
+                className={`
+                  rounded-lg border px-3 py-3 sm:py-2 text-center font-display font-semibold text-sm transition-all
+                  ${form.meetingType === type
+                    ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30"
+                    : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"}
+                `}
+              >
+                {type === "presencial" ? "📍 Presencial" : "💻 Online"}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="space-y-1.5">
           <Label>Restrição no nome *</Label>
