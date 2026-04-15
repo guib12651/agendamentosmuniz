@@ -114,7 +114,9 @@ export default function Index() {
             <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
             <div>
               <h1 className="text-base sm:text-lg font-display font-bold text-primary leading-tight">Muniz Consultorias</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Agendamento de Reuniões</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">
+                {profile?.displayName} • {isAdmin ? "Admin" : "Pré-venda"}
+              </p>
             </div>
           </div>
           <div className="flex gap-1.5 sm:gap-2">
@@ -123,6 +125,9 @@ export default function Index() {
             </Button>
             <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
               <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
+            </Button>
+            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
+              <LogOut className="w-4 h-4" />
             </Button>
           </div>
         </div>
