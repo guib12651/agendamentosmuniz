@@ -76,7 +76,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.consultant || !form.markingType || !form.meetingType) {
+    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.markingType || !form.meetingType) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -122,7 +122,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
           <Input value={form.preSeller} onChange={(e) => set("preSeller", e.target.value)} placeholder="Nome do pré-vendedor" className="h-12 sm:h-10 text-base sm:text-sm" readOnly={!isAdmin} />
         </div>
         <div className="space-y-1.5">
-          <Label>Consultor responsável *</Label>
+          <Label>Consultor responsável</Label>
           <Input value={form.consultant} onChange={(e) => set("consultant", e.target.value)} placeholder="Consultor" className="h-12 sm:h-10 text-base sm:text-sm" />
         </div>
         <div className="space-y-1.5">
