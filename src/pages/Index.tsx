@@ -176,7 +176,8 @@ export default function Index() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   value={preSellerSearch}
-                  onChange={(e) => setPreSellerSearch(e.target.value)}
+                  onChange={(e) => { setPreSellerSearch(e.target.value); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
                   placeholder="Buscar pré-vendedor..."
                   className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
                 />
