@@ -83,7 +83,7 @@ export default function Index() {
   const timeSlots: TimeSlotInfo[] = useMemo(() => {
     return FIXED_TIME_SLOTS.map((time) => {
       const meeting = dayMeetings.find((m) => m.time === time);
-      if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
+      if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName, meetingId: meeting.id };
       const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
       if (blocked) return { time, status: "blocked" as const };
       return { time, status: "available" as const };
