@@ -322,6 +322,7 @@ export default function Index() {
                   key={item.data.id}
                   meeting={item.data}
                   isSoon={isSoon(item.data)}
+                  isAdmin={isAdmin}
                   onEdit={() => { setEditingMeeting(item.data); setShowMeetingForm(true); }}
                   onDelete={() => handleDeleteMeeting(item.data.id)}
                   onStatusChange={(status) => handleStatusChange(item.data.id, status)}
@@ -341,6 +342,7 @@ export default function Index() {
                 key={m.id}
                 meeting={m}
                 isSoon={false}
+                isAdmin={isAdmin}
                 onEdit={() => { setEditingMeeting(m); setShowMeetingForm(true); }}
                 onDelete={() => handleDeleteMeeting(m.id)}
                 onStatusChange={(status) => handleStatusChange(m.id, status)}
