@@ -32,6 +32,7 @@ export default function Index() {
   const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [preSellerSearch, setPreSellerSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [viewingMeeting, setViewingMeeting] = useState<Meeting | null>(null);
 
   const reload = useCallback(async () => {
@@ -175,7 +176,8 @@ export default function Index() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   value={preSellerSearch}
-                  onChange={(e) => setPreSellerSearch(e.target.value)}
+                  onChange={(e) => { setPreSellerSearch(e.target.value); setShowSuggestions(true); }}
+                  onFocus={() => setShowSuggestions(true)}
                   placeholder="Buscar pré-vendedor..."
                   className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
                 />
@@ -184,7 +186,7 @@ export default function Index() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setPreSellerSearch("")}
+                  onClick={() => { setPreSellerSearch(""); setShowSuggestions(false); }}
                   className="h-11 px-3 text-muted-foreground hover:text-foreground"
                 >
                   <X className="w-4 h-4 mr-1" /> Limpar
@@ -192,12 +194,12 @@ export default function Index() {
               )}
             </div>
             {/* Autocomplete suggestions */}
-            {preSellerSearch && searchSuggestions.length > 0 && (
+            {showSuggestions && searchSuggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
                 {searchSuggestions.map((name) => (
                   <button
                     key={name}
-                    onClick={() => setPreSellerSearch(name)}
+                    onClick={() => { setPreSellerSearch(name); setShowSuggestions(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
                   >
                     {name}
