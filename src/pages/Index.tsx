@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
-import { getMeetings, getBlocks, deleteMeeting, deleteBlock } from "@/lib/store";
+import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
 import { Plus, Ban, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,12 @@ export default function Index() {
     await deleteBlock(id);
     await reload();
     toast.success("Bloqueio removido.");
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    await updateMeetingStatus(id, status);
+    await reload();
+    toast.success("Status atualizado!");
   };
 
   type TimelineItem =
@@ -139,6 +145,7 @@ export default function Index() {
                 isSoon={isSoon(item.data)}
                 onEdit={() => { setEditingMeeting(item.data); setShowMeetingForm(true); }}
                 onDelete={() => handleDeleteMeeting(item.data.id)}
+                onStatusChange={(status) => handleStatusChange(item.data.id, status)}
               />
             ) : (
               <BlockCard

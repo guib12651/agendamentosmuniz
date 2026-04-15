@@ -1,5 +1,5 @@
-import { Meeting } from "@/lib/types";
-import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle } from "lucide-react";
+import { Meeting, MeetingStatus } from "@/lib/types";
+import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MeetingCardProps {
@@ -7,6 +7,7 @@ interface MeetingCardProps {
   isSoon: boolean;
   onEdit: () => void;
   onDelete: () => void;
+  onStatusChange: (status: MeetingStatus) => void;
 }
 
 const restrictionConfig = {
@@ -15,8 +16,16 @@ const restrictionConfig = {
   above_10k: { label: "Acima de R$10 mil", className: "restriction-high" },
 };
 
-export default function MeetingCard({ meeting, isSoon, onEdit, onDelete }: MeetingCardProps) {
+const statusConfig = {
+  pending: { label: "Pendente", className: "bg-muted text-muted-foreground", icon: Clock },
+  compareceu: { label: "Compareceu", className: "bg-success/20 text-success", icon: CheckCircle },
+  nao_compareceu: { label: "Não compareceu", className: "bg-destructive/20 text-destructive", icon: XCircle },
+};
+
+export default function MeetingCard({ meeting, isSoon, onEdit, onDelete, onStatusChange }: MeetingCardProps) {
   const r = restrictionConfig[meeting.restriction];
+  const s = statusConfig[meeting.status || "pending"];
+  const StatusIcon = s.icon;
 
   return (
     <div className={`card-meeting ${isSoon ? "highlight-soon" : ""}`}>
@@ -25,6 +34,10 @@ export default function MeetingCard({ meeting, isSoon, onEdit, onDelete }: Meeti
           <div className="flex items-center gap-3 mb-2 flex-wrap">
             <span className="time-display">{meeting.time}</span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.className}`}>{r.label}</span>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${s.className}`}>
+              <StatusIcon className="w-3 h-3" />
+              {s.label}
+            </span>
             {isSoon && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary animate-pulse">
                 Em breve
@@ -41,6 +54,24 @@ export default function MeetingCard({ meeting, isSoon, onEdit, onDelete }: Meeti
             {meeting.restriction !== "clean" && <span className="flex items-center gap-1.5"><AlertTriangle className="w-3.5 h-3.5" />Restrição: {r.label}</span>}
           </div>
           {meeting.notes && <p className="text-xs text-muted-foreground mt-2 italic">Obs: {meeting.notes}</p>}
+          
+          <div className="flex gap-2 mt-3">
+            {meeting.status !== "compareceu" && (
+              <Button size="sm" variant="outline" className="text-success border-success/30 hover:bg-success/10" onClick={() => onStatusChange("compareceu")}>
+                <CheckCircle className="w-3.5 h-3.5 mr-1" /> Compareceu
+              </Button>
+            )}
+            {meeting.status !== "nao_compareceu" && (
+              <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => onStatusChange("nao_compareceu")}>
+                <XCircle className="w-3.5 h-3.5 mr-1" /> Não compareceu
+              </Button>
+            )}
+            {meeting.status !== "pending" && (
+              <Button size="sm" variant="outline" className="text-muted-foreground" onClick={() => onStatusChange("pending")}>
+                <Clock className="w-3.5 h-3.5 mr-1" /> Pendente
+              </Button>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-1">
           <Button size="icon" variant="ghost" onClick={onEdit} className="h-8 w-8">
