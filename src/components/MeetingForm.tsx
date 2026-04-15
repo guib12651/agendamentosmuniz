@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Meeting, RestrictionType, MeetingStatus, MarkingType } from "@/lib/types";
-import { addMeeting, isTimeBlocked, updateMeeting } from "@/lib/store";
+import { addMeeting, updateMeeting, getMeetings, getBlocks } from "@/lib/store";
+import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ interface MeetingFormProps {
   onSave: (savedDate?: string) => void;
   editMeeting?: Meeting | null;
   onCancel?: () => void;
+  occupiedSlots?: TimeSlotInfo[];
 }
 
 const markingTypeLabels: Record<MarkingType, string> = {
@@ -37,11 +39,36 @@ const emptyForm = {
   markingType: "" as MarkingType | "",
 };
 
-export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFormProps) {
+export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots }: MeetingFormProps) {
   const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm });
   const [saving, setSaving] = useState(false);
+  const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+
+  // Recompute slots when date changes
+  useEffect(() => {
+    if (occupiedSlots && form.date === new Date().toISOString().split("T")[0]) {
+      // Use parent slots for the initially selected date
+      setDateSlots(occupiedSlots);
+      return;
+    }
+    // Fetch slots for the selected date
+    const fetchSlots = async () => {
+      const [meetings, blocks] = await Promise.all([getMeetings(), getBlocks()]);
+      const dayMeetings = meetings.filter((m) => m.date === form.date);
+      const dayBlocks = blocks.filter((b) => b.date === form.date);
+      const slots: TimeSlotInfo[] = FIXED_TIME_SLOTS.map((time) => {
+        const meeting = dayMeetings.find((m) => m.time === time);
+        if (meeting) return { time, status: "occupied" as const, meetingLeadName: meeting.leadName };
+        const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
+        if (blocked) return { time, status: "blocked" as const };
+        return { time, status: "available" as const };
+      });
+      setDateSlots(slots);
+    };
+    fetchSlots();
+  }, [form.date, occupiedSlots]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,12 +79,6 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
 
     setSaving(true);
     try {
-      if (!editMeeting && await isTimeBlocked(form.date, form.time)) {
-        toast.error("Este horário está indisponível. Escolha outro horário.");
-        setSaving(false);
-        return;
-      }
-
       const savedDate = form.date;
       if (editMeeting) {
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
@@ -91,10 +112,6 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
         <div className="space-y-1.5">
           <Label>Data *</Label>
           <Input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} className="h-12 sm:h-10 text-base sm:text-sm" />
-        </div>
-        <div className="space-y-1.5">
-          <Label>Horário *</Label>
-          <Input type="time" value={form.time} onChange={(e) => set("time", e.target.value)} className="h-12 sm:h-10 text-base sm:text-sm" />
         </div>
         <div className="space-y-1.5">
           <Label>Pré-vendedor *</Label>
@@ -139,6 +156,40 @@ export default function MeetingForm({ onSave, editMeeting, onCancel }: MeetingFo
           </Select>
         </div>
       </div>
+
+      {/* Time slot picker */}
+      <div className="space-y-2">
+        <Label>Horário * {form.time && <span className="text-primary font-bold ml-1">— {form.time}</span>}</Label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {dateSlots.map((slot) => {
+            const isSelected = form.time === slot.time;
+            const isAvailable = slot.status === "available" || (editMeeting && editMeeting.time === slot.time);
+            const isOccupied = slot.status === "occupied" && !(editMeeting && editMeeting.time === slot.time);
+            const isBlocked = slot.status === "blocked";
+
+            return (
+              <button
+                key={slot.time}
+                type="button"
+                disabled={isOccupied || isBlocked}
+                onClick={() => set("time", slot.time)}
+                className={`
+                  rounded-lg border px-3 py-3 sm:py-2 text-center font-display font-bold text-sm transition-all
+                  ${isSelected ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30" : ""}
+                  ${!isSelected && isAvailable ? "bg-success/10 border-success/30 text-success hover:bg-success/20" : ""}
+                  ${isOccupied ? "bg-destructive/10 border-destructive/30 text-destructive opacity-60 cursor-not-allowed" : ""}
+                  ${isBlocked ? "bg-muted border-border text-muted-foreground opacity-50 cursor-not-allowed" : ""}
+                `}
+              >
+                {slot.time}
+                {isOccupied && <span className="block text-[10px] font-normal mt-0.5">Ocupado</span>}
+                {isBlocked && <span className="block text-[10px] font-normal mt-0.5">Bloqueado</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="space-y-1.5">
         <Label>Observações</Label>
         <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} placeholder="Observações opcionais..." rows={2} className="text-base sm:text-sm" />
