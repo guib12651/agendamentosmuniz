@@ -27,10 +27,11 @@ export async function getMeetings(): Promise<Meeting[]> {
     status: (row.status || "pending") as MeetingStatus,
     markingType: ((row as any).marking_type || "lead_quente") as MarkingType,
     meetingType: ((row as any).meeting_type || "presencial") as MeetingType,
+    userId: (row as any).user_id || null,
   }));
 }
 
-export async function addMeeting(meeting: Omit<Meeting, "id">): Promise<void> {
+export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): Promise<void> {
   const { error } = await supabase.from("meetings").insert({
     lead_name: meeting.leadName,
     phone: meeting.phone,
@@ -45,6 +46,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">): Promise<void> {
     status: meeting.status || "pending",
     marking_type: meeting.markingType || "lead_quente",
     meeting_type: meeting.meetingType || "presencial",
+    user_id: userId,
   } as any);
   if (error) throw error;
 }
