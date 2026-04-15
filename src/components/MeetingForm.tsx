@@ -61,11 +61,13 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
       const [occupied, allBlocks] = await Promise.all([getOccupiedSlots(form.date), getBlocks()]);
       const dayBlocks = allBlocks.filter((b) => b.date === form.date);
       const slots: TimeSlotInfo[] = FIXED_TIME_SLOTS.map((time) => {
-        const occ = occupied.find((o) => o.time === time);
-        if (occ) return { time, status: "occupied" as const, meetingLeadName: occ.leadName, meetingId: occ.meetingId };
+        const occForSlot = occupied.filter((o) => o.time === time);
+        const count = occForSlot.length;
         const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
-        if (blocked) return { time, status: "blocked" as const };
-        return { time, status: "available" as const };
+        if (blocked) return { time, status: "blocked" as const, occupiedCount: 0 };
+        if (count >= 2) return { time, status: "occupied" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
+        if (count === 1) return { time, status: "partial" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
+        return { time, status: "available" as const, occupiedCount: 0 };
       });
       setDateSlots(slots);
     };
@@ -185,9 +187,11 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {dateSlots.map((slot) => {
             const isSelected = form.time === slot.time;
-            const isAvailable = slot.status === "available" || (editMeeting && editMeeting.time === slot.time);
-            const isOccupied = slot.status === "occupied" && !(editMeeting && editMeeting.time === slot.time);
+            const isEditingThisSlot = editMeeting && editMeeting.time === slot.time;
+            const isAvailable = slot.status === "available" || slot.status === "partial" || isEditingThisSlot;
+            const isOccupied = slot.status === "occupied" && !isEditingThisSlot;
             const isBlocked = slot.status === "blocked";
+            const isPartial = slot.status === "partial" && !isEditingThisSlot;
 
             return (
               <button
@@ -198,13 +202,15 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
                 className={`
                   rounded-lg border px-3 py-3 sm:py-2 text-center font-display font-bold text-sm transition-all
                   ${isSelected ? "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30" : ""}
-                  ${!isSelected && isAvailable ? "bg-success/10 border-success/30 text-success hover:bg-success/20" : ""}
+                  ${!isSelected && !isPartial && isAvailable ? "bg-success/10 border-success/30 text-success hover:bg-success/20" : ""}
+                  ${!isSelected && isPartial ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20" : ""}
                   ${isOccupied ? "bg-destructive/10 border-destructive/30 text-destructive opacity-60 cursor-not-allowed" : ""}
                   ${isBlocked ? "bg-muted border-border text-muted-foreground opacity-50 cursor-not-allowed" : ""}
                 `}
               >
                 {slot.time}
-                {isOccupied && <span className="block text-[10px] font-normal mt-0.5">Ocupado</span>}
+                {isPartial && !isSelected && <span className="block text-[10px] font-normal mt-0.5">1/2 vagas</span>}
+                {isOccupied && <span className="block text-[10px] font-normal mt-0.5">Lotado</span>}
                 {isBlocked && <span className="block text-[10px] font-normal mt-0.5">Bloqueado</span>}
               </button>
             );
