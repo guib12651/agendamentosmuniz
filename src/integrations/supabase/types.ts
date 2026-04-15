@@ -23,6 +23,7 @@ export type Database = {
           id: string
           installment: string | null
           lead_name: string
+          marking_type: string
           notes: string | null
           phone: string
           pre_seller: string
@@ -38,6 +39,7 @@ export type Database = {
           id?: string
           installment?: string | null
           lead_name: string
+          marking_type?: string
           notes?: string | null
           phone: string
           pre_seller: string
@@ -53,6 +55,7 @@ export type Database = {
           id?: string
           installment?: string | null
           lead_name?: string
+          marking_type?: string
           notes?: string | null
           phone?: string
           pre_seller?: string

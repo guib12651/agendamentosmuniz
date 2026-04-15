@@ -89,51 +89,53 @@ export default function Index() {
   return (
     <div className="min-h-screen pb-8">
       <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
-        <div className="container flex items-center justify-between py-3">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Muniz Consultorias" className="w-10 h-10 rounded-lg" />
+        <div className="container flex items-center justify-between py-3 px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
             <div>
-              <h1 className="text-lg font-display font-bold text-primary">Muniz Consultorias</h1>
-              <p className="text-xs text-muted-foreground">Agendamento de Reuniões</p>
+              <h1 className="text-base sm:text-lg font-display font-bold text-primary leading-tight">Muniz Consultorias</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Agendamento de Reuniões</p>
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }}>
-              <Plus className="w-4 h-4 mr-1" /> Reunião
+          <div className="flex gap-1.5 sm:gap-2">
+            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Plus className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden xs:inline">Reunião</span><span className="xs:hidden">Nova</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }}>
-              <Ban className="w-4 h-4 mr-1" /> Bloquear
+            <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
+              <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="container mt-4 space-y-4">
+      <main className="container mt-3 sm:mt-4 space-y-3 sm:space-y-4 px-3 sm:px-6">
         <StatsBar meetings={filteredMeetings} />
 
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="space-y-1">
+        {/* Filters */}
+        <div className="flex flex-wrap items-end gap-2 sm:gap-3">
+          <div className="space-y-1 flex-1 min-w-[120px]">
             <label className="text-xs text-muted-foreground">Data</label>
-            <Input type="date" className="w-40" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
+            <Input type="date" className="h-10 sm:h-9 text-base sm:text-sm" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 flex-1 min-w-[100px]">
             <label className="text-xs text-muted-foreground">Consultor</label>
-            <Input className="w-36" placeholder="Filtrar..." value={filterConsultant} onChange={(e) => setFilterConsultant(e.target.value)} />
+            <Input className="h-10 sm:h-9 text-base sm:text-sm" placeholder="Filtrar..." value={filterConsultant} onChange={(e) => setFilterConsultant(e.target.value)} />
           </div>
-          <div className="space-y-1">
+          <div className="space-y-1 flex-1 min-w-[100px]">
             <label className="text-xs text-muted-foreground">Pré-vendedor</label>
-            <Input className="w-36" placeholder="Filtrar..." value={filterSeller} onChange={(e) => setFilterSeller(e.target.value)} />
+            <Input className="h-10 sm:h-9 text-base sm:text-sm" placeholder="Filtrar..." value={filterSeller} onChange={(e) => setFilterSeller(e.target.value)} />
           </div>
-          <Button size="sm" variant="outline" onClick={() => { setFilterDate(today); setFilterConsultant(""); setFilterSeller(""); }}>
-            <CalendarDays className="w-4 h-4 mr-1" /> Ver hoje
+          <Button size="sm" variant="outline" className="h-10 sm:h-9 whitespace-nowrap" onClick={() => { setFilterDate(today); setFilterConsultant(""); setFilterSeller(""); }}>
+            <CalendarDays className="w-4 h-4 mr-1" /> Hoje
           </Button>
         </div>
 
+        {/* Timeline */}
         <div className="space-y-3">
           {timeline.length === 0 && (
-            <div className="text-center py-16 text-muted-foreground">
-              <CalendarDays className="w-12 h-12 mx-auto mb-3 opacity-40" />
-              <p className="font-display text-lg">Nenhum compromisso nesta data</p>
+            <div className="text-center py-12 sm:py-16 text-muted-foreground">
+              <CalendarDays className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-40" />
+              <p className="font-display text-base sm:text-lg">Nenhum compromisso nesta data</p>
               <p className="text-sm">Agende uma reunião ou bloqueie um horário.</p>
             </div>
           )}
@@ -160,7 +162,7 @@ export default function Index() {
       </main>
 
       <Dialog open={showMeetingForm} onOpenChange={setShowMeetingForm}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto mx-2 sm:mx-auto">
           <DialogHeader>
             <DialogTitle>{editingMeeting ? "Editar Reunião" : "Nova Reunião"}</DialogTitle>
           </DialogHeader>
@@ -177,7 +179,7 @@ export default function Index() {
       </Dialog>
 
       <Dialog open={showBlockForm} onOpenChange={setShowBlockForm}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md mx-2 sm:mx-auto">
           <DialogHeader>
             <DialogTitle>{editingBlock ? "Editar Bloqueio" : "Bloquear Horário"}</DialogTitle>
           </DialogHeader>

@@ -1,0 +1,1 @@
+ALTER TABLE public.meetings ADD COLUMN marking_type text NOT NULL DEFAULT 'lead_quente';
