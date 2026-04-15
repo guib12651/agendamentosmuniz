@@ -1,37 +1,28 @@
 
 
-# Plano: 2 reuniões por horário
+# Plano: Restrição de exclusão para pré-vendedores (30 min antes)
 
 ## O que muda
 
-Cada horário passa a permitir **2 agendamentos**. Só fica indisponível (vermelho) após o segundo. Com 1 reunião, fica em estado intermediário (amarelo/parcial).
+Pré-vendedores só poderão excluir uma reunião se faltarem **mais de 30 minutos** para o horário agendado. Admins continuam podendo excluir a qualquer momento.
 
 ## Alterações
 
-### 1. Atualizar `TimeSlotInfo` (`src/lib/timeSlots.ts`)
-- Adicionar novo status `"partial"` ao tipo `SlotStatus` (1 reunião de 2).
-- Adicionar campo opcional `occupiedCount` e arrays para múltiplos leads/IDs.
+### 1. `src/components/MeetingCard.tsx`
+- Receber novas props: `isAdmin` e `currentDate` (ou calcular internamente).
+- Calcular se faltam mais de 30 minutos para a reunião comparando `meeting.date + meeting.time` com `new Date()`.
+- Se **não é admin** e faltam **≤ 30 minutos** (ou já passou): esconder o botão de excluir ou desabilitá-lo com tooltip explicativo.
+- O botão de editar segue a mesma lógica (opcional, mas recomendado).
 
-### 2. Atualizar lógica de slots (`src/pages/Index.tsx`)
-- Ao montar os `timeSlots`, contar quantas reuniões existem no mesmo horário via `globalOccupiedSlots.filter()`.
-- Se count === 0 → `available`
-- Se count === 1 → `partial` (amarelo, mostra nome do lead)
-- Se count >= 2 → `occupied` (vermelho, indisponível)
+### 2. `src/pages/Index.tsx`
+- Passar `isAdmin` como prop para cada `MeetingCard`.
 
-### 3. Atualizar grid visual (`src/components/TimeSlotGrid.tsx`)
-- Adicionar estilo amarelo/laranja para status `"partial"` (ex: "1/2 vagas").
-- Clicar em partial ou occupied abre detalhes normalmente.
-- Adicionar legenda "Parcial" na barra de legendas.
-
-### 4. Atualizar formulário (`src/components/MeetingForm.tsx`)
-- Permitir seleção de horários que têm apenas 1 reunião (partial).
-- Bloquear apenas horários com 2+ reuniões.
-
-### 5. Validação no banco (opcional mas recomendado)
-- Criar trigger ou constraint para impedir mais de 2 reuniões no mesmo horário+data, como camada de segurança adicional.
+### 3. Proteção no banco (RLS)
+- Atualizar a policy de DELETE na tabela `meetings` para impedir exclusão por pré-vendedores quando faltam ≤ 30 minutos. Isso usa um trigger `BEFORE DELETE` (pois RLS não tem acesso fácil ao horário atual vs horário da reunião com timezone).
+- Criar trigger `BEFORE DELETE` que verifica: se o usuário **não é admin** e `date + time - now() <= 30 min`, rejeita a exclusão.
 
 ## Resultado
-- Horário com 0 reuniões → verde (Disponível)
-- Horário com 1 reunião → amarelo (1/2 vagas)
-- Horário com 2 reuniões → vermelho (Indisponível)
+- Pré-venda: botão de excluir desabilitado/oculto quando faltam 30 min ou menos.
+- Admin: sempre pode excluir.
+- Proteção dupla: frontend (UX) + banco (segurança).
 
