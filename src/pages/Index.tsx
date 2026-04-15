@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus } from "@/lib/store";
-import { Plus, Ban, CalendarDays } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import MeetingsChart from "@/components/MeetingsChart";
 import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
 import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Index() {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
