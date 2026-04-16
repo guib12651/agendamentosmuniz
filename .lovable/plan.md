@@ -1,28 +1,38 @@
 
 
-# Plano: Restrição de exclusão para pré-vendedores (30 min antes)
+# Plano: Corrigir atualização em tempo real dos horários no formulário
 
-## O que muda
+## Problema
 
-Pré-vendedores só poderão excluir uma reunião se faltarem **mais de 30 minutos** para o horário agendado. Admins continuam podendo excluir a qualquer momento.
+O formulário já tem um listener Realtime que chama `refreshSlots()`, mas há um `useEffect` (linha 79-85) que, quando `occupiedSlots` prop muda, sobrescreve os slots com dados potencialmente desatualizados vindos do componente pai. Isso cria uma "corrida" onde o refresh em tempo real é anulado pelo prop.
 
-## Alterações
+## Solução
 
-### 1. `src/components/MeetingCard.tsx`
-- Receber novas props: `isAdmin` e `currentDate` (ou calcular internamente).
-- Calcular se faltam mais de 30 minutos para a reunião comparando `meeting.date + meeting.time` com `new Date()`.
-- Se **não é admin** e faltam **≤ 30 minutos** (ou já passou): esconder o botão de excluir ou desabilitá-lo com tooltip explicativo.
-- O botão de editar segue a mesma lógica (opcional, mas recomendado).
+Simplificar a lógica: **sempre usar `refreshSlots()` como fonte única de verdade** para os horários, removendo a dependência do prop `occupiedSlots`.
 
-### 2. `src/pages/Index.tsx`
-- Passar `isAdmin` como prop para cada `MeetingCard`.
+### Alteração em `src/components/MeetingForm.tsx`
 
-### 3. Proteção no banco (RLS)
-- Atualizar a policy de DELETE na tabela `meetings` para impedir exclusão por pré-vendedores quando faltam ≤ 30 minutos. Isso usa um trigger `BEFORE DELETE` (pois RLS não tem acesso fácil ao horário atual vs horário da reunião com timezone).
-- Criar trigger `BEFORE DELETE` que verifica: se o usuário **não é admin** e `date + time - now() <= 30 min`, rejeita a exclusão.
+1. Remover a lógica condicional do `useEffect` que usa `occupiedSlots` como override.
+2. Sempre chamar `refreshSlots()` quando a data muda, independentemente do prop.
+3. Manter o listener Realtime como está (já funciona corretamente).
+
+```typescript
+// ANTES (bugado):
+useEffect(() => {
+  if (occupiedSlots && form.date === new Date().toISOString().split("T")[0]) {
+    setDateSlots(occupiedSlots);  // ← sobrescreve o refresh em tempo real
+  } else {
+    refreshSlots();
+  }
+}, [form.date, occupiedSlots, refreshSlots]);
+
+// DEPOIS (corrigido):
+useEffect(() => {
+  refreshSlots();
+}, [form.date, refreshSlots]);
+```
 
 ## Resultado
-- Pré-venda: botão de excluir desabilitado/oculto quando faltam 30 min ou menos.
-- Admin: sempre pode excluir.
-- Proteção dupla: frontend (UX) + banco (segurança).
+
+Quando outro pré-vendedor marcar uma reunião, o horário será atualizado automaticamente no formulário de todos os outros usuários — passando de verde para amarelo (1/2) ou de amarelo para vermelho (lotado).
 
