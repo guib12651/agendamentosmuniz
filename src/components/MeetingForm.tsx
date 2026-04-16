@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType } from "@/lib/types";
 import { addMeeting, updateMeeting, getOccupiedSlots, getBlocks } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
