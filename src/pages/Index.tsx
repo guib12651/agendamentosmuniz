@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import MeetingForm from "@/components/MeetingForm";
+import MeetingSuccessModal from "@/components/MeetingSuccessModal";
 import BlockForm from "@/components/BlockForm";
 import MeetingCard from "@/components/MeetingCard";
 import BlockCard from "@/components/BlockCard";
@@ -33,6 +34,7 @@ export default function Index() {
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [preSellerSearch, setPreSellerSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
 
   const reload = useCallback(async () => {
@@ -370,10 +372,11 @@ export default function Index() {
             userId={profile?.id || ""}
             userDisplayName={profile?.displayName || ""}
             isAdmin={isAdmin}
-            onSave={async (savedDate?: string) => {
+            onSave={async (savedDate?: string, successInfo?: any) => {
               await reload();
               setShowMeetingForm(false);
               if (savedDate) setFilterDate(savedDate);
+              if (successInfo) setSuccessData(successInfo);
             }}
             onCancel={() => setShowMeetingForm(false)}
           />
@@ -426,6 +429,10 @@ export default function Index() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {successData && (
+        <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
+      )}
     </div>
   );
 }
