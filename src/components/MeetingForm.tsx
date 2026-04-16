@@ -3,6 +3,7 @@ import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType } fro
 import { addMeeting, updateMeeting, getOccupiedSlots, getBlocks } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
+import MeetingSuccessModal from "./MeetingSuccessModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
   const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
+  const [successData, setSuccessData] = useState<any>(null);
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
@@ -149,9 +151,18 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
       } else {
+        const successInfo = {
+          leadName: form.leadName,
+          phone: form.phone,
+          date: form.date,
+          time: form.time,
+          meetingType: form.meetingType,
+          preSeller: form.preSeller,
+          consultant: form.consultant,
+        };
         const { id, userId: _uid, ...rest } = form as any;
         await addMeeting(rest, userId);
-        toast.success("Reunião agendada com sucesso!");
+        setSuccessData(successInfo);
         setForm({ ...emptyForm, preSeller: userDisplayName });
       }
       onSave(savedDate);
@@ -170,6 +181,10 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
   };
 
   return (
+    <>
+    {successData && (
+      <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
+    )}
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -296,5 +311,6 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         {onCancel && <Button type="button" variant="outline" onClick={onCancel} className="h-12 sm:h-10">Cancelar</Button>}
       </div>
     </form>
+    </>
   );
 }
