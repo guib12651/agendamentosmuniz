@@ -1,35 +1,39 @@
 
 
-# Plano: Verificação explícita no backend antes de agendar
+# Plano: Modal de confirmação de agendamento com dados do lead
 
-## Problema
-O trigger `check_max_meetings_per_slot` já existe, mas a mensagem de erro pode não estar sendo capturada corretamente. A solução é adicionar uma **verificação explícita** antes do INSERT: consultar o banco para contar reuniões naquele horário+data e bloquear se já houver 2.
+## Objetivo
+Após agendar uma reunião com sucesso, exibir um modal/card bonito com os dados do lead por 7 segundos. Isso permite que o usuário tire um print para enviar ao lead e gerar credibilidade.
 
-## Alteração em `src/components/MeetingForm.tsx`
+## O que será exibido no modal
+- Titulo: "✅ Reunião Agendada com Sucesso!"
+- Nome do Lead
+- Telefone
+- Data e Horário
+- Tipo de reunião (Presencial/Online)
+- Pré-vendedor responsável
+- Consultor (se preenchido)
+- Barra de progresso visual indicando os 7 segundos
 
-No `handleSubmit`, **antes** de chamar `addMeeting()`, fazer uma query direta:
+## Alterações
 
-```typescript
-// Antes de inserir, verificar no backend
-const { count, error: countError } = await supabase
-  .from('meetings')
-  .select('*', { count: 'exact', head: true })
-  .eq('date', form.date)
-  .eq('time', form.time);
+### 1. Criar `src/components/MeetingSuccessModal.tsx`
+- Componente que recebe os dados da reunião e um callback `onClose`
+- Layout bonito, estilizado com as cores do projeto (dark theme, gold primary)
+- Logo ou nome "Muniz Consultorias" no topo para credibilidade no print
+- Auto-fecha após 7 segundos com `setTimeout`
+- Barra de progresso animada (7s) para feedback visual
+- Botão de fechar manual também disponível
 
-if (count !== null && count >= 2) {
-  await refreshSlots();
-  setForm(f => ({ ...f, time: "" }));
-  toast.error("Esse horário já está lotado. Escolha outro.");
-  setSaving(false);
-  return;
-}
-```
+### 2. Atualizar `src/components/MeetingForm.tsx`
+- Adicionar estado `successData` para armazenar os dados da reunião recém-agendada
+- Após `addMeeting` com sucesso (apenas para novas reuniões, não edições), salvar os dados do form em `successData` antes de limpar o formulário
+- Renderizar `MeetingSuccessModal` quando `successData` estiver preenchido
+- Remover o `toast.success("Reunião agendada com sucesso!")` (substituído pelo modal)
 
-Isso garante que, mesmo que o formulário não tenha atualizado em tempo real, a verificação é feita no momento exato do clique em "Agendar Reunião". O trigger no banco continua como camada extra de segurança.
-
-## Resultado
-- Clique em "Agendar Reunião" → consulta o banco → se 2+ reuniões no horário → mostra "Esse horário já está lotado. Escolha outro." e limpa o horário selecionado.
-- Se < 2, prossegue normalmente.
-- Dupla proteção: verificação pré-insert + trigger no banco.
+## Detalhes técnicos
+- O modal usa `Dialog` do shadcn/ui para overlay
+- Timer de 7 segundos com cleanup no `useEffect`
+- Animação CSS na barra de progresso (linear 7s)
+- O `onSave` continua sendo chamado normalmente para atualizar a lista
 
