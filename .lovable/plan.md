@@ -1,38 +1,35 @@
 
 
-# Plano: Corrigir atualização em tempo real dos horários no formulário
+# Plano: Verificação explícita no backend antes de agendar
 
 ## Problema
+O trigger `check_max_meetings_per_slot` já existe, mas a mensagem de erro pode não estar sendo capturada corretamente. A solução é adicionar uma **verificação explícita** antes do INSERT: consultar o banco para contar reuniões naquele horário+data e bloquear se já houver 2.
 
-O formulário já tem um listener Realtime que chama `refreshSlots()`, mas há um `useEffect` (linha 79-85) que, quando `occupiedSlots` prop muda, sobrescreve os slots com dados potencialmente desatualizados vindos do componente pai. Isso cria uma "corrida" onde o refresh em tempo real é anulado pelo prop.
+## Alteração em `src/components/MeetingForm.tsx`
 
-## Solução
-
-Simplificar a lógica: **sempre usar `refreshSlots()` como fonte única de verdade** para os horários, removendo a dependência do prop `occupiedSlots`.
-
-### Alteração em `src/components/MeetingForm.tsx`
-
-1. Remover a lógica condicional do `useEffect` que usa `occupiedSlots` como override.
-2. Sempre chamar `refreshSlots()` quando a data muda, independentemente do prop.
-3. Manter o listener Realtime como está (já funciona corretamente).
+No `handleSubmit`, **antes** de chamar `addMeeting()`, fazer uma query direta:
 
 ```typescript
-// ANTES (bugado):
-useEffect(() => {
-  if (occupiedSlots && form.date === new Date().toISOString().split("T")[0]) {
-    setDateSlots(occupiedSlots);  // ← sobrescreve o refresh em tempo real
-  } else {
-    refreshSlots();
-  }
-}, [form.date, occupiedSlots, refreshSlots]);
+// Antes de inserir, verificar no backend
+const { count, error: countError } = await supabase
+  .from('meetings')
+  .select('*', { count: 'exact', head: true })
+  .eq('date', form.date)
+  .eq('time', form.time);
 
-// DEPOIS (corrigido):
-useEffect(() => {
-  refreshSlots();
-}, [form.date, refreshSlots]);
+if (count !== null && count >= 2) {
+  await refreshSlots();
+  setForm(f => ({ ...f, time: "" }));
+  toast.error("Esse horário já está lotado. Escolha outro.");
+  setSaving(false);
+  return;
+}
 ```
 
-## Resultado
+Isso garante que, mesmo que o formulário não tenha atualizado em tempo real, a verificação é feita no momento exato do clique em "Agendar Reunião". O trigger no banco continua como camada extra de segurança.
 
-Quando outro pré-vendedor marcar uma reunião, o horário será atualizado automaticamente no formulário de todos os outros usuários — passando de verde para amarelo (1/2) ou de amarelo para vermelho (lotado).
+## Resultado
+- Clique em "Agendar Reunião" → consulta o banco → se 2+ reuniões no horário → mostra "Esse horário já está lotado. Escolha outro." e limpa o horário selecionado.
+- Se < 2, prossegue normalmente.
+- Dupla proteção: verificação pré-insert + trigger no banco.
 
