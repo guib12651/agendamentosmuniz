@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Phone, Calendar, Clock, User, Briefcase, MapPin, Monitor } from "lucide-react";
@@ -20,16 +20,18 @@ interface MeetingSuccessModalProps {
 
 export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessModalProps) {
   const [progress, setProgress] = useState(100);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
-    const timer = setTimeout(onClose, 7000);
     const start = Date.now();
+    const timer = setTimeout(() => onCloseRef.current(), 7000);
     const interval = setInterval(() => {
       const elapsed = Date.now() - start;
       setProgress(Math.max(0, 100 - (elapsed / 7000) * 100));
     }, 50);
     return () => { clearTimeout(timer); clearInterval(interval); };
-  }, [onClose]);
+  }, []);
 
   const formatDate = (d: string) => {
     const [y, m, day] = d.split("-");
