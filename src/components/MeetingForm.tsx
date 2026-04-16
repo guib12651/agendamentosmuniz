@@ -98,6 +98,18 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
     };
   }, [refreshSlots]);
 
+  const isSlotFullError = (error: unknown) => {
+    if (!error || typeof error !== "object") return false;
+
+    const maybeError = error as { message?: string; details?: string; hint?: string };
+    const combinedMessage = [maybeError.message, maybeError.details, maybeError.hint]
+      .filter(Boolean)
+      .join(" ")
+      .toUpperCase();
+
+    return combinedMessage.includes("HORARIO_LOTADO") || combinedMessage.includes("NÚMERO MÁXIMO DE REUNIÕES") || combinedMessage.includes("NUMERO MAXIMO DE REUNIOES");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.markingType || !form.meetingType) {
@@ -119,7 +131,13 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
       }
       onSave(savedDate);
     } catch (err) {
-      toast.error("Erro ao salvar. Tente novamente.");
+      if (isSlotFullError(err)) {
+        await refreshSlots();
+        setForm((f) => ({ ...f, time: "" }));
+        toast.error("Esse horário já está lotado. Escolha outro.");
+      } else {
+        toast.error("Erro ao salvar. Tente novamente.");
+      }
       console.error(err);
     } finally {
       setSaving(false);
