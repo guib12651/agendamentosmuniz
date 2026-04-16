@@ -77,12 +77,8 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
 
   // Recompute slots when date changes
   useEffect(() => {
-    if (occupiedSlots && form.date === new Date().toISOString().split("T")[0]) {
-      setDateSlots(occupiedSlots);
-    } else {
-      refreshSlots();
-    }
-  }, [form.date, occupiedSlots, refreshSlots]);
+    refreshSlots();
+  }, [form.date, refreshSlots]);
 
   // Realtime: auto-refresh slots when another user books a meeting
   useEffect(() => {
