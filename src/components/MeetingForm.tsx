@@ -121,22 +121,22 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
     try {
       const savedDate = form.date;
 
-      // Verificação explícita antes de inserir/atualizar
+      // Verificação explícita usando função SECURITY DEFINER (ignora RLS)
       if (!editMeeting || editMeeting.time !== form.time || editMeeting.date !== form.date) {
-        const { count, error: countError } = await supabase
-          .from('meetings')
-          .select('*', { count: 'exact', head: true })
-          .eq('date', form.date)
-          .eq('time', form.time);
+        const { data: slotData, error: slotError } = await supabase
+          .rpc('get_occupied_slots', { _date: form.date });
 
-        if (countError) {
+        if (slotError) {
           toast.error("Erro ao verificar disponibilidade. Tente novamente.");
           setSaving(false);
           return;
         }
 
+        const slotsForTime = (slotData || []).filter(
+          (s: { slot_time: string }) => s.slot_time.startsWith(form.time)
+        );
         const maxAllowed = editMeeting ? 1 : 2;
-        if (count !== null && count >= maxAllowed) {
+        if (slotsForTime.length >= maxAllowed) {
           await refreshSlots();
           setForm(f => ({ ...f, time: "" }));
           toast.error("Esse horário já está lotado. Escolha outro.");
