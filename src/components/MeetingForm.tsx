@@ -51,29 +51,47 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
 
   const set = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
+  const refreshSlots = useCallback(async () => {
+    const [occupied, allBlocks] = await Promise.all([getOccupiedSlots(form.date), getBlocks()]);
+    const dayBlocks = allBlocks.filter((b) => b.date === form.date);
+    const slots: TimeSlotInfo[] = FIXED_TIME_SLOTS.map((time) => {
+      const occForSlot = occupied.filter((o) => o.time === time);
+      const count = occForSlot.length;
+      const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
+      if (blocked) return { time, status: "blocked" as const, occupiedCount: 0 };
+      if (count >= 2) return { time, status: "occupied" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
+      if (count === 1) return { time, status: "partial" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
+      return { time, status: "available" as const, occupiedCount: 0 };
+    });
+    setDateSlots(slots);
+  }, [form.date]);
+
   // Recompute slots when date changes
   useEffect(() => {
     if (occupiedSlots && form.date === new Date().toISOString().split("T")[0]) {
-      // Use parent slots for the initially selected date
       setDateSlots(occupiedSlots);
-      return;
+    } else {
+      refreshSlots();
     }
-    const fetchSlots = async () => {
-      const [occupied, allBlocks] = await Promise.all([getOccupiedSlots(form.date), getBlocks()]);
-      const dayBlocks = allBlocks.filter((b) => b.date === form.date);
-      const slots: TimeSlotInfo[] = FIXED_TIME_SLOTS.map((time) => {
-        const occForSlot = occupied.filter((o) => o.time === time);
-        const count = occForSlot.length;
-        const blocked = dayBlocks.some((b) => b.startTime <= time && b.endTime > time);
-        if (blocked) return { time, status: "blocked" as const, occupiedCount: 0 };
-        if (count >= 2) return { time, status: "occupied" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
-        if (count === 1) return { time, status: "partial" as const, occupiedCount: count, meetingLeadNames: occForSlot.map(o => o.leadName), meetingIds: occForSlot.map(o => o.meetingId) };
-        return { time, status: "available" as const, occupiedCount: 0 };
-      });
-      setDateSlots(slots);
+  }, [form.date, occupiedSlots, refreshSlots]);
+
+  // Realtime: auto-refresh slots when another user books a meeting
+  useEffect(() => {
+    const channel = supabase
+      .channel('form-meeting-slots')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meetings' },
+        () => {
+          refreshSlots();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    fetchSlots();
-  }, [form.date, occupiedSlots]);
+  }, [refreshSlots]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
