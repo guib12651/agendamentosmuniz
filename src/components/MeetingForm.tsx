@@ -120,6 +120,31 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
     setSaving(true);
     try {
       const savedDate = form.date;
+
+      // Verificação explícita antes de inserir/atualizar
+      if (!editMeeting || editMeeting.time !== form.time || editMeeting.date !== form.date) {
+        const { count, error: countError } = await supabase
+          .from('meetings')
+          .select('*', { count: 'exact', head: true })
+          .eq('date', form.date)
+          .eq('time', form.time);
+
+        if (countError) {
+          toast.error("Erro ao verificar disponibilidade. Tente novamente.");
+          setSaving(false);
+          return;
+        }
+
+        const maxAllowed = editMeeting ? 1 : 2;
+        if (count !== null && count >= maxAllowed) {
+          await refreshSlots();
+          setForm(f => ({ ...f, time: "" }));
+          toast.error("Esse horário já está lotado. Escolha outro.");
+          setSaving(false);
+          return;
+        }
+      }
+
       if (editMeeting) {
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
