@@ -40,16 +40,16 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden border-primary/30 bg-card">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 overflow-hidden border-primary/30 bg-card rounded-xl">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary/20 to-primary/5 px-6 pt-6 pb-4 text-center">
-          <p className="text-xs font-display tracking-widest uppercase text-muted-foreground mb-3">Muniz Consultorias</p>
-          <CheckCircle className="mx-auto h-12 w-12 text-primary mb-2" />
-          <h2 className="text-xl font-display font-bold text-foreground">Reunião Agendada com Sucesso!</h2>
+        <div className="bg-gradient-to-r from-primary/20 to-primary/5 px-4 sm:px-6 pt-5 sm:pt-6 pb-3 sm:pb-4 text-center">
+          <p className="text-[10px] sm:text-xs font-display tracking-widest uppercase text-muted-foreground mb-2 sm:mb-3">Muniz Consultorias</p>
+          <CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-primary mb-1.5 sm:mb-2" />
+          <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">Reunião Agendada com Sucesso!</h2>
         </div>
 
         {/* Body */}
-        <div className="px-6 pb-2 space-y-3">
+        <div className="px-4 sm:px-6 pb-1 sm:pb-2 space-y-2.5 sm:space-y-3">
           <Row icon={<User className="h-4 w-4" />} label="Lead" value={data.leadName} />
           <Row icon={<Phone className="h-4 w-4" />} label="Telefone" value={data.phone} />
           <Row icon={<Calendar className="h-4 w-4" />} label="Data" value={formatDate(data.date)} />
@@ -64,14 +64,14 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-4 pt-2 space-y-3">
+        <div className="px-4 sm:px-6 pb-4 pt-1.5 sm:pt-2 space-y-2.5 sm:space-y-3">
           <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
             <div
               className="h-full bg-primary rounded-full transition-none"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <Button variant="outline" className="w-full" onClick={onClose}>Fechar</Button>
+          <Button variant="outline" className="w-full h-11 sm:h-10" onClick={onClose}>Fechar</Button>
         </div>
       </DialogContent>
     </Dialog>
@@ -80,10 +80,10 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
 
 function Row({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <span className="text-primary">{icon}</span>
-      <span className="text-muted-foreground w-24 shrink-0">{label}</span>
-      <span className="font-semibold text-foreground">{value}</span>
+    <div className="flex items-center gap-2 sm:gap-3 text-sm">
+      <span className="text-primary shrink-0">{icon}</span>
+      <span className="text-muted-foreground w-20 sm:w-24 shrink-0 text-xs sm:text-sm">{label}</span>
+      <span className="font-semibold text-foreground text-xs sm:text-sm break-all">{value}</span>
     </div>
   );
 }
