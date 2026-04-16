@@ -64,6 +64,15 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
       return { time, status: "available" as const, occupiedCount: 0 };
     });
     setDateSlots(slots);
+    // Clear selected time if it became fully occupied
+    if (form.time) {
+      const selectedSlot = slots.find(s => s.time === form.time);
+      const isEditingThisSlot = editMeeting && editMeeting.time === form.time;
+      if (selectedSlot && (selectedSlot.status === "occupied" || selectedSlot.status === "blocked") && !isEditingThisSlot) {
+        setForm(f => ({ ...f, time: "" }));
+        toast.info("O horário selecionado foi preenchido por outro usuário.");
+      }
+    }
   }, [form.date]);
 
   // Recompute slots when date changes
