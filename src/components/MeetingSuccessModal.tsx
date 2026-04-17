@@ -124,8 +124,8 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
             onClick={handleShare}
             disabled={sharing}
           >
-            {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            {sharing ? "Gerando imagem..." : "Compartilhar"}
+            {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <WhatsAppIcon className="h-4 w-4" />}
+            {sharing ? "Gerando imagem..." : "Enviar via WhatsApp"}
           </Button>
         </div>
       </DialogContent>
