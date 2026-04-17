@@ -54,35 +54,34 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
         return;
       }
 
-      const file = new File([blob], `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`, {
-        type: "image/png",
-      });
+      // Download image automatically
+      const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
 
-      if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({
-          title: "Reunião Agendada - Muniz Consultorias",
-          text: `Reunião agendada com ${data.leadName}`,
-          files: [file],
-        });
-      } else {
-        // Fallback: download the image
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success("Imagem salva! Envie manualmente ao lead.");
-      }
-    } catch (err: any) {
-      if (err?.name !== "AbortError") {
-        toast.error("Erro ao compartilhar.");
-        console.error(err);
-      }
+      // Format phone for WhatsApp (digits only, ensure 55 country code)
+      const cleanPhone = data.phone.replace(/\D/g, "");
+      const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
+
+      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
+
+      const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank");
+
+      toast.success("Imagem salva! Anexe-a na conversa do WhatsApp.");
+    } catch (err) {
+      toast.error("Erro ao compartilhar.");
+      console.error(err);
     } finally {
       setSharing(false);
     }
-  }, [data.leadName]);
+  }, [data]);
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
