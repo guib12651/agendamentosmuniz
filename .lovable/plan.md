@@ -1,34 +1,21 @@
 
+Atualmente o modal já tem um ícone `CheckCircle` (do lucide-react) entre o texto "Muniz Consultorias" e o título "Reunião Agendada com Sucesso!", mas ele está usando a cor `text-primary` (dourado da marca).
 
-# Plano: Abrir WhatsApp diretamente ao compartilhar
+O usuário quer trocar essa cor para verde, que é a cor universal de confirmação/sucesso.
 
-## Problema
-A Web Share API não permite direcionar para o WhatsApp especificamente. Para abrir o WhatsApp diretamente, precisamos usar a API do WhatsApp (`https://wa.me/`) com o número do lead.
+## Alteração
 
-## Limitação importante
-A API `wa.me` só suporta **texto**, não imagens. Para enviar a imagem diretamente pelo WhatsApp via link, não é possível nativamente. A solução será:
+**`src/components/MeetingSuccessModal.tsx`** (linha ~107):
+- Trocar `text-primary` por `text-green-500` no ícone `CheckCircle` para que ele apareça em verde.
 
-1. **Gerar a imagem** com `html2canvas` (como já faz)
-2. **Salvar/download** a imagem automaticamente no dispositivo
-3. **Abrir o WhatsApp** com o número do lead e uma mensagem pré-formatada
-4. O usuário só precisa anexar a imagem que foi salva automaticamente
+Antes:
+```tsx
+<CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-primary mb-1.5 sm:mb-2" />
+```
 
-## Alteração em `src/components/MeetingSuccessModal.tsx`
+Depois:
+```tsx
+<CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-green-500 mb-1.5 sm:mb-2" />
+```
 
-No `handleShare`:
-- Gerar a imagem e fazer download automático
-- Formatar o número do lead (remover caracteres não numéricos, adicionar 55 se necessário)
-- Abrir `https://wa.me/{numero}?text={mensagem}` em nova aba
-- Mensagem: "Olá {nome}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋"
-- Mostrar toast informando: "Imagem salva! Anexe-a na conversa do WhatsApp."
-
-## Botão
-- Trocar ícone de `Share2` para ícone do WhatsApp (usando um SVG inline simples)
-- Texto: "Enviar via WhatsApp"
-
-## Fluxo do usuário
-1. Clica em "Enviar via WhatsApp"
-2. Imagem é baixada automaticamente
-3. WhatsApp abre com o número do lead e mensagem pronta
-4. Usuário anexa a imagem salva e envia
-
+Mudança mínima, apenas visual. Nenhuma outra parte do modal será afetada.
