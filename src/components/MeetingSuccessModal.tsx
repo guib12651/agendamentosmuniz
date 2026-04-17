@@ -93,7 +93,7 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
             <p className="text-[10px] sm:text-xs font-display tracking-widest uppercase text-muted-foreground mb-2 sm:mb-3">
               Muniz Consultorias
             </p>
-            <CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-primary mb-1.5 sm:mb-2" />
+            <CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-green-500 mb-1.5 sm:mb-2" />
             <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">
               Reunião Agendada com Sucesso!
             </h2>
