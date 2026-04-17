@@ -1,9 +1,10 @@
 import { useRef, useState, useCallback } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Phone, Calendar, Clock, User, Briefcase, MapPin, Monitor, Loader2 } from "lucide-react";
+import { Phone, Calendar, Clock, User, Briefcase, MapPin, Monitor, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
+import iconeSucesso from "@/assets/icone-sucesso.png";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -93,7 +94,7 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
             <p className="text-[10px] sm:text-xs font-display tracking-widest uppercase text-muted-foreground mb-2 sm:mb-3">
               Muniz Consultorias
             </p>
-            <CheckCircle className="mx-auto h-10 w-10 sm:h-12 sm:w-12 mb-1.5 sm:mb-2" style={{ color: "#22c55e" }} />
+            <img src={iconeSucesso} alt="Sucesso" className="mx-auto h-10 w-10 sm:h-12 sm:w-12 mb-1.5 sm:mb-2" crossOrigin="anonymous" />
             <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">
               Reunião Agendada com Sucesso!
             </h2>
