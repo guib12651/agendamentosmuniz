@@ -1,39 +1,34 @@
 
 
-# Plano: Modal de confirmação de agendamento com dados do lead
+# Plano: Abrir WhatsApp diretamente ao compartilhar
 
-## Objetivo
-Após agendar uma reunião com sucesso, exibir um modal/card bonito com os dados do lead por 7 segundos. Isso permite que o usuário tire um print para enviar ao lead e gerar credibilidade.
+## Problema
+A Web Share API não permite direcionar para o WhatsApp especificamente. Para abrir o WhatsApp diretamente, precisamos usar a API do WhatsApp (`https://wa.me/`) com o número do lead.
 
-## O que será exibido no modal
-- Titulo: "✅ Reunião Agendada com Sucesso!"
-- Nome do Lead
-- Telefone
-- Data e Horário
-- Tipo de reunião (Presencial/Online)
-- Pré-vendedor responsável
-- Consultor (se preenchido)
-- Barra de progresso visual indicando os 7 segundos
+## Limitação importante
+A API `wa.me` só suporta **texto**, não imagens. Para enviar a imagem diretamente pelo WhatsApp via link, não é possível nativamente. A solução será:
 
-## Alterações
+1. **Gerar a imagem** com `html2canvas` (como já faz)
+2. **Salvar/download** a imagem automaticamente no dispositivo
+3. **Abrir o WhatsApp** com o número do lead e uma mensagem pré-formatada
+4. O usuário só precisa anexar a imagem que foi salva automaticamente
 
-### 1. Criar `src/components/MeetingSuccessModal.tsx`
-- Componente que recebe os dados da reunião e um callback `onClose`
-- Layout bonito, estilizado com as cores do projeto (dark theme, gold primary)
-- Logo ou nome "Muniz Consultorias" no topo para credibilidade no print
-- Auto-fecha após 7 segundos com `setTimeout`
-- Barra de progresso animada (7s) para feedback visual
-- Botão de fechar manual também disponível
+## Alteração em `src/components/MeetingSuccessModal.tsx`
 
-### 2. Atualizar `src/components/MeetingForm.tsx`
-- Adicionar estado `successData` para armazenar os dados da reunião recém-agendada
-- Após `addMeeting` com sucesso (apenas para novas reuniões, não edições), salvar os dados do form em `successData` antes de limpar o formulário
-- Renderizar `MeetingSuccessModal` quando `successData` estiver preenchido
-- Remover o `toast.success("Reunião agendada com sucesso!")` (substituído pelo modal)
+No `handleShare`:
+- Gerar a imagem e fazer download automático
+- Formatar o número do lead (remover caracteres não numéricos, adicionar 55 se necessário)
+- Abrir `https://wa.me/{numero}?text={mensagem}` em nova aba
+- Mensagem: "Olá {nome}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋"
+- Mostrar toast informando: "Imagem salva! Anexe-a na conversa do WhatsApp."
 
-## Detalhes técnicos
-- O modal usa `Dialog` do shadcn/ui para overlay
-- Timer de 7 segundos com cleanup no `useEffect`
-- Animação CSS na barra de progresso (linear 7s)
-- O `onSave` continua sendo chamado normalmente para atualizar a lista
+## Botão
+- Trocar ícone de `Share2` para ícone do WhatsApp (usando um SVG inline simples)
+- Texto: "Enviar via WhatsApp"
+
+## Fluxo do usuário
+1. Clica em "Enviar via WhatsApp"
+2. Imagem é baixada automaticamente
+3. WhatsApp abre com o número do lead e mensagem pronta
+4. Usuário anexa a imagem salva e envia
 
