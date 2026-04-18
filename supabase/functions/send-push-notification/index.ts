@@ -1,5 +1,4 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import webpush from "npm:web-push@3.6.7";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,7 +12,11 @@ const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:contato@munizcons
 const VAPID_PUBLIC_KEY =
   "BFV3MNRU0W8Zqe9jWIkybOb-CQ4IHfhpN4XpBl8Fq_vfF7WmTxl3QV1UJ5m1v_FP8HiXGHp0FMFT-tZLuRzMtpE";
 
-webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+async function getWebPush() {
+  const webpush = (await import("npm:web-push@3.6.7")).default;
+  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  return webpush;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -28,6 +31,7 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+    const webpush = await getWebPush();
 
     const { data: notif, error: notifErr } = await supabase
       .from("notifications")
@@ -56,6 +60,7 @@ Deno.serve(async (req) => {
 
     const payload = JSON.stringify({
       title: notif.title,
+      body: notif.message,
       message: notif.message,
       url: "/",
       tag: `notif-${notif.id}`,
@@ -77,7 +82,8 @@ Deno.serve(async (req) => {
             await supabase.from("push_subscriptions").delete().eq("id", s.id);
             removed++;
           } else {
-            console.error("push error", status, e?.body ?? e?.message);
+            console.error("push error", status, e?.body ?? e?.message ?? e);
+            throw e;
           }
         }
       })
@@ -87,7 +93,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e: any) {
-    console.error("send-push-notification error", e);
+    console.error("send-push-notification error", e?.body ?? e?.message ?? e);
     return new Response(JSON.stringify({ error: e?.message ?? "internal error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
