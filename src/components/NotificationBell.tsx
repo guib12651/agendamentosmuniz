@@ -1,11 +1,13 @@
-import { Bell, Check, Trash2 } from "lucide-react";
+import { Bell, Check, Trash2, Smartphone, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from "@/hooks/useNotifications";
+import { usePushSubscription } from "@/hooks/usePushSubscription";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 interface NotificationBellProps {
   userId: string | undefined;
@@ -14,6 +16,29 @@ interface NotificationBellProps {
 export function NotificationBell({ userId }: NotificationBellProps) {
   const { notifications, unreadCount, markAsRead, markAllAsRead, deleteAll } =
     useNotifications(userId);
+  const { isSupported, isSubscribed, isLoading, permission, subscribe, unsubscribe } =
+    usePushSubscription(userId);
+
+  const handleTogglePush = async () => {
+    if (isSubscribed) {
+      await unsubscribe();
+      toast({ title: "Notificações no celular desativadas" });
+    } else {
+      const { error } = await subscribe();
+      if (error) {
+        toast({
+          title: "Não foi possível ativar",
+          description:
+            permission === "denied"
+              ? "Você precisa permitir notificações nas configurações do navegador."
+              : error,
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Notificações no celular ativadas!" });
+      }
+    }
+  };
 
   return (
     <Popover>
@@ -28,6 +53,25 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-80 sm:w-96 p-0">
+        {isSupported && (
+          <button
+            onClick={handleTogglePush}
+            disabled={isLoading}
+            className={cn(
+              "w-full flex items-center gap-2 px-3 py-2.5 text-xs border-b border-border hover:bg-muted/50 transition-colors disabled:opacity-50",
+              isSubscribed ? "text-muted-foreground" : "text-primary"
+            )}
+          >
+            {isSubscribed ? <BellOff className="w-3.5 h-3.5" /> : <Smartphone className="w-3.5 h-3.5" />}
+            <span className="font-medium">
+              {isLoading
+                ? "Aguarde..."
+                : isSubscribed
+                ? "Desativar notificações no celular"
+                : "Ativar notificações no celular"}
+            </span>
+          </button>
+        )}
         <div className="flex items-center justify-between p-3 border-b border-border">
           <h3 className="font-display font-semibold text-sm">Notificações</h3>
           <div className="flex gap-1">
