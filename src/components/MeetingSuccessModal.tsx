@@ -57,7 +57,7 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
 
       const cleanPhone = data.phone.replace(/\D/g, "");
       const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
-      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
+      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}\n\nEndereço: Rua Bertino Passos, Edifício Viana, 2° andar, sala 202, Centro Jequié-BA.\n\n📍Referências:\nRua da embasa\nEm frente à CVC\nEm cima da loja Bem Vestida.\n\nhttps://maps.app.goo.gl/843aHsLskYHN8BED9?g_st=ipc\n\n*Documentação Necessária*\n\nCPF\nRG\nou CNH\nComprovante de Endereço\n\n*Caso seja casado(a) no civil*\n\nRG\nCPF da(o) esposa(o)\nCertidão de casamento.`;
       const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
       const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
 
