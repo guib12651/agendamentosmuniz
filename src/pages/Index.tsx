@@ -19,6 +19,7 @@ import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilte
 import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export default function Index() {
   const { profile, isAdmin, signOut } = useAuth();
@@ -197,6 +198,7 @@ export default function Index() {
                 <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
               </Button>
             )}
+            <NotificationBell userId={profile?.id} />
             <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
               <LogOut className="w-4 h-4" />
             </Button>
