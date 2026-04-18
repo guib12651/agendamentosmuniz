@@ -1,0 +1,96 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import webpush from "npm:web-push@3.6.7";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
+const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:contato@munizconsultorias.com.br";
+const VAPID_PUBLIC_KEY =
+  "BFV3MNRU0W8Zqe9jWIkybOb-CQ4IHfhpN4XpBl8Fq_vfF7WmTxl3QV1UJ5m1v_FP8HiXGHp0FMFT-tZLuRzMtpE";
+
+webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const { notification_id } = await req.json();
+    if (!notification_id) {
+      return new Response(JSON.stringify({ error: "notification_id required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+    const { data: notif, error: notifErr } = await supabase
+      .from("notifications")
+      .select("id, user_id, title, message")
+      .eq("id", notification_id)
+      .single();
+
+    if (notifErr || !notif) {
+      return new Response(JSON.stringify({ error: "notification not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: subs, error: subsErr } = await supabase
+      .from("push_subscriptions")
+      .select("id, endpoint, p256dh, auth")
+      .eq("user_id", notif.user_id);
+
+    if (subsErr) throw subsErr;
+    if (!subs || subs.length === 0) {
+      return new Response(JSON.stringify({ sent: 0, reason: "no subscriptions" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const payload = JSON.stringify({
+      title: notif.title,
+      message: notif.message,
+      url: "/",
+      tag: `notif-${notif.id}`,
+    });
+
+    let sent = 0;
+    let removed = 0;
+    await Promise.all(
+      subs.map(async (s) => {
+        try {
+          await webpush.sendNotification(
+            { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+            payload
+          );
+          sent++;
+        } catch (e: any) {
+          const status = e?.statusCode;
+          if (status === 404 || status === 410) {
+            await supabase.from("push_subscriptions").delete().eq("id", s.id);
+            removed++;
+          } else {
+            console.error("push error", status, e?.body ?? e?.message);
+          }
+        }
+      })
+    );
+
+    return new Response(JSON.stringify({ sent, removed, total: subs.length }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e: any) {
+    console.error("send-push-notification error", e);
+    return new Response(JSON.stringify({ error: e?.message ?? "internal error" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
