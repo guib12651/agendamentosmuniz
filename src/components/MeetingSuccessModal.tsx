@@ -61,17 +61,19 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
       const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
       const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
 
-      // Trigger download and open WhatsApp in the same synchronous tick
+      // Open WhatsApp first, then trigger download in same user gesture
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+
       const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = fileName;
+      a.rel = "noopener";
+      a.target = "_self";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-
-      window.open(waUrl, "_blank");
 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
