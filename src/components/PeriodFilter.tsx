@@ -3,7 +3,7 @@ import { Calendar, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export type PeriodType = "daily" | "monthly" | "quarterly" | "semi_annual" | "annual" | "custom";
+export type PeriodType = "daily" | "weekly" | "monthly" | "annual" | "custom";
 
 interface PeriodFilterProps {
   selectedDate: string;
@@ -18,9 +18,8 @@ interface PeriodFilterProps {
 
 const periodLabels: Record<PeriodType, string> = {
   daily: "Diário",
+  weekly: "Semanal",
   monthly: "Mensal",
-  quarterly: "Trimestral",
-  semi_annual: "Semestral",
   annual: "Anual",
   custom: "Personalizado",
 };
@@ -31,30 +30,23 @@ export function getDateRange(period: PeriodType, selectedDate: string, customSta
   switch (period) {
     case "daily":
       return { start: selectedDate, end: selectedDate };
+    case "weekly": {
+      const day = ref.getDay();
+      const diffToMonday = (day + 6) % 7;
+      const start = new Date(ref);
+      start.setDate(ref.getDate() - diffToMonday);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return { start: fmt(start), end: fmt(end) };
+    }
     case "monthly": {
       const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
       const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
       return { start: fmt(start), end: fmt(end) };
     }
-    case "quarterly": {
-      const end = new Date(ref);
-      const start = new Date(ref);
-      start.setMonth(start.getMonth() - 2);
-      start.setDate(1);
-      return { start: fmt(start), end: fmt(end) };
-    }
-    case "semi_annual": {
-      const end = new Date(ref);
-      const start = new Date(ref);
-      start.setMonth(start.getMonth() - 5);
-      start.setDate(1);
-      return { start: fmt(start), end: fmt(end) };
-    }
     case "annual": {
-      const end = new Date(ref);
-      const start = new Date(ref);
-      start.setFullYear(start.getFullYear() - 1);
-      start.setDate(start.getDate() + 1);
+      const start = new Date(ref.getFullYear(), 0, 1);
+      const end = new Date(ref.getFullYear(), 11, 31);
       return { start: fmt(start), end: fmt(end) };
     }
     case "custom":

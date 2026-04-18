@@ -41,6 +41,23 @@ function buildChartData(meetings: Meeting[], period: PeriodType, dateRange: { st
     });
   }
 
+  if (period === "weekly") {
+    const startDate = new Date(dateRange.start + "T12:00:00");
+    const dayNames = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      const dateStr = d.toISOString().split("T")[0];
+      const dayMeetings = meetings.filter((m) => m.date === dateStr);
+      return {
+        label: dayNames[i],
+        total: dayMeetings.length,
+        compareceu: dayMeetings.filter((m) => m.status === "compareceu").length,
+        naoCompareceu: dayMeetings.filter((m) => m.status === "nao_compareceu").length,
+      };
+    });
+  }
+
   if (period === "monthly") {
     const ref = new Date(dateRange.start + "T12:00:00");
     const daysInMonth = new Date(ref.getFullYear(), ref.getMonth() + 1, 0).getDate();
