@@ -16,38 +16,51 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    // Today in BRT
+    // Yesterday in BRT (BRT = UTC-3)
     const now = new Date();
     const brtNow = new Date(now.getTime() - 3 * 60 * 60 * 1000);
-    const today = brtNow.toISOString().slice(0, 10);
+    const brtYesterday = new Date(brtNow.getTime() - 24 * 60 * 60 * 1000);
+    const yesterday = brtYesterday.toISOString().slice(0, 10);
+
+    // Format DD/MM for display
+    const [yYear, yMonth, yDay] = yesterday.split("-");
+    const yesterdayLabel = `${yDay}/${yMonth}`;
 
     const { data: meetings, error } = await supabase
       .from("meetings")
-      .select("pre_seller, meeting_type")
-      .eq("date", today);
+      .select("pre_seller, status")
+      .eq("date", yesterday);
 
     if (error) throw error;
 
     const total = meetings?.length ?? 0;
-    const presencial = meetings?.filter((m) => m.meeting_type === "presencial").length ?? 0;
-    const online = total - presencial;
+    const compareceu = meetings?.filter((m) => m.status === "compareceu").length ?? 0;
+    const naoCompareceu = meetings?.filter((m) => m.status === "nao_compareceu").length ?? 0;
+    const pendente = meetings?.filter((m) => m.status === "pending").length ?? 0;
+    const decided = compareceu + naoCompareceu;
+    const rate = decided > 0 ? Math.round((compareceu / decided) * 100) : 0;
 
-    const bySeller: Record<string, number> = {};
+    // Per-seller breakdown
+    const bySeller: Record<string, { total: number; ok: number; no: number }> = {};
     for (const m of meetings ?? []) {
-      bySeller[m.pre_seller] = (bySeller[m.pre_seller] || 0) + 1;
+      const s = bySeller[m.pre_seller] ?? { total: 0, ok: 0, no: 0 };
+      s.total += 1;
+      if (m.status === "compareceu") s.ok += 1;
+      else if (m.status === "nao_compareceu") s.no += 1;
+      bySeller[m.pre_seller] = s;
     }
 
     const sellerLines = Object.entries(bySeller)
-      .sort((a, b) => b[1] - a[1])
-      .map(([name, count]) => `${name}: ${count}`)
+      .sort((a, b) => b[1].total - a[1].total)
+      .map(([name, s]) => `${name}: ${s.total} (${s.ok}✓/${s.no}✗)`)
       .join(" • ");
 
     const message =
       total === 0
-        ? "Nenhuma reunião agendada para hoje."
-        : `${total} reunião(ões) hoje • ${presencial} presencial / ${online} online${
-            sellerLines ? ` • ${sellerLines}` : ""
-          }`;
+        ? `Nenhuma reunião em ${yesterdayLabel}.`
+        : `Fechamento de ${yesterdayLabel}: ${total} reunião(ões) • ${compareceu} compareceram / ${naoCompareceu} faltaram${
+            pendente > 0 ? ` / ${pendente} pendente(s)` : ""
+          } (${rate}%)${sellerLines ? ` • ${sellerLines}` : ""}`;
 
     // Get all admins
     const { data: admins, error: adminErr } = await supabase
@@ -60,7 +73,7 @@ Deno.serve(async (req) => {
     const rows = (admins ?? []).map((a) => ({
       user_id: a.user_id,
       type: "summary",
-      title: "Resumo do dia",
+      title: "Fechamento de ontem",
       message,
     }));
 
