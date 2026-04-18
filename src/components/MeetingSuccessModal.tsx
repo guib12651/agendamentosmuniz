@@ -55,16 +55,36 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
         return;
       }
 
-      // Prepare WhatsApp URL first (no async between download and open)
       const cleanPhone = data.phone.replace(/\D/g, "");
       const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
       const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+      const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
 
-      // Open WhatsApp first, then trigger download in same user gesture
+      // Try Web Share API with file (best UX on mobile)
+      const file = new File([blob], fileName, { type: "image/png" });
+      const nav = navigator as Navigator & {
+        canShare?: (data: { files: File[] }) => boolean;
+        share?: (data: { files?: File[]; text?: string; title?: string }) => Promise<void>;
+      };
+
+      if (nav.canShare?.({ files: [file] }) && nav.share) {
+        try {
+          await nav.share({ files: [file], text: message, title: "Agendamento Muniz" });
+          toast.success("Compartilhado com sucesso!");
+          onClose();
+          return;
+        } catch (err) {
+          if ((err as Error).name === "AbortError") {
+            return;
+          }
+          // fall through to download fallback
+        }
+      }
+
+      // Fallback: open WhatsApp + trigger download
       window.open(waUrl, "_blank", "noopener,noreferrer");
 
-      const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -77,7 +97,7 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      toast.success("Imagem baixada e WhatsApp aberto. Anexe a imagem na conversa.");
+      toast.success("Salve a imagem e anexe na conversa do WhatsApp.");
     } catch (err) {
       toast.error("Erro ao compartilhar.");
       console.error(err);
