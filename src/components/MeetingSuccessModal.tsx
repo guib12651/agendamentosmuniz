@@ -55,7 +55,13 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
         return;
       }
 
-      // Download image automatically
+      // Prepare WhatsApp URL first (no async between download and open)
+      const cleanPhone = data.phone.replace(/\D/g, "");
+      const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
+      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
+      const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+
+      // Trigger download and open WhatsApp in the same synchronous tick
       const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -64,18 +70,12 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
-      // Format phone for WhatsApp (digits only, ensure 55 country code)
-      const cleanPhone = data.phone.replace(/\D/g, "");
-      const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
-
-      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}`;
-
-      const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
       window.open(waUrl, "_blank");
 
-      toast.success("Imagem salva! Anexe-a na conversa do WhatsApp.");
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+      toast.success("Imagem baixada e WhatsApp aberto. Anexe a imagem na conversa.");
     } catch (err) {
       toast.error("Erro ao compartilhar.");
       console.error(err);
