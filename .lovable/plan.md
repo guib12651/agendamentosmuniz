@@ -1,37 +1,41 @@
 
-## Análise
+## Contexto
 
-No `handleShare` em `MeetingSuccessModal.tsx`, hoje a ordem é:
-1. Gera canvas → blob
-2. Cria `<a download>` e dispara click (download)
-3. Depois abre `window.open(waUrl)` do WhatsApp
+No mobile (Android/iOS), o navegador **sempre** pergunta antes de baixar arquivos — não existe API web que force download silencioso. Isso é uma proteção do sistema operacional e não pode ser desabilitado por código.
 
-O usuário percebe como se o WhatsApp abrisse antes da imagem baixar, provavelmente porque em alguns navegadores o `window.open` pré-abre uma aba e o download só "aparece" depois. Além disso, em mobile o `window.open` pode roubar o foco e o `<a download>` perde a chance de baixar.
+Além disso, no mobile o fluxo atual tem outro problema: ao abrir o WhatsApp via `window.open`, o app do WhatsApp toma a tela e o download fica "perdido" no navegador em segundo plano, exigindo que o usuário volte ao navegador, confirme o download, abra a galeria, volte ao WhatsApp e anexe a imagem manualmente. Fluxo ruim.
 
-## Causa real
-- O `window.open` numa nova aba muda o foco antes do navegador completar o download.
-- Em mobile (Android/iOS), a ordem `download → open` muitas vezes inverte na percepção do usuário.
+## Solução: Web Share API com arquivo
 
-## Solução
+Mobile moderno (Android Chrome, iOS Safari 15+) suporta `navigator.share({ files: [...] })`, que abre o **menu nativo de compartilhamento do sistema** já com a imagem anexada. O usuário escolhe WhatsApp na lista, seleciona o contato e a imagem já vai junto — sem download, sem prompt, sem fluxo manual.
 
-Disparar **as duas ações em paralelo, no mesmo gesto de clique**, mas:
-- garantir que o `<a download>` seja clicado **antes** do `window.open`
-- usar `requestAnimationFrame` para que o navegador comece o download imediatamente
-- abrir o WhatsApp logo em seguida na mesma "tick" do evento, preservando o user-gesture
+### Estratégia
+
+Detectar capacidade e seguir o melhor caminho:
+
+1. **Mobile com `navigator.canShare({ files })` disponível** (caso ideal):
+   - Chamar `navigator.share({ files: [pngFile], text: mensagem })`
+   - Sistema abre seletor → usuário escolhe WhatsApp → imagem + texto já anexados
+   - Zero download, zero prompt
+
+2. **Mobile sem suporte a share de arquivos** (fallback):
+   - Manter fluxo atual (download + abrir WhatsApp)
+   - Mostrar toast explicando: "Salve a imagem e anexe na conversa do WhatsApp"
+
+3. **Desktop**:
+   - Manter fluxo atual (download automático + abrir WhatsApp Web)
 
 ## Alteração
 
 **`src/components/MeetingSuccessModal.tsx`** — função `handleShare`:
 
-1. Gerar canvas/blob como já é feito.
-2. Criar o `<a>` de download e chamar `.click()`.
-3. Imediatamente em seguida (mesmo bloco síncrono, sem `await` entre eles) chamar `window.open(waUrl, "_blank")`.
-4. Remover qualquer `await` ou microtask entre o download e o open.
-5. Ajustar o toast para algo como: "Imagem baixada e WhatsApp aberto. Anexe a imagem na conversa."
-
-Resultado: o clique único dispara download + abertura do WhatsApp simultaneamente, sem esperar um pelo outro.
+1. Após gerar o blob, criar um `File`: `new File([blob], fileName, { type: "image/png" })`
+2. Verificar `navigator.canShare?.({ files: [file] })`
+3. Se sim → `await navigator.share({ files: [file], text: message })` e fechar modal
+4. Se não → manter fluxo atual de download + `window.open`
+5. Tratar erro `AbortError` (usuário cancelou o share) silenciosamente
 
 ## Arquivo a alterar
-- `src/components/MeetingSuccessModal.tsx` (apenas a função `handleShare`)
+- `src/components/MeetingSuccessModal.tsx` (apenas `handleShare`)
 
-Nenhuma mudança em outros arquivos.
+Nenhuma mudança em outros arquivos. Resultado: no mobile o usuário toca uma vez, escolhe WhatsApp e a imagem já vai anexada — sem prompt de download.
