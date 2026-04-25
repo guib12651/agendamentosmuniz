@@ -201,14 +201,14 @@ export default function Fechamentos() {
                 const decided = s.ok + s.no;
                 const rate = decided > 0 ? Math.round((s.ok / decided) * 100) : 0;
                 return (
-                  <div key={name} className="flex items-center justify-between gap-3 p-2 rounded bg-muted/30 text-sm">
-                    <span className="font-medium truncate flex-1">{name}</span>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="text-muted-foreground">{s.total} total</span>
-                      <span className="text-success">{s.ok} ✓</span>
-                      <span className="text-destructive">{s.no} ✗</span>
-                      {s.pending > 0 && <span className="text-muted-foreground">{s.pending} •</span>}
-                      <span className="text-primary font-bold w-10 text-right">{rate}%</span>
+                  <div key={name} className="flex items-center justify-between gap-2 p-2 rounded bg-muted/30 text-sm">
+                    <span className="font-medium truncate flex-1 min-w-0">{name}</span>
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
+                      <span className="text-muted-foreground hidden sm:inline">{s.total} total</span>
+                      <span className="text-success">{s.ok}✓</span>
+                      <span className="text-destructive">{s.no}✗</span>
+                      {s.pending > 0 && <span className="text-muted-foreground">{s.pending}•</span>}
+                      <span className="text-primary font-bold w-9 text-right">{rate}%</span>
                     </div>
                   </div>
                 );
