@@ -49,6 +49,31 @@ export default function Index() {
 
   useEffect(() => { reload(); }, [reload]);
 
+  // Handle navigation from notifications: ?date=YYYY-MM-DD&meeting=ID
+  useEffect(() => {
+    const dateParam = searchParams.get("date");
+    const meetingParam = searchParams.get("meeting");
+    if (dateParam) {
+      setFilterDate(dateParam);
+      setPeriod("daily");
+    }
+    if (meetingParam && meetings.length > 0) {
+      const found = meetings.find((m) => m.id === meetingParam);
+      if (found) {
+        setViewingMeetings([found]);
+        // Clear params so reopening doesn't retrigger
+        const next = new URLSearchParams(searchParams);
+        next.delete("date");
+        next.delete("meeting");
+        setSearchParams(next, { replace: true });
+      }
+    } else if (dateParam && !meetingParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("date");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, meetings, setSearchParams]);
+
   // Realtime: listen for changes on meetings table and auto-refresh
   useEffect(() => {
     const channel = supabase
