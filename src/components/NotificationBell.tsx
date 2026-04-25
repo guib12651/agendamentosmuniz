@@ -1,9 +1,13 @@
 import { Bell, Check, Trash2, Smartphone, BellOff } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useNotifications } from "@/hooks/useNotifications";
+import { useNotifications, AppNotification } from "@/hooks/useNotifications";
 import { usePushSubscription } from "@/hooks/usePushSubscription";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -18,6 +22,35 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     useNotifications(userId);
   const { isSupported, isSubscribed, isLoading, permission, subscribe, unsubscribe } =
     usePushSubscription(userId);
+  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const handleNotificationClick = async (n: AppNotification) => {
+    if (!n.read) markAsRead(n.id);
+    setOpen(false);
+
+    if (n.type === "summary") {
+      if (isAdmin) navigate("/fechamentos");
+      return;
+    }
+
+    if (n.type === "new_meeting" || n.type === "reminder") {
+      let date: string | null = null;
+      if (n.meeting_id) {
+        const { data } = await supabase
+          .from("meetings")
+          .select("date")
+          .eq("id", n.meeting_id)
+          .maybeSingle();
+        if (data?.date) date = data.date;
+      }
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      if (n.meeting_id) params.set("meeting", n.meeting_id);
+      navigate(`/${params.toString() ? `?${params.toString()}` : ""}`);
+    }
+  };
 
   const handleTogglePush = async () => {
     if (isSubscribed) {
@@ -41,7 +74,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button size="sm" variant="ghost" className="relative h-9 w-9 p-0">
           <Bell className="w-4 h-4" />
@@ -102,9 +135,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               {notifications.map((n) => (
                 <button
                   key={n.id}
-                  onClick={() => !n.read && markAsRead(n.id)}
+                  onClick={() => handleNotificationClick(n)}
                   className={cn(
-                    "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-3",
+                    "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-3 cursor-pointer",
                     !n.read && "bg-primary/5"
                   )}
                 >

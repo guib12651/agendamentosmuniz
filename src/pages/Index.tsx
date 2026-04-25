@@ -1,8 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3 } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 
 export default function Index() {
   const { profile, isAdmin, signOut } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
@@ -45,6 +48,31 @@ export default function Index() {
   }, []);
 
   useEffect(() => { reload(); }, [reload]);
+
+  // Handle navigation from notifications: ?date=YYYY-MM-DD&meeting=ID
+  useEffect(() => {
+    const dateParam = searchParams.get("date");
+    const meetingParam = searchParams.get("meeting");
+    if (dateParam) {
+      setFilterDate(dateParam);
+      setPeriod("daily");
+    }
+    if (meetingParam && meetings.length > 0) {
+      const found = meetings.find((m) => m.id === meetingParam);
+      if (found) {
+        setViewingMeetings([found]);
+        // Clear params so reopening doesn't retrigger
+        const next = new URLSearchParams(searchParams);
+        next.delete("date");
+        next.delete("meeting");
+        setSearchParams(next, { replace: true });
+      }
+    } else if (dateParam && !meetingParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("date");
+      setSearchParams(next, { replace: true });
+    }
+  }, [searchParams, meetings, setSearchParams]);
 
   // Realtime: listen for changes on meetings table and auto-refresh
   useEffect(() => {
@@ -196,6 +224,11 @@ export default function Index() {
             {isAdmin && (
               <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
                 <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
+              </Button>
+            )}
+            {isAdmin && (
+              <Button size="sm" variant="outline" onClick={() => navigate("/fechamentos")} className="h-9 text-xs sm:text-sm px-2.5 sm:px-3" title="Fechamentos">
+                <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
               </Button>
             )}
             <NotificationBell userId={profile?.id} />
