@@ -22,6 +22,35 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     useNotifications(userId);
   const { isSupported, isSubscribed, isLoading, permission, subscribe, unsubscribe } =
     usePushSubscription(userId);
+  const { isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const handleNotificationClick = async (n: AppNotification) => {
+    if (!n.read) markAsRead(n.id);
+    setOpen(false);
+
+    if (n.type === "summary") {
+      if (isAdmin) navigate("/fechamentos");
+      return;
+    }
+
+    if (n.type === "new_meeting" || n.type === "reminder") {
+      let date: string | null = null;
+      if (n.meeting_id) {
+        const { data } = await supabase
+          .from("meetings")
+          .select("date")
+          .eq("id", n.meeting_id)
+          .maybeSingle();
+        if (data?.date) date = data.date;
+      }
+      const params = new URLSearchParams();
+      if (date) params.set("date", date);
+      if (n.meeting_id) params.set("meeting", n.meeting_id);
+      navigate(`/${params.toString() ? `?${params.toString()}` : ""}`);
+    }
+  };
 
   const handleTogglePush = async () => {
     if (isSubscribed) {
