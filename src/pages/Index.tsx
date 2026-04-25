@@ -207,32 +207,32 @@ export default function Index() {
   return (
     <div className="min-h-screen pb-8">
       <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
-        <div className="container flex items-center justify-between py-3 px-3 sm:px-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
-            <div>
-              <h1 className="text-base sm:text-lg font-display font-bold text-primary leading-tight">Muniz Consultorias</h1>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">
+        <div className="container flex items-center justify-between gap-2 py-3 px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-lg font-display font-bold text-primary leading-tight truncate">Muniz Consultorias</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {profile?.displayName} • {isAdmin ? "Admin" : "Pré-venda"}
               </p>
             </div>
           </div>
-          <div className="flex gap-1.5 sm:gap-2">
-            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
-              <Plus className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden xs:inline">Reunião</span><span className="xs:hidden">Nova</span>
+          <div className="flex gap-1 sm:gap-2 shrink-0">
+            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 text-xs sm:text-sm px-2 sm:px-3">
+              <Plus className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
             </Button>
             {isAdmin && (
-              <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 sm:h-9 text-xs sm:text-sm px-2.5 sm:px-3">
-                <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
+              <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Bloquear horário">
+                <Ban className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Bloquear</span>
               </Button>
             )}
             {isAdmin && (
-              <Button size="sm" variant="outline" onClick={() => navigate("/fechamentos")} className="h-9 text-xs sm:text-sm px-2.5 sm:px-3" title="Fechamentos">
+              <Button size="sm" variant="outline" onClick={() => navigate("/fechamentos")} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Fechamentos">
                 <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
               </Button>
             )}
             <NotificationBell userId={profile?.id} />
-            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
+            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>

@@ -201,14 +201,14 @@ export default function Fechamentos() {
                 const decided = s.ok + s.no;
                 const rate = decided > 0 ? Math.round((s.ok / decided) * 100) : 0;
                 return (
-                  <div key={name} className="flex items-center justify-between gap-3 p-2 rounded bg-muted/30 text-sm">
-                    <span className="font-medium truncate flex-1">{name}</span>
-                    <div className="flex items-center gap-3 text-xs">
-                      <span className="text-muted-foreground">{s.total} total</span>
-                      <span className="text-success">{s.ok} ✓</span>
-                      <span className="text-destructive">{s.no} ✗</span>
-                      {s.pending > 0 && <span className="text-muted-foreground">{s.pending} •</span>}
-                      <span className="text-primary font-bold w-10 text-right">{rate}%</span>
+                  <div key={name} className="flex items-center justify-between gap-2 p-2 rounded bg-muted/30 text-sm">
+                    <span className="font-medium truncate flex-1 min-w-0">{name}</span>
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs shrink-0">
+                      <span className="text-muted-foreground hidden sm:inline">{s.total} total</span>
+                      <span className="text-success">{s.ok}✓</span>
+                      <span className="text-destructive">{s.no}✗</span>
+                      {s.pending > 0 && <span className="text-muted-foreground">{s.pending}•</span>}
+                      <span className="text-primary font-bold w-9 text-right">{rate}%</span>
                     </div>
                   </div>
                 );
@@ -237,16 +237,16 @@ export default function Fechamentos() {
                   onClick={() => navigate(`/?date=${date}`)}
                   className="card-meeting w-full text-left hover:border-primary/50 transition-colors"
                 >
-                  <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <div>
-                      <p className="font-display font-semibold text-base">{formatDateBR(date)}</p>
-                      <p className="text-xs text-muted-foreground">{list.length} reunião(ões)</p>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="min-w-0">
+                      <p className="font-display font-semibold text-sm sm:text-base">{formatDateBR(date)}</p>
+                      <p className="text-[11px] sm:text-xs text-muted-foreground">{list.length} reunião(ões)</p>
                     </div>
-                    <div className="flex items-center gap-3 text-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm shrink-0">
                       <span className="text-success flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" />{ok}</span>
                       <span className="text-destructive flex items-center gap-1"><XCircle className="w-3.5 h-3.5" />{no}</span>
                       {pending > 0 && <span className="text-muted-foreground flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{pending}</span>}
-                      <span className="text-primary font-bold text-base">{rate}%</span>
+                      <span className="text-primary font-bold text-sm sm:text-base">{rate}%</span>
                     </div>
                   </div>
                 </button>
