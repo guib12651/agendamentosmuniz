@@ -24,6 +24,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 
 export default function Index() {
   const { profile, isAdmin, signOut } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [blocks, setBlocks] = useState<TimeBlock[]>([]);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
