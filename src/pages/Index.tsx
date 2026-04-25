@@ -226,6 +226,11 @@ export default function Index() {
                 <Ban className="w-4 h-4 mr-0.5 sm:mr-1" /> <span className="hidden sm:inline">Bloquear</span><span className="sm:hidden">Bloq.</span>
               </Button>
             )}
+            {isAdmin && (
+              <Button size="sm" variant="outline" onClick={() => navigate("/fechamentos")} className="h-9 text-xs sm:text-sm px-2.5 sm:px-3" title="Fechamentos">
+                <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
+              </Button>
+            )}
             <NotificationBell userId={profile?.id} />
             <Button size="sm" variant="ghost" onClick={signOut} className="h-9 text-xs px-2">
               <LogOut className="w-4 h-4" />
