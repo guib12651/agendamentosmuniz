@@ -74,7 +74,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button size="sm" variant="ghost" className="relative h-9 w-9 p-0">
           <Bell className="w-4 h-4" />
@@ -135,9 +135,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               {notifications.map((n) => (
                 <button
                   key={n.id}
-                  onClick={() => !n.read && markAsRead(n.id)}
+                  onClick={() => handleNotificationClick(n)}
                   className={cn(
-                    "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-3",
+                    "w-full text-left p-3 hover:bg-muted/50 transition-colors flex gap-3 cursor-pointer",
                     !n.read && "bg-primary/5"
                   )}
                 >
