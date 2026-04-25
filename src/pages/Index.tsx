@@ -1,8 +1,9 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3 } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
