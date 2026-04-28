@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType } from "@/lib/types";
+import { Meeting, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType } from "@/lib/types";
 import { addMeeting, updateMeeting, getOccupiedSlots, getBlocks } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
@@ -29,6 +29,17 @@ const markingTypeLabels: Record<MarkingType, string> = {
   indicacao: "Indicação",
 };
 
+const triggerLabels: Record<TriggerType, string> = {
+  imovel: "Imóvel",
+  construcao: "Construção",
+  reforma: "Reforma",
+  carro: "Carro",
+  moto: "Moto",
+  caminhao: "Caminhão",
+  maquinario: "Maquinário",
+  rural: "Rural",
+};
+
 const emptyForm = {
   leadName: "",
   phone: "",
@@ -43,6 +54,7 @@ const emptyForm = {
   status: "pending" as MeetingStatus,
   markingType: "" as MarkingType | "",
   meetingType: "" as MeetingType | "",
+  trigger: "" as TriggerType | "",
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
@@ -114,7 +126,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.markingType || !form.meetingType) {
+    if (!form.leadName || !form.phone || !form.date || !form.time || !form.preSeller || !form.markingType || !form.meetingType || !form.trigger) {
       toast.error("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -255,6 +267,19 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
               <SelectItem value="clean">Nome limpo</SelectItem>
               <SelectItem value="up_to_10k">Até R$10 mil</SelectItem>
               <SelectItem value="above_10k">Acima de R$10 mil</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Gatilho *</Label>
+          <Select value={form.trigger} onValueChange={(v) => set("trigger", v)}>
+            <SelectTrigger className="h-12 sm:h-10 text-base sm:text-sm">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(triggerLabels).map(([value, label]) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

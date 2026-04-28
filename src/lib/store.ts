@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType } from "./types";
+import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType } from "./types";
 
 export async function getMeetings(): Promise<Meeting[]> {
   const { data, error } = await supabase
@@ -27,6 +27,7 @@ export async function getMeetings(): Promise<Meeting[]> {
     status: (row.status || "pending") as MeetingStatus,
     markingType: ((row as any).marking_type || "lead_quente") as MarkingType,
     meetingType: ((row as any).meeting_type || "presencial") as MeetingType,
+    trigger: ((row as any).trigger || "imovel") as TriggerType,
     userId: (row as any).user_id || null,
   }));
 }
@@ -46,6 +47,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     status: meeting.status || "pending",
     marking_type: meeting.markingType || "lead_quente",
     meeting_type: meeting.meetingType || "presencial",
+    trigger: meeting.trigger || "imovel",
     user_id: userId,
   } as any);
   if (error) throw error;
@@ -68,6 +70,7 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
       status: meeting.status,
       marking_type: meeting.markingType,
       meeting_type: meeting.meetingType,
+      trigger: meeting.trigger,
     } as any)
     .eq("id", meeting.id);
   if (error) throw error;
