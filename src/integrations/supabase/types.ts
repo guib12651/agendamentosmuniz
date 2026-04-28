@@ -31,6 +31,7 @@ export type Database = {
           restriction: string
           status: string
           time: string
+          trigger: string
           user_id: string | null
         }
         Insert: {
@@ -49,6 +50,7 @@ export type Database = {
           restriction?: string
           status?: string
           time: string
+          trigger?: string
           user_id?: string | null
         }
         Update: {
@@ -67,6 +69,7 @@ export type Database = {
           restriction?: string
           status?: string
           time?: string
+          trigger?: string
           user_id?: string | null
         }
         Relationships: []
