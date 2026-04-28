@@ -1,5 +1,5 @@
-import { Meeting, MeetingStatus, MarkingType } from "@/lib/types";
-import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video } from "lucide-react";
+import { Meeting, MeetingStatus, MarkingType, TriggerType } from "@/lib/types";
+import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface MeetingCardProps {
@@ -43,6 +43,17 @@ const markingTypeLabels: Record<MarkingType, string> = {
   indicacao: "Indicação",
 };
 
+const triggerLabels: Record<TriggerType, string> = {
+  imovel: "Imóvel",
+  construcao: "Construção",
+  reforma: "Reforma",
+  carro: "Carro",
+  moto: "Moto",
+  caminhao: "Caminhão",
+  maquinario: "Maquinário",
+  rural: "Rural",
+};
+
 export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, onDelete, onStatusChange }: MeetingCardProps) {
   const r = restrictionConfig[meeting.restriction];
   const s = statusConfig[meeting.status || "pending"];
@@ -83,6 +94,10 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
             <span className="flex items-center gap-1.5">
               <Tag className="w-3.5 h-3.5 shrink-0" />
               Tipo: {markingTypeLabels[meeting.markingType] || meeting.markingType}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Target className="w-3.5 h-3.5 shrink-0" />
+              Gatilho: {triggerLabels[meeting.trigger] || meeting.trigger}
             </span>
             <span className="flex items-center gap-1.5">
               {meeting.meetingType === "online" ? <Video className="w-3.5 h-3.5 shrink-0 text-purple-400" /> : <MapPin className="w-3.5 h-3.5 shrink-0 text-blue-400" />}
