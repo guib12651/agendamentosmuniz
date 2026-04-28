@@ -270,6 +270,19 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5">
+          <Label>Gatilho *</Label>
+          <Select value={form.trigger} onValueChange={(v) => set("trigger", v)}>
+            <SelectTrigger className="h-12 sm:h-10 text-base sm:text-sm">
+              <SelectValue placeholder="Selecione..." />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(triggerLabels).map(([value, label]) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Time slot picker */}
