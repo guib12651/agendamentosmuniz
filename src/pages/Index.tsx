@@ -325,6 +325,7 @@ export default function Index() {
                       status: "pending" as any,
                       markingType: "lead_quente" as any,
                       meetingType: "presencial" as any,
+                      trigger: "imovel" as any,
                       userId: null,
                     });
                   }
