@@ -129,10 +129,10 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
 
         {/* Edit/Delete - horizontal on mobile, vertical on desktop */}
         <div className="flex sm:flex-col gap-2 sm:gap-1">
-          <Button size="icon" variant="ghost" onClick={onEdit} disabled={!canModify} title={!canModify ? modifyReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8">
+          <Button size="icon" variant="ghost" onClick={onEdit} className="h-10 w-10 sm:h-8 sm:w-8">
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={onDelete} disabled={!canModify} title={!canModify ? modifyReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8 text-destructive">
+          <Button size="icon" variant="ghost" onClick={onDelete} disabled={!canRemove} title={!canRemove ? removeReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8 text-destructive">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
