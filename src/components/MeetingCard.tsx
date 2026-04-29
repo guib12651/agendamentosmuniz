@@ -11,14 +11,14 @@ interface MeetingCardProps {
   onStatusChange: (status: MeetingStatus) => void;
 }
 
-function canDeleteOrEdit(meeting: Meeting, isAdmin: boolean): { allowed: boolean; reason?: string } {
+function canDelete(meeting: Meeting, isAdmin: boolean): { allowed: boolean; reason?: string } {
   if (isAdmin) return { allowed: true };
   const meetingDateTime = new Date(`${meeting.date}T${meeting.time}`);
   const now = new Date();
   const diffMs = meetingDateTime.getTime() - now.getTime();
   const diffMin = diffMs / 1000 / 60;
   if (diffMin <= 30) {
-    return { allowed: false, reason: "Não é possível excluir/editar com menos de 30 min de antecedência." };
+    return { allowed: false, reason: "Não é possível excluir com menos de 30 min de antecedência." };
   }
   return { allowed: true };
 }
