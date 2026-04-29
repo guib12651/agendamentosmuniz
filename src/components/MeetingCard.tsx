@@ -11,14 +11,14 @@ interface MeetingCardProps {
   onStatusChange: (status: MeetingStatus) => void;
 }
 
-function canDeleteOrEdit(meeting: Meeting, isAdmin: boolean): { allowed: boolean; reason?: string } {
+function canDelete(meeting: Meeting, isAdmin: boolean): { allowed: boolean; reason?: string } {
   if (isAdmin) return { allowed: true };
   const meetingDateTime = new Date(`${meeting.date}T${meeting.time}`);
   const now = new Date();
   const diffMs = meetingDateTime.getTime() - now.getTime();
   const diffMin = diffMs / 1000 / 60;
   if (diffMin <= 30) {
-    return { allowed: false, reason: "Não é possível excluir/editar com menos de 30 min de antecedência." };
+    return { allowed: false, reason: "Não é possível excluir com menos de 30 min de antecedência." };
   }
   return { allowed: true };
 }
@@ -58,7 +58,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
   const r = restrictionConfig[meeting.restriction];
   const s = statusConfig[meeting.status || "pending"];
   const StatusIcon = s.icon;
-  const { allowed: canModify, reason: modifyReason } = canDeleteOrEdit(meeting, isAdmin);
+  const { allowed: canRemove, reason: removeReason } = canDelete(meeting, isAdmin);
 
   return (
     <div className={`card-meeting ${isSoon ? "highlight-soon" : ""}`}>
@@ -129,10 +129,10 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
 
         {/* Edit/Delete - horizontal on mobile, vertical on desktop */}
         <div className="flex sm:flex-col gap-2 sm:gap-1">
-          <Button size="icon" variant="ghost" onClick={onEdit} disabled={!canModify} title={!canModify ? modifyReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8">
+          <Button size="icon" variant="ghost" onClick={onEdit} className="h-10 w-10 sm:h-8 sm:w-8">
             <Edit2 className="w-4 h-4" />
           </Button>
-          <Button size="icon" variant="ghost" onClick={onDelete} disabled={!canModify} title={!canModify ? modifyReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8 text-destructive">
+          <Button size="icon" variant="ghost" onClick={onDelete} disabled={!canRemove} title={!canRemove ? removeReason : undefined} className="h-10 w-10 sm:h-8 sm:w-8 text-destructive">
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
