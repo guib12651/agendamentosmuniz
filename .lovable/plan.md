@@ -1,19 +1,48 @@
+## Objetivo
 
-## Continuação: PWA + Web Push
+Permitir que cada pré-vendedor (e também os admins) vejam quantos agendamentos foram feitos em **cada dia do mês**, com totais e detalhamento diário.
 
-Retomar da etapa 3 do plano original. Próximo passo imediato: pedir os 2 secrets.
+## Onde adicionar
 
-### Pedir secrets
-- `VAPID_PRIVATE_KEY` — chave privada gerada (eu já tenho o valor, vou pré-preencher no pedido)
-- `VAPID_SUBJECT` — `mailto:contato@munizconsultorias.com.br` (pré-preenchido; usuário pode trocar pelo email dele)
+Nova aba/página: **"Meus Agendamentos"** acessível a partir de um botão no header do `Index.tsx`.
 
-### Depois dos secrets aprovados (sem nova aprovação)
-1. `public/sw.js` — service worker que escuta `push` e mostra notificação nativa; clique abre `/`
-2. `src/main.tsx` — registra SW só em produção, fora do iframe do editor
-3. `src/hooks/usePushSubscription.ts` — detecta suporte, pede permissão, faz subscribe com VAPID public key, upsert em `push_subscriptions` por `endpoint`, e unsubscribe
-4. `src/components/NotificationBell.tsx` — adicionar item "Ativar/Desativar notificações no celular" no topo do dropdown
-5. Edge function `supabase/functions/send-push-notification/index.ts` — recebe `notification_id`, busca subscriptions do user, envia via `web-push` (npm specifier), apaga endpoints 404/410. `verify_jwt = false` no `config.toml`
-6. Trigger `on_notification_created` via insert tool — `AFTER INSERT ON notifications` chama a função via `pg_net.http_post` com `notification_id`, async
+- Pré-vendedor: vê apenas os próprios agendamentos.
+- Admin: vê os próprios + um seletor para escolher qualquer pré-vendedor e visualizar os agendamentos dele.
 
-### Arquivo único modificado fora do plano
-`src/integrations/supabase/types.ts` já tem `push_subscriptions` (auto-gerado pela migração anterior), nada a fazer.
+Rota: `/meus-agendamentos`
+
+## Layout da página
+
+1. **Seletor de mês** (input `month` ou navegação ◄ Novembro 2026 ►).
+2. **Seletor de pré-vendedor** (somente admin) — usa a lista de `profiles` com role `pre_seller`.
+3. **Cards de resumo do mês**:
+   - Total de agendamentos no mês
+   - Média por dia útil
+   - Melhor dia (data + quantidade)
+   - Dias com pelo menos 1 agendamento
+4. **Calendário/Heatmap mensal**: grid 7 colunas (Dom-Sáb) mostrando cada dia do mês com a quantidade de agendamentos. Intensidade de cor (gold) varia conforme o volume. Clicar em um dia → navega para `/?date=YYYY-MM-DD` (já suportado).
+5. **Lista detalhada por dia**: tabela/lista mostrando apenas dias com agendamentos: `Data — Dia da semana — Qtd — [Compareceu / Não compareceu / Pendente]`.
+
+## Detalhes técnicos
+
+**Arquivos:**
+- Novo: `src/pages/MeusAgendamentos.tsx`
+- Editar: `src/App.tsx` — registrar rota `/meus-agendamentos`
+- Editar: `src/pages/Index.tsx` — adicionar botão no header (ícone `CalendarCheck`), visível para todos os usuários autenticados, label oculto em mobile (mesmo padrão de "Fechamentos")
+
+**Dados:**
+- Reaproveitar `getMeetings()` de `src/lib/store.ts`. As policies RLS já garantem que pré-vendedores só vejam os próprios; admin vê todos e filtramos no client pelo `preSeller` selecionado.
+- Para admin escolher um pré-vendedor: query em `profiles` onde `role = 'pre_seller'` (já feita em `Index.tsx`, replicar).
+
+**Cálculos no client:**
+- Filtrar meetings por mês selecionado (`date >= primeiroDia && date <= ultimoDia`).
+- Agrupar por `date` num `Map<string, Meeting[]>`.
+- Heatmap: gerar grid do mês com `new Date(ano, mês, 1)` até último dia, alinhado pelo `getDay()` da primeira semana.
+
+**Estilo:**
+- Seguir o padrão dark + gold da plataforma (`stat-card`, `bg-card`, `border-border`, `text-primary`).
+- Responsivo mobile-first: heatmap com células `aspect-square` e texto pequeno; lista detalhada com `flex-wrap` + `truncate`.
+
+## Sem alterações de backend
+
+Não precisa de migration nem nova tabela — usa `meetings` existente e respeita as policies RLS atuais.
