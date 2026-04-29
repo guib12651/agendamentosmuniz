@@ -58,7 +58,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
   const r = restrictionConfig[meeting.restriction];
   const s = statusConfig[meeting.status || "pending"];
   const StatusIcon = s.icon;
-  const { allowed: canModify, reason: modifyReason } = canDeleteOrEdit(meeting, isAdmin);
+  const { allowed: canRemove, reason: removeReason } = canDelete(meeting, isAdmin);
 
   return (
     <div className={`card-meeting ${isSoon ? "highlight-soon" : ""}`}>
