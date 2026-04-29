@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3 } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -231,6 +231,9 @@ export default function Index() {
                 <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
               </Button>
             )}
+            <Button size="sm" variant="outline" onClick={() => navigate("/meus-agendamentos")} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Meus agendamentos">
+              <CalendarCheck className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Por dia</span>
+            </Button>
             <NotificationBell userId={profile?.id} />
             <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
               <LogOut className="w-4 h-4" />
