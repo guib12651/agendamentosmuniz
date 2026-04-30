@@ -21,6 +21,7 @@ export interface Meeting {
   meetingType: MeetingType;
   trigger: TriggerType;
   userId?: string | null;
+  createdAt?: string; // ISO timestamp when the meeting was registered
 }
 
 export interface TimeBlock {

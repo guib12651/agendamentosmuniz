@@ -38,6 +38,21 @@ function fmt(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
+// Returns the registration date (YYYY-MM-DD) in America/Sao_Paulo timezone.
+// Falls back to the meeting date if createdAt is unavailable.
+function registrationDate(m: Meeting): string {
+  if (!m.createdAt) return m.date;
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(new Date(m.createdAt));
+    return parts; // en-CA returns YYYY-MM-DD
+  } catch {
+    return m.date;
+  }
+}
+
 type StatusFilter = "all" | MeetingStatus;
 type MarkingFilter = "all" | MarkingType;
 type TriggerFilter = "all" | TriggerType;
@@ -108,7 +123,8 @@ export default function MeusAgendamentos() {
     const target = selectedPreSeller.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
-      if (m.date < rangeStart || m.date > rangeEnd) return false;
+      const regDate = registrationDate(m);
+      if (regDate < rangeStart || regDate > rangeEnd) return false;
       if (target && m.preSeller.toLowerCase() !== target) return false;
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
       if (markingFilter !== "all" && m.markingType !== markingFilter) return false;
@@ -119,12 +135,14 @@ export default function MeusAgendamentos() {
     });
   }, [meetings, rangeStart, rangeEnd, selectedPreSeller, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
 
+  // Group by REGISTRATION date (when the appointment was created), not the meeting date.
   const byDate = useMemo(() => {
     const map = new Map<string, Meeting[]>();
     for (const m of filteredMeetings) {
-      const arr = map.get(m.date) || [];
+      const key = registrationDate(m);
+      const arr = map.get(key) || [];
       arr.push(m);
-      map.set(m.date, arr);
+      map.set(key, arr);
     }
     return map;
   }, [filteredMeetings]);
@@ -184,7 +202,10 @@ export default function MeusAgendamentos() {
 
   const sortedDays = useMemo(() => {
     return Array.from(byDate.entries())
-      .map(([date, arr]) => ({ date, meetings: arr.sort((a, b) => a.time.localeCompare(b.time)) }))
+      .map(([date, arr]) => ({
+        date,
+        meetings: arr.sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || "")),
+      }))
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [byDate]);
 
@@ -203,12 +224,13 @@ export default function MeusAgendamentos() {
     (leadSearch ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (markingFilter !== "all" ? 1 : 0) +
     (triggerFilter !== "all" ? 1 : 0) + (meetingTypeFilter !== "all" ? 1 : 0) + (usingCustomRange ? 1 : 0);
 
-  // Day modal data — reactive (uses current `meetings` so tags update via realtime)
+  // Day modal data — reactive (uses current `meetings` so tags update via realtime).
+  // Filters by registration date so the day shows leads registered on that day.
   const dayModalMeetings = useMemo(() => {
     if (!openDayDate) return [];
     return filteredMeetings
-      .filter((m) => m.date === openDayDate)
-      .sort((a, b) => a.time.localeCompare(b.time));
+      .filter((m) => registrationDate(m) === openDayDate)
+      .sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || ""));
   }, [openDayDate, filteredMeetings]);
 
   const handleStatusChange = async (id: string, status: MeetingStatus) => {
@@ -239,7 +261,7 @@ export default function MeusAgendamentos() {
                 Meus Agendamentos
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                Total por dia do mês
+                Por dia em que foram registrados
               </p>
             </div>
           </div>
@@ -429,7 +451,7 @@ export default function MeusAgendamentos() {
         {!usingCustomRange && (
           <div className="bg-card border border-border rounded-lg p-3 sm:p-4">
             <h2 className="font-display font-bold text-sm sm:text-base mb-3 text-foreground">
-              Agendamentos por dia
+              Agendamentos registrados por dia
             </h2>
             <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5">
               {WEEKDAYS_PT.map((w) => (
@@ -522,7 +544,7 @@ export default function MeusAgendamentos() {
             <DialogTitle>
               {openDayDate && (
                 <>
-                  Agendamentos de {formatBR(openDayDate)}
+                  Registrados em {formatBR(openDayDate)}
                   <span className="text-xs font-normal text-muted-foreground ml-2">
                     ({weekdayOf(openDayDate)}) • {dayModalMeetings.length} lead(s)
                   </span>
