@@ -123,7 +123,8 @@ export default function MeusAgendamentos() {
     const target = selectedPreSeller.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
-      if (m.date < rangeStart || m.date > rangeEnd) return false;
+      const regDate = registrationDate(m);
+      if (regDate < rangeStart || regDate > rangeEnd) return false;
       if (target && m.preSeller.toLowerCase() !== target) return false;
       if (statusFilter !== "all" && m.status !== statusFilter) return false;
       if (markingFilter !== "all" && m.markingType !== markingFilter) return false;
@@ -134,12 +135,14 @@ export default function MeusAgendamentos() {
     });
   }, [meetings, rangeStart, rangeEnd, selectedPreSeller, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
 
+  // Group by REGISTRATION date (when the appointment was created), not the meeting date.
   const byDate = useMemo(() => {
     const map = new Map<string, Meeting[]>();
     for (const m of filteredMeetings) {
-      const arr = map.get(m.date) || [];
+      const key = registrationDate(m);
+      const arr = map.get(key) || [];
       arr.push(m);
-      map.set(m.date, arr);
+      map.set(key, arr);
     }
     return map;
   }, [filteredMeetings]);
