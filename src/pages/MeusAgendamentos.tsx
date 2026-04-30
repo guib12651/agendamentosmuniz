@@ -261,7 +261,7 @@ export default function MeusAgendamentos() {
                 Meus Agendamentos
               </h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                Total por dia do mês
+                Por dia em que foram registrados
               </p>
             </div>
           </div>
