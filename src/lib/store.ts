@@ -29,6 +29,7 @@ export async function getMeetings(): Promise<Meeting[]> {
     meetingType: ((row as any).meeting_type || "presencial") as MeetingType,
     trigger: ((row as any).trigger || "imovel") as TriggerType,
     userId: (row as any).user_id || null,
+    createdAt: (row as any).created_at || undefined,
   }));
 }
 
