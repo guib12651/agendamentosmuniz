@@ -544,7 +544,7 @@ export default function MeusAgendamentos() {
             <DialogTitle>
               {openDayDate && (
                 <>
-                  Agendamentos de {formatBR(openDayDate)}
+                  Registrados em {formatBR(openDayDate)}
                   <span className="text-xs font-normal text-muted-foreground ml-2">
                     ({weekdayOf(openDayDate)}) • {dayModalMeetings.length} lead(s)
                   </span>
