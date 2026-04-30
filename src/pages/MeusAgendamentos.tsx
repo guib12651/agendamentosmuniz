@@ -451,7 +451,7 @@ export default function MeusAgendamentos() {
         {!usingCustomRange && (
           <div className="bg-card border border-border rounded-lg p-3 sm:p-4">
             <h2 className="font-display font-bold text-sm sm:text-base mb-3 text-foreground">
-              Agendamentos por dia
+              Agendamentos registrados por dia
             </h2>
             <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-1.5">
               {WEEKDAYS_PT.map((w) => (
