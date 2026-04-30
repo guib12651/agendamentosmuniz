@@ -202,7 +202,10 @@ export default function MeusAgendamentos() {
 
   const sortedDays = useMemo(() => {
     return Array.from(byDate.entries())
-      .map(([date, arr]) => ({ date, meetings: arr.sort((a, b) => a.time.localeCompare(b.time)) }))
+      .map(([date, arr]) => ({
+        date,
+        meetings: arr.sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || "")),
+      }))
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [byDate]);
 
