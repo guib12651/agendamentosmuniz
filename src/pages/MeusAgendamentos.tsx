@@ -224,12 +224,13 @@ export default function MeusAgendamentos() {
     (leadSearch ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (markingFilter !== "all" ? 1 : 0) +
     (triggerFilter !== "all" ? 1 : 0) + (meetingTypeFilter !== "all" ? 1 : 0) + (usingCustomRange ? 1 : 0);
 
-  // Day modal data — reactive (uses current `meetings` so tags update via realtime)
+  // Day modal data — reactive (uses current `meetings` so tags update via realtime).
+  // Filters by registration date so the day shows leads registered on that day.
   const dayModalMeetings = useMemo(() => {
     if (!openDayDate) return [];
     return filteredMeetings
-      .filter((m) => m.date === openDayDate)
-      .sort((a, b) => a.time.localeCompare(b.time));
+      .filter((m) => registrationDate(m) === openDayDate)
+      .sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || ""));
   }, [openDayDate, filteredMeetings]);
 
   const handleStatusChange = async (id: string, status: MeetingStatus) => {
