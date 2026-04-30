@@ -38,6 +38,21 @@ function fmt(d: Date) {
   return `${y}-${m}-${day}`;
 }
 
+// Returns the registration date (YYYY-MM-DD) in America/Sao_Paulo timezone.
+// Falls back to the meeting date if createdAt is unavailable.
+function registrationDate(m: Meeting): string {
+  if (!m.createdAt) return m.date;
+  try {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric", month: "2-digit", day: "2-digit",
+    }).format(new Date(m.createdAt));
+    return parts; // en-CA returns YYYY-MM-DD
+  } catch {
+    return m.date;
+  }
+}
+
 type StatusFilter = "all" | MeetingStatus;
 type MarkingFilter = "all" | MarkingType;
 type TriggerFilter = "all" | TriggerType;
