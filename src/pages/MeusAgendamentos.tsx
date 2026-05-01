@@ -313,6 +313,7 @@ export default function MeusAgendamentos() {
                   <SelectValue placeholder="Pré-vendedor" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__all__">Todos os pré-vendedores</SelectItem>
                   {preSellers.map((name) => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
