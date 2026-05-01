@@ -108,7 +108,7 @@ export default function MeusAgendamentos() {
         if (data) {
           const names = data.map((p: any) => p.display_name).sort();
           setPreSellers(names);
-          if (!selectedPreSeller) setSelectedPreSeller(names[0] || "");
+          if (!selectedPreSeller) setSelectedPreSeller("__all__");
         }
       });
   }, [isAdmin, profile]);

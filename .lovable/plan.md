@@ -1,48 +1,27 @@
 ## Objetivo
 
-Permitir que cada pré-vendedor (e também os admins) vejam quantos agendamentos foram feitos em **cada dia do mês**, com totais e detalhamento diário.
+Na página **"Meus Agendamentos"**, permitir que admins vejam dados consolidados de **todos os pré-vendedores juntos**, além da visão individual já existente.
 
-## Onde adicionar
+## Mudanças
 
-Nova aba/página: **"Meus Agendamentos"** acessível a partir de um botão no header do `Index.tsx`.
+Arquivo único: `src/pages/MeusAgendamentos.tsx`
 
-- Pré-vendedor: vê apenas os próprios agendamentos.
-- Admin: vê os próprios + um seletor para escolher qualquer pré-vendedor e visualizar os agendamentos dele.
+1. **Seletor de pré-vendedor (admin)**
+   - Adicionar nova opção no topo do `Select`: **"Todos os pré-vendedores"** (valor interno `__all__`).
+   - Definir esse valor como o padrão inicial para admins (em vez do primeiro nome da lista).
 
-Rota: `/meus-agendamentos`
+2. **Lógica de filtro (`filteredMeetings`)**
+   - Quando `selectedPreSeller === "__all__"`, **não aplicar** o filtro por `m.preSeller`. Todas as reuniões do mês/intervalo serão consideradas.
+   - Demais filtros (status, marcação, gatilho, modalidade, busca por lead, intervalo de datas) continuam funcionando normalmente sobre o conjunto agregado.
 
-## Layout da página
+3. **Cálculos derivados**
+   - Não é necessário alterar `byDate`, `total`, `bestDay`, `avgPerBusinessDay`, heatmap nem o modal do dia — todos derivam de `filteredMeetings` automaticamente. Com "Todos" selecionado, os cards de resumo e o heatmap passam a refletir o time inteiro.
 
-1. **Seletor de mês** (input `month` ou navegação ◄ Novembro 2026 ►).
-2. **Seletor de pré-vendedor** (somente admin) — usa a lista de `profiles` com role `pre_seller`.
-3. **Cards de resumo do mês**:
-   - Total de agendamentos no mês
-   - Média por dia útil
-   - Melhor dia (data + quantidade)
-   - Dias com pelo menos 1 agendamento
-4. **Calendário/Heatmap mensal**: grid 7 colunas (Dom-Sáb) mostrando cada dia do mês com a quantidade de agendamentos. Intensidade de cor (gold) varia conforme o volume. Clicar em um dia → navega para `/?date=YYYY-MM-DD` (já suportado).
-5. **Lista detalhada por dia**: tabela/lista mostrando apenas dias com agendamentos: `Data — Dia da semana — Qtd — [Compareceu / Não compareceu / Pendente]`.
+4. **UX**
+   - Manter o label do trigger mostrando "Todos os pré-vendedores" quando ativo.
+   - Pré-vendedores comuns (não-admin) continuam travados no próprio nome (sem alteração).
 
-## Detalhes técnicos
+## Fora de escopo
 
-**Arquivos:**
-- Novo: `src/pages/MeusAgendamentos.tsx`
-- Editar: `src/App.tsx` — registrar rota `/meus-agendamentos`
-- Editar: `src/pages/Index.tsx` — adicionar botão no header (ícone `CalendarCheck`), visível para todos os usuários autenticados, label oculto em mobile (mesmo padrão de "Fechamentos")
-
-**Dados:**
-- Reaproveitar `getMeetings()` de `src/lib/store.ts`. As policies RLS já garantem que pré-vendedores só vejam os próprios; admin vê todos e filtramos no client pelo `preSeller` selecionado.
-- Para admin escolher um pré-vendedor: query em `profiles` onde `role = 'pre_seller'` (já feita em `Index.tsx`, replicar).
-
-**Cálculos no client:**
-- Filtrar meetings por mês selecionado (`date >= primeiroDia && date <= ultimoDia`).
-- Agrupar por `date` num `Map<string, Meeting[]>`.
-- Heatmap: gerar grid do mês com `new Date(ano, mês, 1)` até último dia, alinhado pelo `getDay()` da primeira semana.
-
-**Estilo:**
-- Seguir o padrão dark + gold da plataforma (`stat-card`, `bg-card`, `border-border`, `text-primary`).
-- Responsivo mobile-first: heatmap com células `aspect-square` e texto pequeno; lista detalhada com `flex-wrap` + `truncate`.
-
-## Sem alterações de backend
-
-Não precisa de migration nem nova tabela — usa `meetings` existente e respeita as policies RLS atuais.
+- Sem mudanças de backend, RLS ou tipos.
+- Sem alteração na página `Index.tsx` ou em `Fechamentos.tsx`.
