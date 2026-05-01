@@ -120,7 +120,8 @@ export default function MeusAgendamentos() {
   const rangeEnd = usingCustomRange ? customEnd : monthEnd;
 
   const filteredMeetings = useMemo(() => {
-    const target = selectedPreSeller.trim().toLowerCase();
+    const showAll = selectedPreSeller === "__all__";
+    const target = showAll ? "" : selectedPreSeller.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
       const regDate = registrationDate(m);
