@@ -25,7 +25,7 @@ export function useNotifications(userId: string | undefined) {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(100);
     if (!error && data) setNotifications(data as AppNotification[]);
     setLoading(false);
   }, [userId]);
@@ -48,7 +48,7 @@ export function useNotifications(userId: string | undefined) {
         },
         (payload) => {
           const n = payload.new as AppNotification;
-          setNotifications((prev) => [n, ...prev].slice(0, 20));
+          setNotifications((prev) => [n, ...prev].slice(0, 100));
           toast(n.title, { description: n.message });
         }
       )
