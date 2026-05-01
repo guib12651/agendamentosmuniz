@@ -108,7 +108,7 @@ export default function MeusAgendamentos() {
         if (data) {
           const names = data.map((p: any) => p.display_name).sort();
           setPreSellers(names);
-          if (!selectedPreSeller) setSelectedPreSeller(names[0] || "");
+          if (!selectedPreSeller) setSelectedPreSeller("__all__");
         }
       });
   }, [isAdmin, profile]);
@@ -120,7 +120,8 @@ export default function MeusAgendamentos() {
   const rangeEnd = usingCustomRange ? customEnd : monthEnd;
 
   const filteredMeetings = useMemo(() => {
-    const target = selectedPreSeller.trim().toLowerCase();
+    const showAll = selectedPreSeller === "__all__";
+    const target = showAll ? "" : selectedPreSeller.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
       const regDate = registrationDate(m);
@@ -312,6 +313,7 @@ export default function MeusAgendamentos() {
                   <SelectValue placeholder="Pré-vendedor" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="__all__">Todos os pré-vendedores</SelectItem>
                   {preSellers.map((name) => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
