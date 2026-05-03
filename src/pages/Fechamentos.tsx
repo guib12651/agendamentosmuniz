@@ -90,7 +90,8 @@ export default function Fechamentos() {
     const pending = meetings.filter((m) => m.status === "pending").length;
     const decided = ok + no;
     const rate = decided > 0 ? Math.round((ok / decided) * 100) : 0;
-    return { total, ok, no, pending, rate };
+    const noRate = decided > 0 ? 100 - rate : 0;
+    return { total, ok, no, pending, rate, noRate };
   }, [meetings]);
 
   const byDay = useMemo(() => {
@@ -189,7 +190,16 @@ export default function Fechamentos() {
           <StatCard icon={<CheckCircle className="w-4 h-4" />} label="Compareceram" value={totals.ok} color="text-success" />
           <StatCard icon={<XCircle className="w-4 h-4" />} label="Faltaram" value={totals.no} color="text-destructive" />
           <StatCard icon={<Clock className="w-4 h-4" />} label="Pendentes" value={totals.pending} color="text-muted-foreground" />
-          <StatCard icon={<TrendingUp className="w-4 h-4" />} label="Taxa" value={`${totals.rate}%`} color="text-primary" />
+          <div className="card-meeting py-3 px-3">
+            <div className="flex items-center gap-1.5 text-primary">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Taxa</span>
+            </div>
+            <div className="mt-1 flex items-baseline gap-2">
+              <p className="text-xl sm:text-2xl font-display font-bold text-success">{totals.rate}%</p>
+              <p className="text-base sm:text-lg font-display font-bold text-destructive">{totals.noRate}%</p>
+            </div>
+          </div>
         </div>
 
         {/* Por pré-vendedor */}
