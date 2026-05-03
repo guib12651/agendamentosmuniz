@@ -65,7 +65,7 @@ export default function Fechamentos() {
       });
   }, [isAdmin]);
 
-  useEffect(() => {
+  const fetchMeetings = () => {
     if (!isAdmin) return;
     setLoading(true);
     let q = supabase
@@ -81,6 +81,23 @@ export default function Fechamentos() {
       if (!error && data) setMeetings(data as MeetingRow[]);
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    fetchMeetings();
+  }, [isAdmin, start, end, preSeller, markingType]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    const channel = supabase
+      .channel("fechamentos-meetings")
+      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, () => {
+        fetchMeetings();
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [isAdmin, start, end, preSeller, markingType]);
 
   const totals = useMemo(() => {
