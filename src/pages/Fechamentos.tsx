@@ -88,9 +88,8 @@ export default function Fechamentos() {
     const ok = meetings.filter((m) => m.status === "compareceu").length;
     const no = meetings.filter((m) => m.status === "nao_compareceu").length;
     const pending = meetings.filter((m) => m.status === "pending").length;
-    const decided = ok + no;
-    const rate = decided > 0 ? Math.round((ok / decided) * 100) : 0;
-    const noRate = decided > 0 ? 100 - rate : 0;
+    const rate = total > 0 ? Math.round((ok / total) * 100) : 0;
+    const noRate = total > 0 ? Math.round((no / total) * 100) : 0;
     return { total, ok, no, pending, rate, noRate };
   }, [meetings]);
 
