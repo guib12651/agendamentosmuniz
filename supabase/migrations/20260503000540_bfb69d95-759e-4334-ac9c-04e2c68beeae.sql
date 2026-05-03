@@ -1,0 +1,1 @@
+UPDATE meetings SET pre_seller = 'Anakesia' WHERE pre_seller IN ('Ana', 'Ana Kesia');
