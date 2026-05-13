@@ -136,12 +136,15 @@ export default function Index() {
     return result;
   }, [meetings, preSellerSearch, leadSearch, isAdmin]);
 
-  // Meetings filtered by the selected period (for stats)
+  // Meetings filtered by the selected period (for stats).
+  // When the user is searching for a lead/notes keyword we ignore the date range
+  // so all matches across all dates are shown.
   const periodMeetings = useMemo(() => {
-    return filteredMeetings
-      .filter((m) => m.date >= dateRange.start && m.date <= dateRange.end)
-      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  }, [filteredMeetings, dateRange]);
+    const base = leadSearch.trim()
+      ? filteredMeetings
+      : filteredMeetings.filter((m) => m.date >= dateRange.start && m.date <= dateRange.end);
+    return base.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  }, [filteredMeetings, dateRange, leadSearch]);
 
   // For the timeline and time slot grid, always use filterDate (daily view)
   const dayMeetings = useMemo(() => {
@@ -378,9 +381,11 @@ export default function Index() {
 
         {/* 3. Meeting list / timeline */}
         <div className="space-y-3">
-          {period !== "daily" && (
+          {(period !== "daily" || leadSearch.trim()) && (
             <p className="text-xs text-muted-foreground">
-              Mostrando {periodMeetings.length} reunião(ões) de {dateRange.start} a {dateRange.end}
+              {leadSearch.trim()
+                ? `Mostrando ${periodMeetings.length} reunião(ões) em todas as datas`
+                : `Mostrando ${periodMeetings.length} reunião(ões) de ${dateRange.start} a ${dateRange.end}`}
             </p>
           )}
           {(preSellerSearch || leadSearch) && (
@@ -388,14 +393,14 @@ export default function Index() {
               Filtrando por: {[preSellerSearch, leadSearch].filter(Boolean).join(" • ")}
             </p>
           )}
-          {(period === "daily" ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
+          {((period === "daily" && !leadSearch.trim()) ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
             <div className="text-center py-12 sm:py-16 text-muted-foreground">
               <CalendarDays className="w-10 h-10 sm:w-12 sm:h-12 mx-auto mb-3 opacity-40" />
               <p className="font-display text-base sm:text-lg">Nenhum compromisso neste período</p>
               <p className="text-sm">Agende uma reunião ou bloqueie um horário.</p>
             </div>
           )}
-          {period === "daily" ? (
+          {(period === "daily" && !leadSearch.trim()) ? (
             timeline.map((item) =>
               item.type === "meeting" ? (
                 <MeetingCard
