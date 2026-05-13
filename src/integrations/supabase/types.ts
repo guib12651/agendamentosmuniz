@@ -74,6 +74,60 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_goal_progress: {
+        Row: {
+          amount: number
+          id: string
+          month: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          id?: string
+          month: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          id?: string
+          month?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      monthly_goals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          month: string
+          split_count: number | null
+          total_goal: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month: string
+          split_count?: number | null
+          total_goal?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          month?: string
+          split_count?: number | null
+          total_goal?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string
