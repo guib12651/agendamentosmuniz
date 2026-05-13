@@ -136,12 +136,15 @@ export default function Index() {
     return result;
   }, [meetings, preSellerSearch, leadSearch, isAdmin]);
 
-  // Meetings filtered by the selected period (for stats)
+  // Meetings filtered by the selected period (for stats).
+  // When the user is searching for a lead/notes keyword we ignore the date range
+  // so all matches across all dates are shown.
   const periodMeetings = useMemo(() => {
-    return filteredMeetings
-      .filter((m) => m.date >= dateRange.start && m.date <= dateRange.end)
-      .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
-  }, [filteredMeetings, dateRange]);
+    const base = leadSearch.trim()
+      ? filteredMeetings
+      : filteredMeetings.filter((m) => m.date >= dateRange.start && m.date <= dateRange.end);
+    return base.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+  }, [filteredMeetings, dateRange, leadSearch]);
 
   // For the timeline and time slot grid, always use filterDate (daily view)
   const dayMeetings = useMemo(() => {
