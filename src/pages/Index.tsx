@@ -38,6 +38,7 @@ export default function Index() {
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [preSellerSearch, setPreSellerSearch] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
 
@@ -97,32 +98,43 @@ export default function Index() {
 
   const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
 
-  // Fetch registered pre-sellers from profiles table
+  // Fetch registered users (pre-sellers + admins) so admins can search anyone, including themselves
   const [registeredPreSellers, setRegisteredPreSellers] = useState<string[]>([]);
   useEffect(() => {
     if (!isAdmin) return;
     supabase
       .from("profiles")
       .select("display_name, role")
-      .eq("role", "pre_seller")
+      .in("role", ["pre_seller", "admin"])
       .then(({ data }) => {
         if (data) setRegisteredPreSellers(data.map((p: any) => p.display_name).sort());
       });
   }, [isAdmin]);
 
-  // Filtered suggestions from registered pre-sellers only
+  // Filtered suggestions from registered users
   const searchSuggestions = useMemo(() => {
     if (!preSellerSearch.trim()) return registeredPreSellers;
     const q = preSellerSearch.toLowerCase();
     return registeredPreSellers.filter((n) => n.toLowerCase().includes(q));
   }, [preSellerSearch, registeredPreSellers]);
 
-  // Apply pre-seller filter to meetings
+  // Apply pre-seller + lead/notes filter to meetings
   const filteredMeetings = useMemo(() => {
-    if (!isAdmin || !preSellerSearch.trim()) return meetings;
-    const q = preSellerSearch.toLowerCase().trim();
-    return meetings.filter((m) => m.preSeller.toLowerCase().includes(q));
-  }, [meetings, preSellerSearch, isAdmin]);
+    let result = meetings;
+    if (isAdmin && preSellerSearch.trim()) {
+      const q = preSellerSearch.toLowerCase().trim();
+      result = result.filter((m) => m.preSeller.toLowerCase().includes(q));
+    }
+    if (leadSearch.trim()) {
+      const q = leadSearch.toLowerCase().trim();
+      result = result.filter(
+        (m) =>
+          m.leadName.toLowerCase().includes(q) ||
+          (m.notes || "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [meetings, preSellerSearch, leadSearch, isAdmin]);
 
   // Meetings filtered by the selected period (for stats)
   const periodMeetings = useMemo(() => {
@@ -285,6 +297,29 @@ export default function Index() {
           </div>
         )}
 
+        {/* Lead / notes search (visible to all users) */}
+        <div className="flex gap-2 items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={leadSearch}
+              onChange={(e) => setLeadSearch(e.target.value)}
+              placeholder="Buscar cliente ou palavra-chave nas observações..."
+              className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
+            />
+          </div>
+          {leadSearch && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setLeadSearch("")}
+              className="h-11 px-3 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4 mr-1" /> Limpar
+            </Button>
+          )}
+        </div>
+
         {/* Period filter */}
         <PeriodFilter
           selectedDate={filterDate}
@@ -348,9 +383,9 @@ export default function Index() {
               Mostrando {periodMeetings.length} reunião(ões) de {dateRange.start} a {dateRange.end}
             </p>
           )}
-          {preSellerSearch && (
+          {(preSellerSearch || leadSearch) && (
             <p className="text-xs text-primary font-medium">
-              Filtrando por: {preSellerSearch}
+              Filtrando por: {[preSellerSearch, leadSearch].filter(Boolean).join(" • ")}
             </p>
           )}
           {(period === "daily" ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
