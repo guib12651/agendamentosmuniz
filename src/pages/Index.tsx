@@ -98,32 +98,43 @@ export default function Index() {
 
   const dateRange = useMemo(() => getDateRange(period, filterDate, customStart, customEnd), [period, filterDate, customStart, customEnd]);
 
-  // Fetch registered pre-sellers from profiles table
+  // Fetch registered users (pre-sellers + admins) so admins can search anyone, including themselves
   const [registeredPreSellers, setRegisteredPreSellers] = useState<string[]>([]);
   useEffect(() => {
     if (!isAdmin) return;
     supabase
       .from("profiles")
       .select("display_name, role")
-      .eq("role", "pre_seller")
+      .in("role", ["pre_seller", "admin"])
       .then(({ data }) => {
         if (data) setRegisteredPreSellers(data.map((p: any) => p.display_name).sort());
       });
   }, [isAdmin]);
 
-  // Filtered suggestions from registered pre-sellers only
+  // Filtered suggestions from registered users
   const searchSuggestions = useMemo(() => {
     if (!preSellerSearch.trim()) return registeredPreSellers;
     const q = preSellerSearch.toLowerCase();
     return registeredPreSellers.filter((n) => n.toLowerCase().includes(q));
   }, [preSellerSearch, registeredPreSellers]);
 
-  // Apply pre-seller filter to meetings
+  // Apply pre-seller + lead/notes filter to meetings
   const filteredMeetings = useMemo(() => {
-    if (!isAdmin || !preSellerSearch.trim()) return meetings;
-    const q = preSellerSearch.toLowerCase().trim();
-    return meetings.filter((m) => m.preSeller.toLowerCase().includes(q));
-  }, [meetings, preSellerSearch, isAdmin]);
+    let result = meetings;
+    if (isAdmin && preSellerSearch.trim()) {
+      const q = preSellerSearch.toLowerCase().trim();
+      result = result.filter((m) => m.preSeller.toLowerCase().includes(q));
+    }
+    if (leadSearch.trim()) {
+      const q = leadSearch.toLowerCase().trim();
+      result = result.filter(
+        (m) =>
+          m.leadName.toLowerCase().includes(q) ||
+          (m.notes || "").toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [meetings, preSellerSearch, leadSearch, isAdmin]);
 
   // Meetings filtered by the selected period (for stats)
   const periodMeetings = useMemo(() => {
