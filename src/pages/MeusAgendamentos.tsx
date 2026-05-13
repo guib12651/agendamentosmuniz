@@ -371,7 +371,7 @@ export default function MeusAgendamentos() {
                 </Select>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground mb-1 block">Gatilho</label>
+                <label className="text-xs text-muted-foreground mb-1 block">Interesse</label>
                 <Select value={triggerFilter} onValueChange={(v) => setTriggerFilter(v as TriggerFilter)}>
                   <SelectTrigger className="h-9 text-sm bg-background"><SelectValue /></SelectTrigger>
                   <SelectContent>
