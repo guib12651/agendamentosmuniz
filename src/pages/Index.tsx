@@ -383,9 +383,9 @@ export default function Index() {
               Mostrando {periodMeetings.length} reunião(ões) de {dateRange.start} a {dateRange.end}
             </p>
           )}
-          {preSellerSearch && (
+          {(preSellerSearch || leadSearch) && (
             <p className="text-xs text-primary font-medium">
-              Filtrando por: {preSellerSearch}
+              Filtrando por: {[preSellerSearch, leadSearch].filter(Boolean).join(" • ")}
             </p>
           )}
           {(period === "daily" ? timeline : periodMeetings.map((m) => ({ type: "meeting" as const, data: m, sortKey: m.date + m.time }))).length === 0 && (
