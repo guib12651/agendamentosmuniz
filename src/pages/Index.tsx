@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
+import GoalsBanner from "@/components/goals/GoalsBanner";
 
 export default function Index() {
   const { profile, isAdmin, signOut } = useAuth();
