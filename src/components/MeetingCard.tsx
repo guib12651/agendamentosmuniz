@@ -65,9 +65,12 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
       {/* Mobile: vertical stack / Desktop: horizontal */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex-1 min-w-0">
-          {/* Time + badges */}
+          {/* Time + date + badges */}
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <span className="time-display text-xl sm:text-2xl">{meeting.time}</span>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+              {meeting.date.split("-").reverse().join("/")}
+            </span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.className}`}>{r.label}</span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${s.className}`}>
               <StatusIcon className="w-3 h-3" />
