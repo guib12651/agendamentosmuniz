@@ -100,7 +100,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
             </span>
             <span className="flex items-center gap-1.5">
               <Target className="w-3.5 h-3.5 shrink-0" />
-              Gatilho: {triggerLabels[meeting.trigger] || meeting.trigger}
+              Interesse: {triggerLabels[meeting.trigger] || meeting.trigger}
             </span>
             <span className="flex items-center gap-1.5">
               {meeting.meetingType === "online" ? <Video className="w-3.5 h-3.5 shrink-0 text-purple-400" /> : <MapPin className="w-3.5 h-3.5 shrink-0 text-blue-400" />}
