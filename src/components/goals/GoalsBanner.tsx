@@ -180,6 +180,8 @@ export default function GoalsBanner() {
         </div>
       )}
 
+      <GoalsHistory />
+
       {isAdmin && <GoalsAdminDialog open={adminOpen} onOpenChange={setAdminOpen} />}
     </section>
   );
