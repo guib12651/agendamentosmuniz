@@ -193,6 +193,7 @@ export default function GoalsBanner() {
       <GoalsHistory />
 
       {isAdmin && <GoalsAdminDialog open={adminOpen} onOpenChange={setAdminOpen} />}
+      {isAdmin && <AddSaleDialog open={saleOpen} onOpenChange={setSaleOpen} />}
     </section>
   );
 }
