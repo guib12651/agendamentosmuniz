@@ -205,6 +205,9 @@ export default function GoalsBanner() {
 
       {isAdmin && <GoalsAdminDialog open={adminOpen} onOpenChange={setAdminOpen} />}
       {isAdmin && <AddSaleDialog open={saleOpen} onOpenChange={setSaleOpen} />}
+      {isAdmin && (
+        <AddSaleDialog open={removeSaleOpen} onOpenChange={setRemoveSaleOpen} mode="remove" />
+      )}
     </section>
   );
 }
