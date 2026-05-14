@@ -48,11 +48,18 @@ export default function GoalsBanner() {
           {formatMonthLabel(monthKey)}
         </h2>
         {isAdmin && (
-          <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
-            <Settings2 className="size-4" />
-            <span className="hidden sm:inline">Gerenciar metas</span>
-            <span className="sm:hidden">Metas</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={() => setSaleOpen(true)} className="gap-1.5">
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Adicionar venda</span>
+              <span className="sm:hidden">Venda</span>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
+              <Settings2 className="size-4" />
+              <span className="hidden sm:inline">Gerenciar metas</span>
+              <span className="sm:hidden">Metas</span>
+            </Button>
+          </div>
         )}
       </div>
 
