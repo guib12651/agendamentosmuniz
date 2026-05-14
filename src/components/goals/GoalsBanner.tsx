@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMonthlyGoal, formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles, Plus } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus, Minus } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
 import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
@@ -26,6 +26,7 @@ export default function GoalsBanner() {
     useMonthlyGoal(monthKey);
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
+  const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
@@ -53,6 +54,16 @@ export default function GoalsBanner() {
               <Plus className="size-4" />
               <span className="hidden sm:inline">Adicionar venda</span>
               <span className="sm:hidden">Venda</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setRemoveSaleOpen(true)}
+              className="gap-1.5"
+            >
+              <Minus className="size-4" />
+              <span className="hidden sm:inline">Remover venda</span>
+              <span className="sm:hidden">Remover</span>
             </Button>
             <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
               <Settings2 className="size-4" />
@@ -194,6 +205,9 @@ export default function GoalsBanner() {
 
       {isAdmin && <GoalsAdminDialog open={adminOpen} onOpenChange={setAdminOpen} />}
       {isAdmin && <AddSaleDialog open={saleOpen} onOpenChange={setSaleOpen} />}
+      {isAdmin && (
+        <AddSaleDialog open={removeSaleOpen} onOpenChange={setRemoveSaleOpen} mode="remove" />
+      )}
     </section>
   );
 }

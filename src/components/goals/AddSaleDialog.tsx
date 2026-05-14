@@ -18,9 +18,11 @@ interface ProfileLite {
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
+  mode?: "add" | "remove";
 }
 
-export default function AddSaleDialog({ open, onOpenChange }: Props) {
+export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Props) {
+  const isRemove = mode === "remove";
   const monthKey = getMonthKey();
   const { progress, reload } = useMonthlyGoal(monthKey);
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
@@ -50,8 +52,9 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
     }
     setSaving(true);
     try {
-      const current = progress.find((p) => p.user_id === userId)?.amount ?? 0;
-      const newAmount = Number(current) + value;
+      const current = Number(progress.find((p) => p.user_id === userId)?.amount ?? 0);
+      const delta = isRemove ? -value : value;
+      const newAmount = Math.max(0, current + delta);
       const { error } = await supabase
         .from("monthly_goal_progress")
         .upsert(
@@ -59,14 +62,13 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
           { onConflict: "month,user_id" }
         );
       if (error) throw error;
-      toast.success(
-        `+ ${value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} adicionado!`
-      );
+      const formatted = value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+      toast.success(isRemove ? `- ${formatted} removido!` : `+ ${formatted} adicionado!`);
       await reload();
       setAmount("");
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e.message || "Erro ao adicionar venda");
+      toast.error(e.message || (isRemove ? "Erro ao remover venda" : "Erro ao adicionar venda"));
     } finally {
       setSaving(false);
     }
@@ -76,9 +78,11 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar venda</DialogTitle>
+          <DialogTitle>{isRemove ? "Remover venda" : "Adicionar venda"}</DialogTitle>
           <DialogDescription className="capitalize">
-            Soma ao realizado de {formatMonthLabel(monthKey)} e aumenta o % da meta.
+            {isRemove
+              ? `Subtrai do realizado de ${formatMonthLabel(monthKey)} e diminui o % da meta.`
+              : `Soma ao realizado de ${formatMonthLabel(monthKey)} e aumenta o % da meta.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -90,17 +94,21 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
                 <SelectValue placeholder="Selecione o vendedor" />
               </SelectTrigger>
               <SelectContent>
-                {profiles.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.display_name} {p.role === "admin" ? "· Admin" : ""}
-                  </SelectItem>
-                ))}
+                {profiles.map((p) => {
+                  const cur = Number(progress.find((x) => x.user_id === p.id)?.amount ?? 0);
+                  return (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.display_name} {p.role === "admin" ? "· Admin" : ""}
+                      {isRemove && ` · atual ${cur.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}`}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Valor da venda (R$)</Label>
+            <Label>Valor (R$)</Label>
             <Input
               type="number"
               inputMode="decimal"
@@ -110,7 +118,9 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
               placeholder="Ex.: 500000"
             />
             <p className="text-xs text-muted-foreground">
-              O valor será somado ao total já realizado pelo vendedor neste mês.
+              {isRemove
+                ? "O valor será subtraído do total realizado pelo vendedor neste mês (mínimo zero)."
+                : "O valor será somado ao total já realizado pelo vendedor neste mês."}
             </p>
           </div>
         </div>
@@ -119,8 +129,12 @@ export default function AddSaleDialog({ open, onOpenChange }: Props) {
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button onClick={handleAdd} disabled={saving}>
-            {saving ? "Adicionando..." : "Adicionar venda"}
+          <Button
+            onClick={handleAdd}
+            disabled={saving}
+            variant={isRemove ? "destructive" : "default"}
+          >
+            {saving ? (isRemove ? "Removendo..." : "Adicionando...") : isRemove ? "Remover venda" : "Adicionar venda"}
           </Button>
         </DialogFooter>
       </DialogContent>
