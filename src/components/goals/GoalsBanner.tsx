@@ -55,6 +55,16 @@ export default function GoalsBanner() {
               <span className="hidden sm:inline">Adicionar venda</span>
               <span className="sm:hidden">Venda</span>
             </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setRemoveSaleOpen(true)}
+              className="gap-1.5"
+            >
+              <Minus className="size-4" />
+              <span className="hidden sm:inline">Remover venda</span>
+              <span className="sm:hidden">Remover</span>
+            </Button>
             <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
               <Settings2 className="size-4" />
               <span className="hidden sm:inline">Gerenciar metas</span>
