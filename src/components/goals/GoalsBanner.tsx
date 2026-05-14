@@ -3,8 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMonthlyGoal, formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
+import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
 import { cn } from "@/lib/utils";
 
