@@ -52,8 +52,9 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
     }
     setSaving(true);
     try {
-      const current = progress.find((p) => p.user_id === userId)?.amount ?? 0;
-      const newAmount = Number(current) + value;
+      const current = Number(progress.find((p) => p.user_id === userId)?.amount ?? 0);
+      const delta = isRemove ? -value : value;
+      const newAmount = Math.max(0, current + delta);
       const { error } = await supabase
         .from("monthly_goal_progress")
         .upsert(
@@ -61,14 +62,13 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
           { onConflict: "month,user_id" }
         );
       if (error) throw error;
-      toast.success(
-        `+ ${value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} adicionado!`
-      );
+      const formatted = value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+      toast.success(isRemove ? `- ${formatted} removido!` : `+ ${formatted} adicionado!`);
       await reload();
       setAmount("");
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e.message || "Erro ao adicionar venda");
+      toast.error(e.message || (isRemove ? "Erro ao remover venda" : "Erro ao adicionar venda"));
     } finally {
       setSaving(false);
     }
