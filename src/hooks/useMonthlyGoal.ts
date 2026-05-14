@@ -51,7 +51,7 @@ export function useMonthlyGoal(month: string = getMonthKey()) {
 
   useEffect(() => {
     const ch = supabase
-      .channel(`goals-${month}`)
+      .channel(`goals-${month}-${Math.random().toString(36).slice(2, 8)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "monthly_goals" }, reload)
       .on("postgres_changes", { event: "*", schema: "public", table: "monthly_goal_progress" }, reload)
       .subscribe();
