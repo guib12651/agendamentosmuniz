@@ -3,8 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMonthlyGoal, formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
+import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ export default function GoalsBanner() {
   const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
     useMonthlyGoal(monthKey);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [saleOpen, setSaleOpen] = useState(false);
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
@@ -46,11 +48,18 @@ export default function GoalsBanner() {
           {formatMonthLabel(monthKey)}
         </h2>
         {isAdmin && (
-          <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
-            <Settings2 className="size-4" />
-            <span className="hidden sm:inline">Gerenciar metas</span>
-            <span className="sm:hidden">Metas</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={() => setSaleOpen(true)} className="gap-1.5">
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Adicionar venda</span>
+              <span className="sm:hidden">Venda</span>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
+              <Settings2 className="size-4" />
+              <span className="hidden sm:inline">Gerenciar metas</span>
+              <span className="sm:hidden">Metas</span>
+            </Button>
+          </div>
         )}
       </div>
 
@@ -184,6 +193,7 @@ export default function GoalsBanner() {
       <GoalsHistory />
 
       {isAdmin && <GoalsAdminDialog open={adminOpen} onOpenChange={setAdminOpen} />}
+      {isAdmin && <AddSaleDialog open={saleOpen} onOpenChange={setSaleOpen} />}
     </section>
   );
 }
