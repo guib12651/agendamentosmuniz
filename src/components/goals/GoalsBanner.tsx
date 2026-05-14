@@ -5,6 +5,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
 import { Settings2, Trophy, Sparkles } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
+import GoalsHistory from "./GoalsHistory";
 import { cn } from "@/lib/utils";
 
 const formatBRL = (v: number) =>
