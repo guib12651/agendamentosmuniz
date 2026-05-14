@@ -36,9 +36,7 @@ export default function GoalsBanner() {
 
   const generalHit = generalPctRaw >= 100;
 
-  if (!goal && !isAdmin) {
-    return null; // nothing to show
-  }
+  // Banner aparece para todos os usuários autenticados (admin e pré-venda)
 
   return (
     <section className="space-y-3">
