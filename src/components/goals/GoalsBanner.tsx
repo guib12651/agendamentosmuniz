@@ -26,6 +26,7 @@ export default function GoalsBanner() {
     useMonthlyGoal(monthKey);
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
+  const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
