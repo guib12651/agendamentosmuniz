@@ -53,16 +53,24 @@ export default function GoalsBanner() {
         )}
       </div>
 
-      {!goal && isAdmin ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
-          <p className="text-muted-foreground mb-3">
-            Nenhuma meta definida para este mês.
-          </p>
-          <Button onClick={() => setAdminOpen(true)} className="gap-2">
-            <Sparkles className="size-4" />
-            Definir meta do mês
-          </Button>
-        </div>
+      {!goal ? (
+        isAdmin ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
+            <p className="text-muted-foreground mb-3">
+              Nenhuma meta definida para este mês.
+            </p>
+            <Button onClick={() => setAdminOpen(true)} className="gap-2">
+              <Sparkles className="size-4" />
+              Definir meta do mês
+            </Button>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-6 text-center">
+            <p className="text-muted-foreground">
+              Aguardando definição da meta do mês ⏳
+            </p>
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* META GERAL */}
