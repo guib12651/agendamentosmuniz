@@ -18,9 +18,11 @@ interface ProfileLite {
 interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
+  mode?: "add" | "remove";
 }
 
-export default function AddSaleDialog({ open, onOpenChange }: Props) {
+export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Props) {
+  const isRemove = mode === "remove";
   const monthKey = getMonthKey();
   const { progress, reload } = useMonthlyGoal(monthKey);
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
