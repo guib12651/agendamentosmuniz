@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Printer, Loader2, UserX, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
-import BatchFollowUpModal from "./BatchFollowUpModal";
+
 
 interface ProfileLite {
   id: string;
