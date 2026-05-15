@@ -104,14 +104,54 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
       const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       const message = `Olá ${currentLead.lead_name}! Notamos que você não conseguiu comparecer à nossa reunião agendada na Muniz Consultorias. 😕\n\nEntendemos que imprevistos acontecem! Gostaria de reagendar para uma nova data?\n\nEstamos à disposição para te ajudar a conquistar seus objetivos. Aguardamos seu retorno! 🚀`;
       
-      // Try to copy image to clipboard if selected
+      const nav = navigator as Navigator & {
+        canShare?: (data: { files: File[]; text?: string; title?: string }) => boolean;
+        share?: (data: { files?: File[]; text?: string; title?: string }) => Promise<void>;
+      };
+
+      // If there's an image selected, try to share it using the Web Share API
+      // This is the same method used in MeetingSuccessModal
+      if (previewUrl) {
+        try {
+          const response = await fetch(previewUrl);
+          const blob = await response.blob();
+          const file = new File([blob], `followup-${currentLead.lead_name}.png`, { type: blob.type });
+
+          if (nav.canShare?.({ files: [file] }) && nav.share) {
+            await nav.share({
+              files: [file],
+              text: message,
+              title: "Follow-up Muniz"
+            });
+            
+            toast.success("Follow-up enviado!");
+            
+            // Move to next lead if sharing was successful
+            if (currentLeadIndex < leads.length - 1) {
+              setCurrentLeadIndex(prev => prev + 1);
+            } else {
+              toast.success("Todos os follow-ups foram processados!");
+              onOpenChange(false);
+            }
+            return;
+          }
+        } catch (err) {
+          if ((err as Error).name !== "AbortError") {
+            console.error("Erro ao compartilhar via Web Share API:", err);
+          } else {
+            // User cancelled share, don't proceed to next
+            setLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Fallback: Clipboard + WhatsApp URL (for Desktop or if Share API fails/is unavailable)
       let imageCopied = false;
       if (previewUrl) {
         try {
           const response = await fetch(previewUrl);
           const blob = await response.blob();
-          
-          // Use Clipboard API to copy the image
           const data = [new ClipboardItem({ [blob.type]: blob })];
           await navigator.clipboard.write(data);
           imageCopied = true;
@@ -120,7 +160,6 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         }
       }
 
-      // Directly open WhatsApp URL
       const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
       window.open(waUrl, "_blank", "noopener,noreferrer");
 
@@ -128,7 +167,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         toast.success("Imagem copiada! No WhatsApp, basta apertar CTRL+V (ou Colar).", {
           duration: 5000,
         });
-      } else if (selectedFile) {
+      } else if (previewUrl) {
         toast.success("Abrindo conversa... Lembre-se de anexar a imagem manualmente.");
       } else {
         toast.success("Abrindo conversa no WhatsApp...");
@@ -146,7 +185,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
     } finally {
       setLoading(false);
     }
-  }, [currentLead, currentLeadIndex, leads.length, onOpenChange, previewUrl, selectedFile]);
+  }, [currentLead, currentLeadIndex, leads.length, onOpenChange, previewUrl]);
 
   if (!open || !currentLead) return null;
 
