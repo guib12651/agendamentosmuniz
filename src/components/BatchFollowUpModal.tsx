@@ -156,7 +156,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         </div>
 
         {/* Capture Area */}
-        <div ref={captureRef} className="bg-card">
+        <div ref={captureRef} className="bg-[#0f1729]">
           <div className="bg-gradient-to-r from-primary/20 to-primary/5 px-6 py-6 text-center">
             <img src={iconeLogo} alt="Logo" className="mx-auto h-12 w-12 mb-3" />
             <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Muniz Consultorias</p>
