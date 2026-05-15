@@ -3,10 +3,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useMonthlyGoal, formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles, Plus, Minus } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus, Minus, Printer } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
 import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
+import NoShowPrintDialog from "../NoShowPrintDialog";
 import { cn } from "@/lib/utils";
 
 const formatBRL = (v: number) =>
@@ -27,6 +28,7 @@ export default function GoalsBanner() {
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
@@ -64,6 +66,11 @@ export default function GoalsBanner() {
               <Minus className="size-4" />
               <span className="hidden sm:inline">Remover venda</span>
               <span className="sm:hidden">Remover</span>
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="gap-1.5 border-destructive/20 text-destructive hover:bg-destructive/10">
+              <Printer className="size-4" />
+              <span className="hidden sm:inline">Imprimir Faltas</span>
+              <span className="sm:hidden">Faltas</span>
             </Button>
             <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
               <Settings2 className="size-4" />
@@ -208,6 +215,7 @@ export default function GoalsBanner() {
       {isAdmin && (
         <AddSaleDialog open={removeSaleOpen} onOpenChange={setRemoveSaleOpen} mode="remove" />
       )}
+      {isAdmin && <NoShowPrintDialog open={printOpen} onOpenChange={setPrintOpen} />}
     </section>
   );
 }
