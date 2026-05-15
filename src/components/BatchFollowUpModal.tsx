@@ -77,33 +77,14 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         share?: (data: { files?: File[]; text?: string; title?: string }) => Promise<void>;
       };
 
-      // Se tiver arquivo selecionado e o navegador suportar compartilhamento de arquivos
-      if (selectedFile && nav.canShare?.({ files: [selectedFile] }) && nav.share) {
-        try {
-          await nav.share({ 
-            files: [selectedFile], 
-            text: message, 
-            title: "Follow-up Muniz" 
-          });
-        } catch (shareErr: any) {
-          if (shareErr.name === 'AbortError' || shareErr.name === 'NotAllowedError') {
-            console.log("Compartilhamento interrompido pelo usuário");
-            setLoading(false);
-            return;
-          }
-          console.error("Erro no Share API:", shareErr);
-          throw shareErr;
-        }
+      // Directly open WhatsApp URL as the share API doesn't always go straight to the chat
+      const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+
+      if (selectedFile) {
+        toast.success("Abrindo conversa... Lembre-se de anexar a imagem!");
       } else {
-        // Fallback para link do WhatsApp (apenas mensagem)
-        const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
-        window.open(waUrl, "_blank", "noopener,noreferrer");
-        
-        if (selectedFile) {
-          toast.success("Mensagem pronta! Agora anexe a imagem no WhatsApp.");
-        } else {
-          toast.success("Mensagem enviada para o WhatsApp.");
-        }
+        toast.success("Abrindo conversa no WhatsApp...");
       }
 
       if (currentLeadIndex < leads.length - 1) {
