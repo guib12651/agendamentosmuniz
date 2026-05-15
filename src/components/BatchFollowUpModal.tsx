@@ -1,10 +1,8 @@
-import { useRef, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Loader2, UserX, ChevronLeft, ChevronRight } from "lucide-react";
-import html2canvas from "html2canvas";
+import { MessageSquare, Loader2, ChevronLeft, ChevronRight, ImagePlus, X } from "lucide-react";
 import { toast } from "sonner";
-import iconeLogo from "@/assets/logo-muniz.png";
 
 interface MeetingLite {
   lead_name: string;
@@ -26,10 +24,33 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerName }: BatchFollowUpModalProps) {
-  const captureRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [currentLeadIndex, setCurrentLeadIndex] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const currentLead = leads[currentLeadIndex];
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error("Por favor, selecione uma imagem.");
+        return;
+      }
+      setSelectedFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    }
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+  };
 
   const handleNext = useCallback(() => {
     if (currentLeadIndex < leads.length - 1) {
@@ -44,42 +65,27 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
   }, [currentLeadIndex]);
 
   const handleSendOne = useCallback(async () => {
-    if (!captureRef.current || !currentLead) return;
+    if (!currentLead) return;
     setLoading(true);
     try {
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: "#0f1729",
-        scale: 1.5,
-        useCORS: true,
-        logging: false,
-      });
-
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/png")
-      );
-
-      if (!blob) {
-        toast.error("Erro ao gerar imagem.");
-        return;
-      }
-
       const cleanPhone = currentLead.phone.replace(/\D/g, "");
       const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       const message = `Olá ${currentLead.lead_name}! Notamos que você não conseguiu comparecer à nossa reunião agendada na Muniz Consultorias. 😕\n\nEntendemos que imprevistos acontecem! Gostaria de reagendar para uma nova data?\n\nEstamos à disposição para te ajudar a conquistar seus objetivos. Aguardamos seu retorno! 🚀`;
       
-      const fileName = `followup-${currentLead.lead_name.replace(/\s+/g, "-")}.png`;
-      const file = new File([blob], fileName, { type: "image/png" });
-
       const nav = navigator as Navigator & {
-        canShare?: (data: { files: File[] }) => boolean;
+        canShare?: (data: { files: File[]; text?: string; title?: string }) => boolean;
         share?: (data: { files?: File[]; text?: string; title?: string }) => Promise<void>;
       };
 
-      if (nav.canShare?.({ files: [file] }) && nav.share) {
+      // Se tiver arquivo selecionado e o navegador suportar compartilhamento de arquivos
+      if (selectedFile && nav.canShare?.({ files: [selectedFile] }) && nav.share) {
         try {
-          await nav.share({ files: [file], text: message, title: "Follow-up Muniz" });
+          await nav.share({ 
+            files: [selectedFile], 
+            text: message, 
+            title: "Follow-up Muniz" 
+          });
         } catch (shareErr: any) {
-          // Se o usuário cancelar o compartilhamento (AbortError ou NotAllowedError)
           if (shareErr.name === 'AbortError' || shareErr.name === 'NotAllowedError') {
             console.log("Compartilhamento interrompido pelo usuário");
             setLoading(false);
@@ -89,18 +95,15 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
           throw shareErr;
         }
       } else {
+        // Fallback para link do WhatsApp (apenas mensagem)
         const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
         window.open(waUrl, "_blank", "noopener,noreferrer");
-
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success("Imagem gerada! Anexe-a no WhatsApp.");
+        
+        if (selectedFile) {
+          toast.success("Mensagem pronta! Agora anexe a imagem no WhatsApp.");
+        } else {
+          toast.success("Mensagem enviada para o WhatsApp.");
+        }
       }
 
       if (currentLeadIndex < leads.length - 1) {
@@ -115,7 +118,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
     } finally {
       setLoading(false);
     }
-  }, [currentLead, currentLeadIndex, leads.length, onOpenChange]);
+  }, [currentLead, currentLeadIndex, leads.length, onOpenChange, selectedFile]);
 
   if (!open || !currentLead) return null;
 
@@ -155,32 +158,39 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
           <p>Enviando para: <strong>{currentLead.lead_name}</strong></p>
         </div>
 
-        {/* Capture Area */}
-        <div ref={captureRef} className="bg-[#0f1729]">
-          <div className="bg-gradient-to-r from-primary/20 to-primary/5 px-6 py-6 text-center">
-            <img src={iconeLogo} alt="Logo" className="mx-auto h-12 w-12 mb-3" />
-            <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Muniz Consultorias</p>
-            <h2 className="text-xl font-display font-bold text-foreground">Sentimos sua falta!</h2>
-          </div>
-          
-          <div className="px-8 py-6 space-y-4">
-            <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
-              <p className="text-sm text-foreground leading-relaxed">
-                Olá <span className="font-bold text-primary">{currentLead.lead_name}</span>, notamos que você não compareceu à nossa reunião.
-              </p>
-              <p className="text-sm text-foreground mt-3 leading-relaxed">
-                Ainda queremos te ajudar com seu planejamento! Vamos remarcar?
-              </p>
+        <div className="p-6 space-y-4">
+          <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+            <p className="text-sm font-medium mb-2 text-muted-foreground uppercase tracking-wider">Mensagem que será enviada:</p>
+            <div className="bg-card p-3 rounded border border-border text-sm leading-relaxed italic text-foreground/80">
+              "Olá <strong>{currentLead.lead_name}</strong>! Notamos que você não conseguiu comparecer à nossa reunião... Gostaria de reagendar?"
             </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Imagem de Follow-up (Opcional):</p>
             
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-[10px] text-muted-foreground uppercase tracking-wider">Consultor Responsável</span>
-              <span className="text-sm font-semibold">{sellerName}</span>
-            </div>
-          </div>
-          
-          <div className="bg-primary/5 py-3 text-center border-t border-primary/10">
-            <p className="text-[10px] text-primary/60">Juntos pelo seu objetivo</p>
+            {!previewUrl ? (
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <ImagePlus className="w-8 h-8 text-muted-foreground mb-2" />
+                  <p className="text-xs text-muted-foreground">Clique para anexar sua imagem</p>
+                </div>
+                <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+              </label>
+            ) : (
+              <div className="relative group rounded-xl overflow-hidden border border-border h-48 bg-black/5">
+                <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
+                <button 
+                  onClick={removeFile}
+                  className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-lg hover:scale-110 transition-transform"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground text-center italic">
+              Se anexar uma imagem, o sistema tentará enviá-la junto com o texto.
+            </p>
           </div>
         </div>
 
