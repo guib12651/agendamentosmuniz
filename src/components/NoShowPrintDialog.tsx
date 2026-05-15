@@ -32,7 +32,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   const [month, setMonth] = useState<string>(() => new Date().toISOString().slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<MeetingLite[]>([]);
-  const [showBatchModal, setShowBatchModal] = useState(false);
+  
 
   useEffect(() => {
     if (!open) return;
