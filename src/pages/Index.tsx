@@ -302,12 +302,12 @@ export default function Index() {
             </div>
             {/* Autocomplete suggestions */}
             {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl z-40 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 {searchSuggestions.map((name) => (
                   <button
                     key={name}
                     onClick={() => { setPreSellerSearch(name); setShowSuggestions(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 transition-colors border-b border-border/30 last:border-0"
                   >
                     {name}
                   </button>
