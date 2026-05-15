@@ -302,12 +302,12 @@ export default function Index() {
             </div>
             {/* Autocomplete suggestions */}
             {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl z-40 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
                 {searchSuggestions.map((name) => (
                   <button
                     key={name}
                     onClick={() => { setPreSellerSearch(name); setShowSuggestions(false); }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 transition-colors border-b border-border/30 last:border-0"
+                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
                   >
                     {name}
                   </button>
@@ -318,42 +318,41 @@ export default function Index() {
         )}
 
         {/* Lead / notes search (visible to all users) */}
-        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+        <div className="flex gap-2 items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={leadSearch}
               onChange={(e) => setLeadSearch(e.target.value)}
-              placeholder="Buscar cliente, observação..."
-              className="pl-10 h-12 sm:h-11 text-base sm:text-sm bg-card border-border/50 rounded-xl"
+              placeholder="Buscar cliente ou palavra-chave nas observações..."
+              className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
             />
           </div>
           {leadSearch && (
             <Button
               size="sm"
-              variant="secondary"
+              variant="ghost"
               onClick={() => setLeadSearch("")}
-              className="h-12 sm:h-11 px-4 text-muted-foreground hover:text-foreground bg-muted/30 border-border/30 rounded-xl sm:rounded-lg"
+              className="h-11 px-3 text-muted-foreground hover:text-foreground"
             >
-              <X className="w-4 h-4 mr-2" /> Limpar busca
+              <X className="w-4 h-4 mr-1" /> Limpar
             </Button>
           )}
         </div>
 
         {/* Period filter */}
-        <div className="bg-card/30 backdrop-blur-sm border border-border/40 rounded-3xl p-4 sm:p-6 shadow-xl">
-          <PeriodFilter
-            selectedDate={filterDate}
-            onDateChange={setFilterDate}
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
-        </div>
+        <PeriodFilter
+          selectedDate={filterDate}
+          onDateChange={setFilterDate}
+          period={period}
+          onPeriodChange={setPeriod}
+          customStart={customStart}
+          customEnd={customEnd}
+          onCustomStartChange={setCustomStart}
+          onCustomEndChange={setCustomEnd}
+        />
 
+        {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
 
