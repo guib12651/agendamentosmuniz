@@ -104,17 +104,32 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
       const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
       const message = `Olá ${currentLead.lead_name}! Notamos que você não conseguiu comparecer à nossa reunião agendada na Muniz Consultorias. 😕\n\nEntendemos que imprevistos acontecem! Gostaria de reagendar para uma nova data?\n\nEstamos à disposição para te ajudar a conquistar seus objetivos. Aguardamos seu retorno! 🚀`;
       
-      const nav = navigator as Navigator & {
-        canShare?: (data: { files: File[]; text?: string; title?: string }) => boolean;
-        share?: (data: { files?: File[]; text?: string; title?: string }) => Promise<void>;
-      };
+      // Try to copy image to clipboard if selected
+      let imageCopied = false;
+      if (previewUrl) {
+        try {
+          const response = await fetch(previewUrl);
+          const blob = await response.blob();
+          
+          // Use Clipboard API to copy the image
+          const data = [new ClipboardItem({ [blob.type]: blob })];
+          await navigator.clipboard.write(data);
+          imageCopied = true;
+        } catch (err) {
+          console.error("Erro ao copiar imagem para o clipboard:", err);
+        }
+      }
 
-      // Directly open WhatsApp URL as the share API doesn't always go straight to the chat
+      // Directly open WhatsApp URL
       const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
       window.open(waUrl, "_blank", "noopener,noreferrer");
 
-      if (selectedFile) {
-        toast.success("Abrindo conversa... Lembre-se de anexar a imagem!");
+      if (imageCopied) {
+        toast.success("Imagem copiada! No WhatsApp, basta apertar CTRL+V (ou Colar).", {
+          duration: 5000,
+        });
+      } else if (selectedFile) {
+        toast.success("Abrindo conversa... Lembre-se de anexar a imagem manualmente.");
       } else {
         toast.success("Abrindo conversa no WhatsApp...");
       }
@@ -131,7 +146,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
     } finally {
       setLoading(false);
     }
-  }, [currentLead, currentLeadIndex, leads.length, onOpenChange, selectedFile]);
+  }, [currentLead, currentLeadIndex, leads.length, onOpenChange, previewUrl, selectedFile]);
 
   if (!open || !currentLead) return null;
 
@@ -220,7 +235,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
             )}
             
             <p className="text-[10px] text-muted-foreground text-center italic">
-              A imagem selecionada será lembrada para os próximos envios.
+              A imagem selecionada será copiada automaticamente. Ao abrir o WhatsApp, basta dar <strong>CTRL+V</strong>.
             </p>
           </div>
         </div>
