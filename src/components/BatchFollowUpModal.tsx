@@ -154,11 +154,12 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
           </div>
         </DialogHeader>
 
-        <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20">
-          <p>Enviando para: <strong>{currentLead.lead_name}</strong></p>
-        </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20">
+            <p>Enviando para: <strong>{currentLead.lead_name}</strong></p>
+          </div>
 
-        <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4">
           <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
             <p className="text-sm font-medium mb-2 text-muted-foreground uppercase tracking-wider">Mensagem que será enviada:</p>
             <div className="bg-card p-3 rounded border border-border text-sm leading-relaxed italic text-foreground/80">
