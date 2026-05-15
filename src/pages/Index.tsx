@@ -341,18 +341,19 @@ export default function Index() {
         </div>
 
         {/* Period filter */}
-        <PeriodFilter
-          selectedDate={filterDate}
-          onDateChange={setFilterDate}
-          period={period}
-          onPeriodChange={setPeriod}
-          customStart={customStart}
-          customEnd={customEnd}
-          onCustomStartChange={setCustomStart}
-          onCustomEndChange={setCustomEnd}
-        />
+        <div className="bg-card/30 backdrop-blur-sm border border-border/40 rounded-3xl p-4 sm:p-6 shadow-xl">
+          <PeriodFilter
+            selectedDate={filterDate}
+            onDateChange={setFilterDate}
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+          />
+        </div>
 
-        {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
 
