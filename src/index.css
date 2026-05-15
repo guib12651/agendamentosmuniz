@@ -68,7 +68,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body antialiased;
+    @apply bg-[#0b101b] text-foreground font-body antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -76,48 +76,71 @@
   }
 }
 
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px hsl(var(--primary) / 0.1);
+    }
+    to {
+      box-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+    }
+  }
+}
+
 @layer components {
   .card-meeting {
-    @apply bg-card border border-border rounded-lg p-4 transition-all duration-200;
+    @apply bg-card border border-border rounded-2xl p-4 transition-all duration-300;
   }
 
   .card-meeting:hover {
     border-color: hsl(var(--primary) / 0.4);
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.15);
   }
 
   .card-blocked {
-    @apply rounded-lg p-4 border transition-all duration-200;
-    background: hsl(var(--blocked));
-    border-color: hsl(var(--blocked-foreground) / 0.3);
+    @apply rounded-2xl p-4 border transition-all duration-300;
+    background: hsl(var(--blocked) / 0.2);
+    border-color: hsl(var(--blocked-foreground) / 0.2);
   }
 
   .time-display {
-    @apply text-2xl font-bold font-display;
+    @apply text-2xl font-black font-display tracking-tight;
     color: hsl(var(--primary));
   }
 
   .restriction-clean {
-    color: hsl(var(--restriction-clean));
-    background: hsl(var(--restriction-clean) / 0.15);
+    color: hsl(var(--success));
+    background: hsl(var(--success) / 0.1);
   }
 
   .restriction-medium {
-    color: hsl(var(--restriction-medium));
-    background: hsl(var(--restriction-medium) / 0.15);
+    color: hsl(var(--warning));
+    background: hsl(var(--warning) / 0.1);
   }
 
   .restriction-high {
-    color: hsl(var(--restriction-high));
-    background: hsl(var(--restriction-high) / 0.15);
+    color: hsl(var(--destructive));
+    background: hsl(var(--destructive) / 0.1);
   }
 
   .stat-card {
-    @apply bg-card border border-border rounded-lg p-4;
+    @apply bg-card/50 border border-border/40 rounded-2xl p-4;
   }
 
   .highlight-soon {
     border-color: hsl(var(--primary));
-    box-shadow: 0 0 20px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 30px hsl(var(--primary) / 0.3);
   }
 }
