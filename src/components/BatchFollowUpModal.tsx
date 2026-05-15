@@ -124,7 +124,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 overflow-hidden border-primary/30 bg-card rounded-xl">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 border-primary/30 bg-card rounded-xl max-h-[90vh] flex flex-col">
         <DialogHeader className="p-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between w-full">
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
