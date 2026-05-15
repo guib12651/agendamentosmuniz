@@ -124,7 +124,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 overflow-hidden border-primary/30 bg-card rounded-xl">
+      <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 border-primary/30 bg-card rounded-xl max-h-[90vh] flex flex-col">
         <DialogHeader className="p-4 border-b border-border bg-muted/30">
           <div className="flex items-center justify-between w-full">
             <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
@@ -154,11 +154,12 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
           </div>
         </DialogHeader>
 
-        <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20">
-          <p>Enviando para: <strong>{currentLead.lead_name}</strong></p>
-        </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20">
+            <p>Enviando para: <strong>{currentLead.lead_name}</strong></p>
+          </div>
 
-        <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4">
           <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
             <p className="text-sm font-medium mb-2 text-muted-foreground uppercase tracking-wider">Mensagem que será enviada:</p>
             <div className="bg-card p-3 rounded border border-border text-sm leading-relaxed italic text-foreground/80">
@@ -192,6 +193,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
               Se anexar uma imagem, o sistema tentará enviá-la junto com o texto.
             </p>
           </div>
+        </div>
         </div>
 
         <DialogFooter className="p-4 flex flex-col sm:flex-row gap-2">
