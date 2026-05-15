@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Loader2, ChevronLeft, ChevronRight, ImagePlus, X } from "lucide-react";
+import { MessageSquare, Loader2, ChevronLeft, ChevronRight, ImagePlus, X, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface MeetingLite {
@@ -28,8 +28,16 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
   const [currentLeadIndex, setCurrentLeadIndex] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageGallery, setImageGallery] = useState<string[]>(() => {
+    const saved = localStorage.getItem("followup_gallery");
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const currentLead = leads[currentLeadIndex];
+
+  useEffect(() => {
+    localStorage.setItem("followup_gallery", JSON.stringify(imageGallery));
+  }, [imageGallery]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,18 +46,42 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         toast.error("Por favor, selecione uma imagem.");
         return;
       }
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        if (!imageGallery.includes(base64String)) {
+          setImageGallery(prev => [base64String, ...prev].slice(0, 6)); // Keep last 6 images
+        }
+        setSelectedFile(file);
+        setPreviewUrl(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const selectFromGallery = (base64: string) => {
+    setPreviewUrl(base64);
+    // Convert base64 to File object to maintain compatibility with share API if needed
+    fetch(base64)
+      .then(res => res.blob())
+      .then(blob => {
+        const file = new File([blob], "gallery-image.png", { type: "image/png" });
+        setSelectedFile(file);
+      });
+  };
+
+  const removeFromGallery = (e: React.MouseEvent, base64: string) => {
+    e.stopPropagation();
+    setImageGallery(prev => prev.filter(img => img !== base64));
+    if (previewUrl === base64) {
+      removeFile();
     }
   };
 
   const removeFile = () => {
     setSelectedFile(null);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
+    setPreviewUrl(null);
   };
 
   const handleNext = useCallback(() => {
@@ -149,29 +181,46 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Imagem de Follow-up (Opcional):</p>
+            <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Selecione uma Imagem:</p>
             
-            {!previewUrl ? (
-              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer">
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <ImagePlus className="w-8 h-8 text-muted-foreground mb-2" />
-                  <p className="text-xs text-muted-foreground">Clique para anexar sua imagem</p>
-                </div>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <label className="flex flex-col items-center justify-center aspect-square border-2 border-dashed border-border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer">
+                <ImagePlus className="w-5 h-5 text-muted-foreground" />
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
               </label>
-            ) : (
-              <div className="relative group rounded-xl overflow-hidden border border-border h-48 bg-black/5">
+
+              {imageGallery.map((img, idx) => (
+                <div 
+                  key={idx} 
+                  onClick={() => selectFromGallery(img)}
+                  className={`relative aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all ${previewUrl === img ? 'border-primary ring-2 ring-primary/20' : 'border-transparent hover:border-border'}`}
+                >
+                  <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                  <button 
+                    onClick={(e) => removeFromGallery(e, img)}
+                    className="absolute top-1 right-1 p-1 bg-destructive/80 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ opacity: previewUrl === img ? 1 : undefined }}
+                  >
+                    <Trash2 className="size-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            {previewUrl && (
+              <div className="relative rounded-xl overflow-hidden border border-border h-48 bg-black/5">
                 <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
                 <button 
                   onClick={removeFile}
-                  className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-lg hover:scale-110 transition-transform"
+                  className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-lg"
                 >
                   <X className="size-4" />
                 </button>
               </div>
             )}
+            
             <p className="text-[10px] text-muted-foreground text-center italic">
-              Se anexar uma imagem, o sistema tentará enviá-la junto com o texto.
+              A imagem selecionada será lembrada para os próximos envios.
             </p>
           </div>
         </div>
