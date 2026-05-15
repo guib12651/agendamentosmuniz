@@ -532,13 +532,7 @@ export default function Index() {
         <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
       )}
 
-      <BatchFollowUpModal
-        open={showBatchFollowUp}
-        onOpenChange={setShowBatchFollowUp}
-        leads={noShowLeads}
-        sellerName={profile?.displayName || "Consultor"}
-      />
+      <hr className="border-transparent" />
     </div>
-
   );
 }
