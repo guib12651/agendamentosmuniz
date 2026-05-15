@@ -44,7 +44,7 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
-  const [showBatchFollowUp, setShowBatchFollowUp] = useState(false);
+  
 
 
   const reload = useCallback(async () => {
