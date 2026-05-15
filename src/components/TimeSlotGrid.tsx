@@ -9,17 +9,19 @@ interface TimeSlotGridProps {
 export default function TimeSlotGrid({ slots, onOccupiedClick }: TimeSlotGridProps) {
   return (
     <div>
-      <div className="flex items-center gap-2 mb-3">
-        <Clock className="w-4 h-4 text-primary" />
-        <h2 className="font-display font-bold text-sm sm:text-base text-foreground">Horários do Dia</h2>
-        <div className="flex items-center gap-3 ml-auto text-[10px] sm:text-xs text-muted-foreground">
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-success" /> Livre</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-amber-500" /> 1/{MAX_MEETINGS_PER_SLOT}</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-destructive" /> Lotado</span>
-          <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-muted" /> Bloqueado</span>
+      <div className="flex flex-col gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4 text-primary" />
+          <h2 className="font-display font-bold text-base text-foreground uppercase tracking-tight">Horários do Dia</h2>
+        </div>
+        <div className="flex flex-wrap items-center gap-y-2 gap-x-4 text-[10px] sm:text-xs text-muted-foreground bg-muted/30 p-2 rounded-lg border border-border/30">
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-success shadow-[0_0_8px_rgba(34,197,94,0.4)]" /> Livre</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]" /> 1/{MAX_MEETINGS_PER_SLOT}</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-destructive shadow-[0_0_8px_rgba(239,68,68,0.4)]" /> Lotado</span>
+          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-muted shadow-[0_0_8px_rgba(156,163,175,0.4)]" /> Bloqueado</span>
         </div>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3">
         {slots.map((slot) => {
           const isAvailable = slot.status === "available";
           const isPartial = slot.status === "partial";
