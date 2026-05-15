@@ -17,6 +17,7 @@ interface ProfileLite {
 interface MeetingLite {
   lead_name: string;
   phone: string;
+  date: string;
 }
 
 interface Props {
@@ -51,7 +52,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
 
       const { data, error } = await supabase
         .from("meetings")
-        .select("lead_name, phone")
+        .select("lead_name, phone, date")
         .eq("status", "nao_compareceu")
         .eq("pre_seller", sellerName)
         .gte("date", startDate)
@@ -113,6 +114,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
               <tr>
                 <th>Nome do Lead</th>
                 <th>Telefone</th>
+                <th>Data Marcada</th>
               </tr>
             </thead>
             <tbody>
@@ -120,6 +122,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
                 <tr>
                   <td>${l.lead_name}</td>
                   <td>${l.phone}</td>
+                  <td>${new Date(l.date + "T12:00:00").toLocaleDateString("pt-BR")}</td>
                 </tr>
               `).join("")}
             </tbody>
@@ -190,9 +193,14 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
                   </div>
                   <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
                     {leads.map((l, i) => (
-                      <div key={i} className="text-sm flex justify-between gap-2 p-2 rounded bg-background border border-border/50">
-                        <span className="font-medium truncate">{l.lead_name}</span>
-                        <span className="text-muted-foreground shrink-0">{l.phone}</span>
+                      <div key={i} className="text-sm space-y-1 p-2 rounded bg-background border border-border/50">
+                        <div className="flex justify-between gap-2">
+                          <span className="font-medium truncate">{l.lead_name}</span>
+                          <span className="text-muted-foreground shrink-0">{l.phone}</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Data: {new Date(l.date + "T12:00:00").toLocaleDateString("pt-BR")}
+                        </div>
                       </div>
                     ))}
                   </div>
