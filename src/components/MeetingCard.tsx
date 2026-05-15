@@ -1,6 +1,7 @@
 import { Meeting, MeetingStatus, MarkingType, TriggerType } from "@/lib/types";
 import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface MeetingCardProps {
   meeting: Meeting;
