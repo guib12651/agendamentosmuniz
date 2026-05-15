@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,8 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
+import BatchFollowUpModal from "@/components/BatchFollowUpModal";
+
 
 export default function Index() {
   const { profile, isAdmin, signOut } = useAuth();
@@ -42,6 +44,8 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
+  const [showBatchFollowUp, setShowBatchFollowUp] = useState(false);
+
 
   const reload = useCallback(async () => {
     const [m, b] = await Promise.all([getMeetings(), getBlocks()]);
@@ -146,6 +150,17 @@ export default function Index() {
       : filteredMeetings.filter((m) => m.date >= dateRange.start && m.date <= dateRange.end);
     return base.sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
   }, [filteredMeetings, dateRange, leadSearch]);
+
+  const noShowLeads = useMemo(() => {
+    return periodMeetings
+      .filter((m) => m.status === "nao_compareceu")
+      .map((m) => ({
+        lead_name: m.leadName,
+        phone: m.phone,
+        date: m.date,
+      }));
+  }, [periodMeetings]);
+
 
   // For the timeline and time slot grid, always use filterDate (daily view)
   const dayMeetings = useMemo(() => {
@@ -340,6 +355,19 @@ export default function Index() {
         {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
+        {/* 1.1 Batch Follow-up Button (Only if there are no-shows) */}
+        {noShowLeads.length > 0 && (
+          <Button 
+            variant="outline" 
+            onClick={() => setShowBatchFollowUp(true)}
+            className="w-full h-12 gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold"
+          >
+            <MessageSquare className="w-5 h-5" />
+            Recuperar Faltas ({noShowLeads.length})
+          </Button>
+        )}
+
+
         {/* 2. Time slot grid (prominent, right after stats) */}
         {period === "daily" && (
           <TimeSlotGrid
@@ -514,6 +542,14 @@ export default function Index() {
       {successData && (
         <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
       )}
+
+      <BatchFollowUpModal
+        open={showBatchFollowUp}
+        onOpenChange={setShowBatchFollowUp}
+        leads={noShowLeads}
+        sellerName={profile?.displayName || "Consultor"}
+      />
     </div>
+
   );
 }
