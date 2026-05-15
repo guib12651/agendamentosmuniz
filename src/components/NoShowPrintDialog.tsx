@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Printer, Loader2, UserX, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
-import BatchFollowUpModal from "./BatchFollowUpModal";
+
 
 interface ProfileLite {
   id: string;
@@ -32,7 +32,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   const [month, setMonth] = useState<string>(() => new Date().toISOString().slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<MeetingLite[]>([]);
-  const [showBatchModal, setShowBatchModal] = useState(false);
+  
 
   useEffect(() => {
     if (!open) return;
@@ -193,15 +193,6 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
                   <div className="space-y-3">
                     <div className="flex justify-between items-center border-b border-border pb-2 gap-2">
                       <span className="text-sm font-medium">{leads.length} leads encontrados</span>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="h-8 gap-1.5 text-xs text-success border-success/30 hover:bg-success/10"
-                        onClick={() => setShowBatchModal(true)}
-                      >
-                        <MessageSquare className="size-3.5" />
-                        Follow-up em Massa
-                      </Button>
                     </div>
                     <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
                       {leads.map((l, i) => (
@@ -242,12 +233,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
         </DialogContent>
       </Dialog>
       
-      <BatchFollowUpModal 
-        open={showBatchModal} 
-        onOpenChange={setShowBatchModal}
-        leads={leads}
-        sellerName={profiles.find(p => p.id === selectedSeller)?.display_name || ""}
-      />
+      <hr className="hidden" />
     </>
   );
 }

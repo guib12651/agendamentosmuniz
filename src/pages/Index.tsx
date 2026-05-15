@@ -22,7 +22,7 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
-import BatchFollowUpModal from "@/components/BatchFollowUpModal";
+
 
 
 export default function Index() {
@@ -44,7 +44,7 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
-  const [showBatchFollowUp, setShowBatchFollowUp] = useState(false);
+  
 
 
   const reload = useCallback(async () => {
@@ -355,17 +355,6 @@ export default function Index() {
         {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
-        {/* 1.1 Batch Follow-up Button (Only if there are no-shows) */}
-        {noShowLeads.length > 0 && (
-          <Button 
-            variant="outline" 
-            onClick={() => setShowBatchFollowUp(true)}
-            className="w-full h-12 gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold"
-          >
-            <MessageSquare className="w-5 h-5" />
-            Recuperar Faltas ({noShowLeads.length})
-          </Button>
-        )}
 
 
         {/* 2. Time slot grid (prominent, right after stats) */}
@@ -543,13 +532,7 @@ export default function Index() {
         <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
       )}
 
-      <BatchFollowUpModal
-        open={showBatchFollowUp}
-        onOpenChange={setShowBatchFollowUp}
-        leads={noShowLeads}
-        sellerName={profile?.displayName || "Consultor"}
-      />
+      <hr className="border-transparent" />
     </div>
-
   );
 }
