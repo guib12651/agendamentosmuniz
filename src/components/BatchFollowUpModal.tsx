@@ -79,12 +79,13 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         try {
           await nav.share({ files: [file], text: message, title: "Follow-up Muniz" });
         } catch (shareErr: any) {
-          // Se o usuário cancelar o compartilhamento, não tratamos como erro crítico
-          if (shareErr.name === 'AbortError') {
-            console.log("Compartilhamento cancelado pelo usuário");
+          // Se o usuário cancelar o compartilhamento (AbortError ou NotAllowedError)
+          if (shareErr.name === 'AbortError' || shareErr.name === 'NotAllowedError') {
+            console.log("Compartilhamento interrompido pelo usuário");
             setLoading(false);
             return;
           }
+          console.error("Erro no Share API:", shareErr);
           throw shareErr;
         }
       } else {
@@ -155,9 +156,9 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         </div>
 
         {/* Capture Area */}
-        <div ref={captureRef} className="bg-card">
+        <div ref={captureRef} className="bg-[#0f1729]">
           <div className="bg-gradient-to-r from-primary/20 to-primary/5 px-6 py-6 text-center">
-            <img src={iconeLogo} alt="Logo" className="mx-auto h-12 w-12 mb-3" crossOrigin="anonymous" />
+            <img src={iconeLogo} alt="Logo" className="mx-auto h-12 w-12 mb-3" />
             <p className="text-[10px] tracking-widest uppercase text-muted-foreground mb-1">Muniz Consultorias</p>
             <h2 className="text-xl font-display font-bold text-foreground">Sentimos sua falta!</h2>
           </div>
