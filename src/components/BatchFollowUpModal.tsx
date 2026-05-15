@@ -194,6 +194,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
             </p>
           </div>
         </div>
+        </div>
 
         <DialogFooter className="p-4 flex flex-col sm:flex-row gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="sm:flex-1 h-11">
