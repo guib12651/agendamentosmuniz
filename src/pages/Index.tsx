@@ -248,9 +248,9 @@ export default function Index() {
               </p>
             </div>
           </div>
-          <div className="flex gap-1 sm:gap-2 shrink-0">
-            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 text-xs sm:text-sm px-2 sm:px-3">
-              <Plus className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90" title="Nova Reunião">
+              <Plus className="w-5 h-5 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
             </Button>
             {isAdmin && (
               <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Bloquear horário">
@@ -266,7 +266,7 @@ export default function Index() {
               <CalendarCheck className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Por dia</span>
             </Button>
             <NotificationBell userId={profile?.id} />
-            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
+            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0 hover:bg-destructive/10 hover:text-destructive" title="Sair">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
