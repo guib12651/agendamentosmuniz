@@ -233,12 +233,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
         </DialogContent>
       </Dialog>
       
-      <BatchFollowUpModal 
-        open={showBatchModal} 
-        onOpenChange={setShowBatchModal}
-        leads={leads}
-        sellerName={profiles.find(p => p.id === selectedSeller)?.display_name || ""}
-      />
+      <hr className="hidden" />
     </>
   );
 }
