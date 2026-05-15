@@ -235,7 +235,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
             )}
             
             <p className="text-[10px] text-muted-foreground text-center italic">
-              A imagem selecionada será lembrada para os próximos envios.
+              A imagem selecionada será copiada automaticamente. Ao abrir o WhatsApp, basta dar <strong>CTRL+V</strong>.
             </p>
           </div>
         </div>
