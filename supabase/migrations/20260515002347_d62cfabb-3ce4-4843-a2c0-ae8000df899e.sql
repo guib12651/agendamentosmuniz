@@ -1,0 +1,1 @@
+ALTER TABLE public.monthly_goal_progress ADD COLUMN target_amount NUMERIC DEFAULT 0;
