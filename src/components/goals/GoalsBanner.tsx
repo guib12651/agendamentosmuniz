@@ -46,36 +46,40 @@ export default function GoalsBanner() {
 
   return (
     <section className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight capitalize">
-          {formatMonthLabel(monthKey)}
-        </h2>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-xl sm:text-2xl font-display font-black tracking-tight capitalize text-foreground/90">
+            {formatMonthLabel(monthKey)}
+          </h2>
+          {!isAdmin && (
+            <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+              <Trophy className="size-5" />
+            </div>
+          )}
+        </div>
+        
         {isAdmin && (
-          <div className="flex items-center gap-2">
-            <Button size="sm" onClick={() => setSaleOpen(true)} className="gap-1.5">
+          <div className="flex flex-wrap gap-2 items-center">
+            <Button size="sm" onClick={() => setSaleOpen(true)} className="flex-1 sm:flex-none gap-2 h-10 px-4 bg-primary shadow-lg shadow-primary/20">
               <Plus className="size-4" />
-              <span className="hidden sm:inline">Adicionar venda</span>
-              <span className="sm:hidden">Venda</span>
+              <span>Venda</span>
             </Button>
             <Button
               size="sm"
               variant="outline"
               onClick={() => setRemoveSaleOpen(true)}
-              className="gap-1.5"
+              className="flex-1 sm:flex-none gap-2 h-10 px-4 bg-card border-border/50"
             >
               <Minus className="size-4" />
-              <span className="hidden sm:inline">Remover venda</span>
-              <span className="sm:hidden">Remover</span>
+              <span>Estorno</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="gap-1.5 border-destructive/20 text-destructive hover:bg-destructive/10">
+            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="flex-1 sm:flex-none gap-2 h-10 px-4 bg-card border-destructive/20 text-destructive hover:bg-destructive/10">
               <Printer className="size-4" />
-              <span className="hidden sm:inline">Imprimir Faltas</span>
-              <span className="sm:hidden">Faltas</span>
+              <span>Faltas</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="flex-1 sm:flex-none gap-2 h-10 px-4 bg-card border-border/50">
               <Settings2 className="size-4" />
-              <span className="hidden sm:inline">Gerenciar metas</span>
-              <span className="sm:hidden">Metas</span>
+              <span>Metas</span>
             </Button>
           </div>
         )}
@@ -100,7 +104,7 @@ export default function GoalsBanner() {
           </div>
         )
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* META GERAL */}
           <div
             className={cn(

@@ -248,9 +248,9 @@ export default function Index() {
               </p>
             </div>
           </div>
-          <div className="flex gap-1 sm:gap-2 shrink-0">
-            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 text-xs sm:text-sm px-2 sm:px-3">
-              <Plus className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm bg-primary text-primary-foreground hover:bg-primary/90" title="Nova Reunião">
+              <Plus className="w-5 h-5 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
             </Button>
             {isAdmin && (
               <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Bloquear horário">
@@ -266,7 +266,7 @@ export default function Index() {
               <CalendarCheck className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Por dia</span>
             </Button>
             <NotificationBell userId={profile?.id} />
-            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
+            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0 hover:bg-destructive/10 hover:text-destructive" title="Sair">
               <LogOut className="w-4 h-4" />
             </Button>
           </div>
@@ -277,37 +277,37 @@ export default function Index() {
         <GoalsBanner />
         {/* Admin pre-seller search */}
         {isAdmin && (
-          <div className="relative">
-            <div className="flex gap-2 items-center">
+          <div className="relative group">
+            <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
                 <Input
                   value={preSellerSearch}
                   onChange={(e) => { setPreSellerSearch(e.target.value); setShowSuggestions(true); }}
                   onFocus={() => setShowSuggestions(true)}
                   placeholder="Buscar pré-vendedor..."
-                  className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
+                  className="pl-10 h-12 sm:h-11 text-base sm:text-sm bg-card border-border/50 rounded-xl"
                 />
               </div>
               {preSellerSearch && (
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="secondary"
                   onClick={() => { setPreSellerSearch(""); setShowSuggestions(false); }}
-                  className="h-11 px-3 text-muted-foreground hover:text-foreground"
+                  className="h-12 sm:h-11 px-4 text-muted-foreground hover:text-foreground bg-muted/30 border-border/30 rounded-xl sm:rounded-lg"
                 >
-                  <X className="w-4 h-4 mr-1" /> Limpar
+                  <X className="w-4 h-4 mr-2" /> Limpar filtro
                 </Button>
               )}
             </div>
             {/* Autocomplete suggestions */}
             {showSuggestions && searchSuggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-20 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card/95 backdrop-blur-md border border-border/50 rounded-xl shadow-2xl z-40 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                 {searchSuggestions.map((name) => (
                   <button
                     key={name}
                     onClick={() => { setPreSellerSearch(name); setShowSuggestions(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted/50 transition-colors"
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-primary/10 transition-colors border-b border-border/30 last:border-0"
                   >
                     {name}
                   </button>
@@ -318,41 +318,42 @@ export default function Index() {
         )}
 
         {/* Lead / notes search (visible to all users) */}
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <Input
               value={leadSearch}
               onChange={(e) => setLeadSearch(e.target.value)}
-              placeholder="Buscar cliente ou palavra-chave nas observações..."
-              className="pl-9 h-11 text-base sm:text-sm bg-card border-border"
+              placeholder="Buscar cliente, observação..."
+              className="pl-10 h-12 sm:h-11 text-base sm:text-sm bg-card border-border/50 rounded-xl"
             />
           </div>
           {leadSearch && (
             <Button
               size="sm"
-              variant="ghost"
+              variant="secondary"
               onClick={() => setLeadSearch("")}
-              className="h-11 px-3 text-muted-foreground hover:text-foreground"
+              className="h-12 sm:h-11 px-4 text-muted-foreground hover:text-foreground bg-muted/30 border-border/30 rounded-xl sm:rounded-lg"
             >
-              <X className="w-4 h-4 mr-1" /> Limpar
+              <X className="w-4 h-4 mr-2" /> Limpar busca
             </Button>
           )}
         </div>
 
         {/* Period filter */}
-        <PeriodFilter
-          selectedDate={filterDate}
-          onDateChange={setFilterDate}
-          period={period}
-          onPeriodChange={setPeriod}
-          customStart={customStart}
-          customEnd={customEnd}
-          onCustomStartChange={setCustomStart}
-          onCustomEndChange={setCustomEnd}
-        />
+        <div className="bg-card/30 backdrop-blur-sm border border-border/40 rounded-3xl p-4 sm:p-6 shadow-xl">
+          <PeriodFilter
+            selectedDate={filterDate}
+            onDateChange={setFilterDate}
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+          />
+        </div>
 
-        {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
 
