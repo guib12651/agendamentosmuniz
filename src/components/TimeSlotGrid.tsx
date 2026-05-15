@@ -38,14 +38,14 @@ export default function TimeSlotGrid({ slots, onOccupiedClick }: TimeSlotGridPro
                 }
               }}
               className={`
-                rounded-lg border px-3 py-2.5 sm:py-2 text-center transition-colors select-none
-                ${isAvailable ? "bg-success/15 border-success/30 text-success" : ""}
-                ${isPartial ? "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-500/25" : ""}
-                ${isOccupied ? "bg-destructive/15 border-destructive/30 text-destructive opacity-80 cursor-pointer hover:opacity-100 hover:border-destructive/60" : ""}
-                ${isBlocked ? "bg-muted border-border text-muted-foreground opacity-60" : ""}
+                rounded-xl border px-3 py-3 text-center transition-all select-none active:scale-95
+                ${isAvailable ? "bg-success/10 border-success/30 text-success hover:bg-success/20" : ""}
+                ${isPartial ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 cursor-pointer hover:bg-amber-500/20 shadow-lg shadow-amber-500/5" : ""}
+                ${isOccupied ? "bg-destructive/10 border-destructive/30 text-destructive opacity-90 cursor-pointer hover:opacity-100 hover:bg-destructive/15" : ""}
+                ${isBlocked ? "bg-muted/50 border-border/50 text-muted-foreground opacity-60" : ""}
               `}
             >
-              <span className="font-display font-bold text-base sm:text-sm">{slot.time}</span>
+              <span className="font-display font-black text-lg sm:text-base tracking-tight">{slot.time}</span>
               {isAvailable && (
                 <p className="text-[10px] mt-0.5 opacity-70">Disponível</p>
               )}
