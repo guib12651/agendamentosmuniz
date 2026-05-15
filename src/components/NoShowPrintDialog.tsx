@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { Printer, Loader2, UserX } from "lucide-react";
 import { toast } from "sonner";
@@ -26,6 +27,7 @@ interface Props {
 export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [selectedSeller, setSelectedSeller] = useState<string>("");
+  const [month, setMonth] = useState<string>(() => new Date().toISOString().slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<MeetingLite[]>([]);
 
@@ -38,14 +40,21 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
       .then(({ data }) => setProfiles((data as any) ?? []));
   }, [open]);
 
-  const fetchLeads = async (sellerName: string) => {
+  const fetchLeads = async (sellerName: string, selectedMonth: string) => {
     setLoading(true);
     try {
+      const startDate = `${selectedMonth}-01`;
+      const date = new Date(selectedMonth + "-01");
+      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+      const endDate = `${selectedMonth}-${String(lastDay).padStart(2, '0')}`;
+
       const { data, error } = await supabase
         .from("meetings")
         .select("lead_name, phone")
         .eq("status", "nao_compareceu")
-        .eq("pre_seller", sellerName);
+        .eq("pre_seller", sellerName)
+        .gte("date", startDate)
+        .lte("date", endDate);
 
       if (error) throw error;
       setLeads(data ?? []);
@@ -58,20 +67,21 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   };
 
   useEffect(() => {
-    if (selectedSeller) {
+    if (selectedSeller && month) {
       const profile = profiles.find(p => p.id === selectedSeller);
       if (profile) {
-        fetchLeads(profile.display_name);
+        fetchLeads(profile.display_name, month);
       }
     } else {
       setLeads([]);
     }
-  }, [selectedSeller, profiles]);
+  }, [selectedSeller, month, profiles]);
 
   const handlePrint = () => {
     if (leads.length === 0) return;
     
     const seller = profiles.find(p => p.id === selectedSeller)?.display_name || "";
+    const monthLabel = new Date(month + "-01").toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
     
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
@@ -79,7 +89,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
     const html = `
       <html>
         <head>
-          <title>Leads Não Compareceram - ${seller}</title>
+          <title>Leads Não Compareceram - ${seller} - ${monthLabel}</title>
           <style>
             body { font-family: sans-serif; padding: 20px; }
             h1 { font-size: 20px; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
