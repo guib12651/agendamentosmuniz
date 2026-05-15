@@ -22,7 +22,7 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
-import BatchFollowUpModal from "@/components/BatchFollowUpModal";
+
 
 
 export default function Index() {
