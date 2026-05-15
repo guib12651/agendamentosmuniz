@@ -44,7 +44,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
       const { data, error } = await supabase
         .from("meetings")
         .select("lead_name, phone")
-        .eq("status", "não compareceu")
+        .eq("status", "nao_compareceu")
         .eq("pre_seller", sellerName);
 
       if (error) throw error;
