@@ -33,6 +33,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
   const [splitCount, setSplitCount] = useState<string>("");
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
+  const [targets, setTargets] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -51,10 +52,13 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
 
   useEffect(() => {
     const map: Record<string, string> = {};
+    const tMap: Record<string, string> = {};
     progress.forEach((p) => {
       map[p.user_id] = String(p.amount);
+      tMap[p.user_id] = String(p.target_amount ?? "");
     });
     setAmounts(map);
+    setTargets(tMap);
   }, [progress]);
 
   const totalNum = Number(totalGoal) || 0;
@@ -78,9 +82,14 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
         );
       if (gErr) throw gErr;
 
-      const rows = Object.entries(amounts)
-        .filter(([, v]) => v !== "" && !isNaN(Number(v)))
-        .map(([user_id, v]) => ({ month: monthKey, user_id, amount: Number(v) }));
+      const userIds = Array.from(new Set([...Object.keys(amounts), ...Object.keys(targets)]));
+      const rows = userIds
+        .map(user_id => {
+          const amount = Number(amounts[user_id]) || 0;
+          const target_amount = Number(targets[user_id]) || 0;
+          return { month: monthKey, user_id, amount, target_amount };
+        })
+        .filter(row => row.amount > 0 || row.target_amount > 0);
       if (rows.length) {
         const { error: pErr } = await supabase
           .from("monthly_goal_progress")
@@ -141,27 +150,46 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-base">Valor realizado por funcionário</Label>
-            <div className="space-y-2">
+          <div className="space-y-4">
+            <Label className="text-base">Metas e Realizado por funcionário</Label>
+            <div className="space-y-3">
               {profiles.map((p) => (
-                <div key={p.id} className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 border border-border">
+                <div key={p.id} className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl bg-muted/40 border border-border">
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{p.display_name}</div>
+                    <div className="font-semibold truncate">{p.display_name}</div>
                     <div className="text-xs text-muted-foreground">
                       @{p.username} · {p.role === "admin" ? "Admin" : "Pré-vendedor"}
                     </div>
                   </div>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    className="w-36"
-                    placeholder="0"
-                    value={amounts[p.id] ?? ""}
-                    onChange={(e) =>
-                      setAmounts((prev) => ({ ...prev, [p.id]: e.target.value }))
-                    }
-                  />
+                  
+                  <div className="flex gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase text-muted-foreground ml-1">Meta (R$)</Label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        className="w-28 sm:w-32 h-9"
+                        placeholder={String(perPerson)}
+                        value={targets[p.id] ?? ""}
+                        onChange={(e) =>
+                          setTargets((prev) => ({ ...prev, [p.id]: e.target.value }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] uppercase text-muted-foreground ml-1">Realizado (R$)</Label>
+                      <Input
+                        type="number"
+                        inputMode="decimal"
+                        className="w-28 sm:w-32 h-9 border-primary/20 focus-visible:ring-primary/30"
+                        placeholder="0"
+                        value={amounts[p.id] ?? ""}
+                        onChange={(e) =>
+                          setAmounts((prev) => ({ ...prev, [p.id]: e.target.value }))
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
