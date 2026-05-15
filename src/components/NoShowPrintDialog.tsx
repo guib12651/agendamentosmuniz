@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { Printer, Loader2, UserX } from "lucide-react";
+import { Printer, Loader2, UserX, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import BatchFollowUpModal from "./BatchFollowUpModal";
 
 interface ProfileLite {
   id: string;
@@ -31,6 +32,7 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   const [month, setMonth] = useState<string>(() => new Date().toISOString().slice(0, 7));
   const [loading, setLoading] = useState(false);
   const [leads, setLeads] = useState<MeetingLite[]>([]);
+  const [showBatchModal, setShowBatchModal] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -143,91 +145,109 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <UserX className="size-5 text-destructive" />
-            Imprimir Leads (Não Compareceu)
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <UserX className="size-5 text-destructive" />
+              Imprimir Leads (Não Compareceu)
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Mês</Label>
-              <Input 
-                type="month" 
-                value={month} 
-                onChange={(e) => setMonth(e.target.value)} 
-              />
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Mês</Label>
+                <Input 
+                  type="month" 
+                  value={month} 
+                  onChange={(e) => setMonth(e.target.value)} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Membro da equipe</Label>
+                <Select value={selectedSeller} onValueChange={setSelectedSeller}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Escolha um funcionário..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profiles.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Membro da equipe</Label>
-              <Select value={selectedSeller} onValueChange={setSelectedSeller}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Escolha um funcionário..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {profiles.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.display_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+
+            {selectedSeller && (
+              <div className="rounded-lg border border-border bg-muted/30 p-4">
+                {loading ? (
+                  <div className="flex flex-col items-center justify-center py-6 gap-2">
+                    <Loader2 className="size-6 animate-spin text-primary" />
+                    <p className="text-sm text-muted-foreground">Buscando leads...</p>
+                  </div>
+                ) : leads.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center border-b border-border pb-2 gap-2">
+                      <span className="text-sm font-medium">{leads.length} leads encontrados</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8 gap-1.5 text-xs text-success border-success/30 hover:bg-success/10"
+                        onClick={() => setShowBatchModal(true)}
+                      >
+                        <MessageSquare className="size-3.5" />
+                        Follow-up em Massa
+                      </Button>
+                    </div>
+                    <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
+                      {leads.map((l, i) => (
+                        <div key={i} className="text-sm space-y-1 p-2 rounded bg-background border border-border/50">
+                          <div className="flex justify-between gap-2">
+                            <span className="font-medium truncate">{l.lead_name}</span>
+                            <span className="text-muted-foreground shrink-0">{l.phone}</span>
+                          </div>
+                          <div className="text-[10px] text-muted-foreground">
+                            Data: {new Date(l.date + "T12:00:00").toLocaleDateString("pt-BR")}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-sm text-muted-foreground">Nenhum lead com status "não compareceu" encontrado para este membro.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {selectedSeller && (
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              {loading ? (
-                <div className="flex flex-col items-center justify-center py-6 gap-2">
-                  <Loader2 className="size-6 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Buscando leads...</p>
-                </div>
-              ) : leads.length > 0 ? (
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center border-b border-border pb-2">
-                    <span className="text-sm font-medium">{leads.length} leads encontrados</span>
-                  </div>
-                  <div className="max-h-60 overflow-y-auto space-y-2 pr-2">
-                    {leads.map((l, i) => (
-                      <div key={i} className="text-sm space-y-1 p-2 rounded bg-background border border-border/50">
-                        <div className="flex justify-between gap-2">
-                          <span className="font-medium truncate">{l.lead_name}</span>
-                          <span className="text-muted-foreground shrink-0">{l.phone}</span>
-                        </div>
-                        <div className="text-[10px] text-muted-foreground">
-                          Data: {new Date(l.date + "T12:00:00").toLocaleDateString("pt-BR")}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-6">
-                  <p className="text-sm text-muted-foreground">Nenhum lead com status "não compareceu" encontrado para este membro.</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
-          <Button 
-            onClick={handlePrint} 
-            disabled={leads.length === 0 || loading}
-            className="gap-2"
-          >
-            <Printer className="size-4" />
-            Imprimir Relatório
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Fechar
+            </Button>
+            <Button 
+              onClick={handlePrint} 
+              disabled={leads.length === 0 || loading}
+              className="gap-2"
+            >
+              <Printer className="size-4" />
+              Imprimir Relatório
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <BatchFollowUpModal 
+        open={showBatchModal} 
+        onOpenChange={setShowBatchModal}
+        leads={leads}
+        sellerName={profiles.find(p => p.id === selectedSeller)?.display_name || ""}
+      />
+    </>
   );
 }
