@@ -71,58 +71,51 @@ export default function PeriodFilter({
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="space-y-4">
-      {/* Date inputs (Moved UP for better usability) */}
+    <div className="space-y-2">
+      {/* Period buttons */}
+      <div className="flex flex-wrap gap-1.5">
+        {(Object.keys(periodLabels) as PeriodType[]).map((p) => (
+          <Button
+            key={p}
+            size="sm"
+            variant={period === p ? "default" : "outline"}
+            onClick={() => onPeriodChange(p)}
+            className={`h-8 text-xs px-2.5 ${period === p ? "bg-primary text-primary-foreground" : ""}`}
+          >
+            {periodLabels[p]}
+          </Button>
+        ))}
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 text-xs px-2.5 ml-auto"
+          onClick={() => { onDateChange(today); onPeriodChange("daily"); }}
+        >
+          <CalendarDays className="w-3.5 h-3.5 mr-1" /> Hoje
+        </Button>
+      </div>
+
+      {/* Date inputs */}
       <div className="flex flex-wrap items-end gap-2">
         {period === "custom" ? (
           <>
-            <div className="space-y-1.5 flex-1 min-w-[140px]">
-              <label className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">Data inicial</label>
-              <Input type="date" className="h-11 sm:h-9 text-base sm:text-sm bg-card border-border/50" value={customStart} onChange={(e) => onCustomStartChange(e.target.value)} />
+            <div className="space-y-1 flex-1 min-w-[130px]">
+              <label className="text-xs text-muted-foreground">Data inicial</label>
+              <Input type="date" className="h-10 sm:h-9 text-base sm:text-sm" value={customStart} onChange={(e) => onCustomStartChange(e.target.value)} />
             </div>
-            <div className="space-y-1.5 flex-1 min-w-[140px]">
-              <label className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">Data final</label>
-              <Input type="date" className="h-11 sm:h-9 text-base sm:text-sm bg-card border-border/50" value={customEnd} onChange={(e) => onCustomEndChange(e.target.value)} />
+            <div className="space-y-1 flex-1 min-w-[130px]">
+              <label className="text-xs text-muted-foreground">Data final</label>
+              <Input type="date" className="h-10 sm:h-9 text-base sm:text-sm" value={customEnd} onChange={(e) => onCustomEndChange(e.target.value)} />
             </div>
           </>
         ) : (
-          <div className="space-y-1.5 flex-1">
-            <label className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-muted-foreground ml-1">
-              {period === "daily" ? "Data selecionada" : "Data de referência"}
+          <div className="space-y-1 flex-1 min-w-[130px]">
+            <label className="text-xs text-muted-foreground">
+              {period === "daily" ? "Data" : "Data de referência"}
             </label>
-            <Input type="date" className="h-11 sm:h-9 text-base sm:text-sm bg-card border-border/50" value={selectedDate} onChange={(e) => onDateChange(e.target.value)} />
+            <Input type="date" className="h-10 sm:h-9 text-base sm:text-sm" value={selectedDate} onChange={(e) => onDateChange(e.target.value)} />
           </div>
         )}
-      </div>
-
-      {/* Period buttons - Scrollable on mobile */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar -mx-1 px-1">
-          {(Object.keys(periodLabels) as PeriodType[]).map((p) => (
-            <Button
-              key={p}
-              size="sm"
-              variant={period === p ? "default" : "outline"}
-              onClick={() => onPeriodChange(p)}
-              className={`h-9 text-xs px-4 rounded-full transition-all shrink-0 ${
-                period === p 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105" 
-                  : "bg-card border-border/50 hover:border-primary/50"
-              }`}
-            >
-              {periodLabels[p]}
-            </Button>
-          ))}
-        </div>
-        
-        <Button
-          size="sm"
-          variant="secondary"
-          className="h-9 text-xs px-4 rounded-full sm:ml-auto shrink-0 bg-muted/50 border border-border/30 hover:bg-muted"
-          onClick={() => { onDateChange(today); onPeriodChange("daily"); }}
-        >
-          <CalendarDays className="w-3.5 h-3.5 mr-2" /> Ir para Hoje
-        </Button>
       </div>
     </div>
   );
