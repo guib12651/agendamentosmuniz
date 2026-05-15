@@ -355,17 +355,6 @@ export default function Index() {
         {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
 
-        {/* 1.1 Batch Follow-up Button (Only if there are no-shows) */}
-        {noShowLeads.length > 0 && (
-          <Button 
-            variant="outline" 
-            onClick={() => setShowBatchFollowUp(true)}
-            className="w-full h-12 gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary font-semibold"
-          >
-            <MessageSquare className="w-5 h-5" />
-            Recuperar Faltas ({noShowLeads.length})
-          </Button>
-        )}
 
 
         {/* 2. Time slot grid (prominent, right after stats) */}
