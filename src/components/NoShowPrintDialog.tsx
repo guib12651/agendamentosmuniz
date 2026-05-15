@@ -149,20 +149,30 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>Selecione o membro da equipe</Label>
-            <Select value={selectedSeller} onValueChange={setSelectedSeller}>
-              <SelectTrigger>
-                <SelectValue placeholder="Escolha um funcionário..." />
-              </SelectTrigger>
-              <SelectContent>
-                {profiles.map((p) => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.display_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Mês</Label>
+              <Input 
+                type="month" 
+                value={month} 
+                onChange={(e) => setMonth(e.target.value)} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Membro da equipe</Label>
+              <Select value={selectedSeller} onValueChange={setSelectedSeller}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Escolha um funcionário..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.display_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {selectedSeller && (
