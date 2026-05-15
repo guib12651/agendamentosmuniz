@@ -14,6 +14,7 @@ export interface ProgressRow {
   month: string;
   user_id: string;
   amount: number;
+  target_amount?: number;
 }
 
 export function getMonthKey(d = new Date()) {
@@ -62,7 +63,12 @@ export function useMonthlyGoal(month: string = getMonthKey()) {
 
   const totalGoal = goal?.total_goal ?? 0;
   const splitCount = goal?.split_count ?? 0;
-  const individualGoal = splitCount > 0 ? totalGoal / splitCount : totalGoal;
+  
+  // Custom individual goal for current user if set, otherwise fallback to total / split
+  const myProgressRow = profile ? progress.find((r) => r.user_id === profile.id) : null;
+  const individualGoal = (myProgressRow?.target_amount && myProgressRow.target_amount > 0)
+    ? myProgressRow.target_amount
+    : (splitCount > 0 ? totalGoal / splitCount : totalGoal);
 
   // For admin: total realized = sum of all progress; for user: their own only (RLS filters anyway)
   const totalRealized = progress.reduce((acc, r) => acc + Number(r.amount || 0), 0);
