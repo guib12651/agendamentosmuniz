@@ -44,8 +44,9 @@ export default function NoShowPrintDialog({ open, onOpenChange }: Props) {
     setLoading(true);
     try {
       const startDate = `${selectedMonth}-01`;
-      const date = new Date(selectedMonth + "-01");
-      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+      // Use date parts to avoid timezone shift issues with new Date(string)
+      const [year, monthNum] = selectedMonth.split("-").map(Number);
+      const lastDay = new Date(year, monthNum, 0).getDate();
       const endDate = `${selectedMonth}-${String(lastDay).padStart(2, '0')}`;
 
       const { data, error } = await supabase
