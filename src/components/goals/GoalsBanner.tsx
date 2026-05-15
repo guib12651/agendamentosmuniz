@@ -46,13 +46,13 @@ export default function GoalsBanner() {
 
   return (
     <section className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
         <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight capitalize">
           {formatMonthLabel(monthKey)}
         </h2>
         {isAdmin && (
-          <div className="flex items-center gap-2">
-            <Button size="sm" onClick={() => setSaleOpen(true)} className="gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <Button size="sm" onClick={() => setSaleOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
               <Plus className="size-4" />
               <span className="hidden sm:inline">Adicionar venda</span>
               <span className="sm:hidden">Venda</span>
@@ -61,18 +61,18 @@ export default function GoalsBanner() {
               size="sm"
               variant="outline"
               onClick={() => setRemoveSaleOpen(true)}
-              className="gap-1.5"
+              className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9"
             >
               <Minus className="size-4" />
               <span className="hidden sm:inline">Remover venda</span>
               <span className="sm:hidden">Remover</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="gap-1.5 border-destructive/20 text-destructive hover:bg-destructive/10">
+            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 border-destructive/20 text-destructive hover:bg-destructive/10">
               <Printer className="size-4" />
               <span className="hidden sm:inline">Imprimir Faltas</span>
               <span className="sm:hidden">Faltas</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="gap-1.5">
+            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
               <Settings2 className="size-4" />
               <span className="hidden sm:inline">Gerenciar metas</span>
               <span className="sm:hidden">Metas</span>
