@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Loader2, UserX } from "lucide-react";
+import { MessageSquare, Loader2, UserX, ChevronLeft, ChevronRight } from "lucide-react";
 import html2canvas from "html2canvas";
 import { toast } from "sonner";
 import iconeLogo from "@/assets/logo-muniz.png";
@@ -29,8 +29,19 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
   const captureRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
   const [currentLeadIndex, setCurrentLeadIndex] = useState(0);
-
   const currentLead = leads[currentLeadIndex];
+
+  const handleNext = useCallback(() => {
+    if (currentLeadIndex < leads.length - 1) {
+      setCurrentLeadIndex(prev => prev + 1);
+    }
+  }, [currentLeadIndex, leads.length]);
+
+  const handlePrev = useCallback(() => {
+    if (currentLeadIndex > 0) {
+      setCurrentLeadIndex(prev => prev - 1);
+    }
+  }, [currentLeadIndex]);
 
   const handleSendOne = useCallback(async () => {
     if (!captureRef.current || !currentLead) return;
@@ -38,8 +49,9 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
     try {
       const canvas = await html2canvas(captureRef.current, {
         backgroundColor: "#0f1729",
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
+        logging: false,
       });
 
       const blob = await new Promise<Blob | null>((resolve) =>
@@ -64,7 +76,17 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
       };
 
       if (nav.canShare?.({ files: [file] }) && nav.share) {
-        await nav.share({ files: [file], text: message, title: "Follow-up Muniz" });
+        try {
+          await nav.share({ files: [file], text: message, title: "Follow-up Muniz" });
+        } catch (shareErr: any) {
+          // Se o usuário cancelar o compartilhamento, não tratamos como erro crítico
+          if (shareErr.name === 'AbortError') {
+            console.log("Compartilhamento cancelado pelo usuário");
+            setLoading(false);
+            return;
+          }
+          throw shareErr;
+        }
       } else {
         const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
         window.open(waUrl, "_blank", "noopener,noreferrer");
@@ -77,7 +99,7 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-        toast.success("Salve a imagem e envie no WhatsApp.");
+        toast.success("Imagem gerada! Anexe-a no WhatsApp.");
       }
 
       if (currentLeadIndex < leads.length - 1) {
@@ -100,10 +122,32 @@ export default function BatchFollowUpModal({ open, onOpenChange, leads, sellerNa
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md w-[calc(100%-2rem)] p-0 overflow-hidden border-primary/30 bg-card rounded-xl">
         <DialogHeader className="p-4 border-b border-border bg-muted/30">
-          <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
-            <MessageSquare className="size-4 text-primary" />
-            Follow-up em Massa ({currentLeadIndex + 1}/{leads.length})
-          </DialogTitle>
+          <div className="flex items-center justify-between w-full">
+            <DialogTitle className="flex items-center gap-2 text-sm sm:text-base">
+              <MessageSquare className="size-4 text-primary" />
+              Follow-up em Massa ({currentLeadIndex + 1}/{leads.length})
+            </DialogTitle>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 h-8 w-8"
+                onClick={handlePrev}
+                disabled={currentLeadIndex === 0 || loading}
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8 h-8 w-8"
+                onClick={handleNext}
+                disabled={currentLeadIndex === leads.length - 1 || loading}
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
         </DialogHeader>
 
         <div className="p-4 text-center text-xs text-muted-foreground bg-muted/20">
