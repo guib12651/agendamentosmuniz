@@ -36,8 +36,13 @@ export default function SalesFunnel({ date }: { date: string }) {
   const loadData = async () => {
     setLoading(true);
     try {
-      const result = await getFunnelData(date);
+      const [result, m] = await Promise.all([
+        getFunnelData(date),
+        getMeetings()
+      ]);
       setData(result);
+      // Filtramos apenas reuniões daquela data para o funil diário
+      setMeetings(m.filter(item => item.date === date));
       if (result) setTempLeads(result.totalLeadsCaptured);
     } catch (err) {
       console.error(err);
