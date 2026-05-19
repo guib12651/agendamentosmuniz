@@ -358,12 +358,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               <div className="flex gap-2">
                 <Input 
                   type="number" 
-                  value={tempLeads === 0 ? '' : tempLeads} 
+                  value={localLeadsCaptured !== null ? (localLeadsCaptured === 0 ? '' : localLeadsCaptured) : (tempLeads === 0 ? '' : tempLeads)} 
                   placeholder="0"
-                  onChange={(e) => setTempLeads(parseInt(e.target.value) || 0)}
+                  onChange={(e) => setLocalLeadsCaptured(parseInt(e.target.value) || 0)}
                   className="h-10"
                 />
-                <Button onClick={handleSaveTotalLeads}>Salvar</Button>
+                <Button onClick={async () => {
+                    await handleSaveTotalLeads();
+                    setLocalLeadsCaptured(null);
+                }}>Salvar</Button>
               </div>
             </div>
           )}
