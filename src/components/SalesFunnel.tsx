@@ -431,6 +431,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               {isAdmin ? (
                 preSellers.map(ps => {
                     const dist = (data?.distribution || []).find(d => d.userId === ps.id);
+                    const fieldMap: any = {
+                        distribution: "leadsReceived",
+                        calls: "callsMade",
+                        appointments: "appointmentsMade",
+                        visits: "visitsCompleted",
+                        negotiations: "negotiationsStarted",
+                        sales: "salesCompleted"
+                    };
                     const getVal = () => {
                         if (expandedStage === "distribution") return dist?.leadsReceived || 0;
                         if (expandedStage === "calls") return dist?.callsMade || 0;
@@ -440,14 +448,6 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         if (expandedStage === "sales") return dist?.salesCompleted || 0;
                         return 0;
                     };
-                    const fieldMap: any = {
-                        distribution: "leadsReceived",
-                        calls: "callsMade",
-                        appointments: "appointmentsMade",
-                        visits: "visitsCompleted",
-                        negotiations: "negotiationsStarted",
-                        sales: "salesCompleted"
-                    };
 
                     return (
                         <div key={ps.id} className="flex items-center justify-between gap-4">
@@ -456,8 +456,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                 <Input 
                                     type="number" 
                                     className="w-20 h-8 text-right" 
-                                    value={getVal()} 
-                                    onChange={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                    defaultValue={getVal() || ''}
+                                    key={`${ps.id}-${expandedStage}-${getVal()}`}
+                                    placeholder="0"
+                                    onBlur={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
+                                        }
+                                    }}
                                 />
                             ) : (
                                 <span className="font-bold text-primary">{getVal()}</span>
