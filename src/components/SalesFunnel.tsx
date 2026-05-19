@@ -220,10 +220,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     
     return meetings.filter(m => {
         const isCorrectStage = m.funnelStage === targetStage;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+        
         if (!isAdmin) {
             return isCorrectStage && m.preSeller === profile?.displayName;
         }
-        return isCorrectStage;
+        return isCorrectStage && matchesSeller;
     });
   };
 
