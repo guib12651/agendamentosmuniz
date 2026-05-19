@@ -218,6 +218,80 @@ export type Database = {
         }
         Relationships: []
       }
+      sales_funnel_days: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          total_leads_captured: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          total_leads_captured?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          total_leads_captured?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sales_funnel_distribution: {
+        Row: {
+          appointments_made: number | null
+          calls_made: number | null
+          created_at: string | null
+          day_id: string | null
+          id: string
+          leads_received: number | null
+          negotiations_started: number | null
+          sales_completed: number | null
+          updated_at: string | null
+          user_id: string | null
+          visits_completed: number | null
+        }
+        Insert: {
+          appointments_made?: number | null
+          calls_made?: number | null
+          created_at?: string | null
+          day_id?: string | null
+          id?: string
+          leads_received?: number | null
+          negotiations_started?: number | null
+          sales_completed?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          visits_completed?: number | null
+        }
+        Update: {
+          appointments_made?: number | null
+          calls_made?: number | null
+          created_at?: string | null
+          day_id?: string | null
+          id?: string
+          leads_received?: number | null
+          negotiations_started?: number | null
+          sales_completed?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          visits_completed?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_funnel_distribution_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "sales_funnel_days"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       time_blocks: {
         Row: {
           created_at: string
