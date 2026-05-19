@@ -3,7 +3,7 @@ import { Calendar, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export type PeriodType = "daily" | "weekly" | "monthly" | "annual" | "custom";
+export type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "semiannual" | "annual" | "custom";
 
 interface PeriodFilterProps {
   selectedDate: string;
@@ -20,6 +20,8 @@ const periodLabels: Record<PeriodType, string> = {
   daily: "Diário",
   weekly: "Semanal",
   monthly: "Mensal",
+  quarterly: "Trimestral",
+  semiannual: "Semestral",
   annual: "Anual",
   custom: "Personalizado",
 };
@@ -42,6 +44,20 @@ export function getDateRange(period: PeriodType, selectedDate: string, customSta
     case "monthly": {
       const start = new Date(ref.getFullYear(), ref.getMonth(), 1);
       const end = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+      return { start: fmt(start), end: fmt(end) };
+    }
+    case "quarterly": {
+      const month = ref.getMonth();
+      const quarterStartMonth = Math.floor(month / 3) * 3;
+      const start = new Date(ref.getFullYear(), quarterStartMonth, 1);
+      const end = new Date(ref.getFullYear(), quarterStartMonth + 3, 0);
+      return { start: fmt(start), end: fmt(end) };
+    }
+    case "semiannual": {
+      const month = ref.getMonth();
+      const semesterStartMonth = month < 6 ? 0 : 6;
+      const start = new Date(ref.getFullYear(), semesterStartMonth, 1);
+      const end = new Date(ref.getFullYear(), semesterStartMonth + 6, 0);
       return { start: fmt(start), end: fmt(end) };
     }
     case "annual": {
