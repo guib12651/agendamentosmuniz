@@ -45,6 +45,25 @@ export default function SalesFunnel({ date }: { date: string }) {
 
   useEffect(() => {
     loadData();
+
+    // Inscrição em tempo real para atualizações no funil
+    const channel = supabase
+      .channel("realtime-funnel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "sales_funnel_days" },
+        () => loadData()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "sales_funnel_distribution" },
+        () => loadData()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [date]);
 
   const handleSaveTotalLeads = async () => {
@@ -70,7 +89,13 @@ export default function SalesFunnel({ date }: { date: string }) {
   };
 
   const stages = [
-    { id: "capture", label: "Captação", color: "bg-blue-500", icon: Target, value: data?.totalLeadsCaptured || 0 },
+    { 
+      id: "capture", 
+      label: "Captação", 
+      color: "bg-blue-500", 
+      icon: Target, 
+      value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
+    },
     { id: "distribution", label: "Distribuição", color: "bg-indigo-500", icon: Users, value: data?.distribution.reduce((acc, d) => acc + d.leadsReceived, 0) || 0 },
     { id: "calls", label: "Ligações", color: "bg-purple-500", icon: Phone, value: data?.distribution.reduce((acc, d) => acc + d.callsMade, 0) || 0 },
     { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || 0 },
