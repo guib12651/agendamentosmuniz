@@ -112,24 +112,26 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
 
           {meeting.notes && <p className="text-xs text-muted-foreground mt-2 italic">Obs: {meeting.notes}</p>}
 
-          {/* Status buttons */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {meeting.status !== "compareceu" && (
-              <Button size="sm" variant="outline" className="text-success border-success/30 hover:bg-success/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("compareceu")}>
-                <CheckCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Compareceu
-              </Button>
-            )}
-            {meeting.status !== "nao_compareceu" && (
-              <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("nao_compareceu")}>
-                <XCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Não compareceu
-              </Button>
-            )}
-            {meeting.status !== "pending" && (
-              <Button size="sm" variant="outline" className="text-muted-foreground h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("pending")}>
-                <Clock className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Pendente
-              </Button>
-            )}
-          </div>
+          {/* Status buttons - Only for Admin */}
+          {isAdmin && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {meeting.status !== "compareceu" && (
+                <Button size="sm" variant="outline" className="text-success border-success/30 hover:bg-success/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("compareceu")}>
+                  <CheckCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Compareceu
+                </Button>
+              )}
+              {meeting.status !== "nao_compareceu" && (
+                <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("nao_compareceu")}>
+                  <XCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Não compareceu
+                </Button>
+              )}
+              {meeting.status !== "pending" && (
+                <Button size="sm" variant="outline" className="text-muted-foreground h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("pending")}>
+                  <Clock className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Pendente
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Edit/Delete - horizontal on mobile, vertical on desktop */}
