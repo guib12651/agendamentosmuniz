@@ -190,9 +190,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Visitas", 
       color: "bg-orange-500", 
       icon: MapPin, 
-      value: (data?.distribution || [])
+      value: ((data?.distribution || [])
         .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
-        .reduce((acc, d) => acc + (d.visitsCompleted || 0), 0) || getMeetingsInStageCount("visits") 
+        .reduce((acc, d) => acc + (d.visitsCompleted || 0), 0)) + getMeetingsInStageCount("visits") 
     },
     { 
       id: "negotiations", 
