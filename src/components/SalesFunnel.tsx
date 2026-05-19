@@ -509,7 +509,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                         type="number" 
                                         className="w-20 h-9 text-right" 
                                         defaultValue={getVal() || ''}
-                                        key={`${profile?.id}-${expandedStage}-${getVal()}`}
+                                        key={`${profile?.id}-${expandedStage}-${getVal()}-${selectedDate}`}
                                         placeholder="0"
                                         onBlur={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
                                         onKeyDown={(e) => {
