@@ -22,6 +22,7 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
+import SalesFunnel from "@/components/SalesFunnel";
 
 
 
@@ -358,6 +359,11 @@ export default function Index() {
           onCustomStartChange={setCustomStart}
           onCustomEndChange={setCustomEnd}
         />
+
+        {/* Sales Funnel - Daily view only */}
+        {period === "daily" && !leadSearch.trim() && (
+          <SalesFunnel date={filterDate} />
+        )}
 
         {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
