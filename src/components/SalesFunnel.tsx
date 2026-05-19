@@ -326,7 +326,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                     return (
                         <div key={ps.id} className="flex items-center justify-between gap-4">
                             <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
-                            {period === "daily" ? (
+                            {period === "daily" || isAdmin ? (
                                 <Input 
                                     type="number" 
                                     className="w-20 h-8 text-right" 
@@ -370,7 +370,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         return (
                             <div className="flex items-center justify-between gap-4">
                                 <span className="text-sm">Quantidade</span>
-                                {period === "daily" ? (
+                                {period === "daily" || isAdmin ? (
                                     <Input 
                                         type="number" 
                                         className="w-20 h-9 text-right" 
