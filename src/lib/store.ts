@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType } from "./types";
+import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType, FunnelStage } from "./types";
 
 export async function getMeetings(): Promise<Meeting[]> {
   const { data, error } = await supabase
@@ -30,6 +30,7 @@ export async function getMeetings(): Promise<Meeting[]> {
     trigger: ((row as any).trigger || "imovel") as TriggerType,
     userId: (row as any).user_id || null,
     createdAt: (row as any).created_at || undefined,
+    funnelStage: ((row as any).funnel_stage || "appointment") as FunnelStage,
   }));
 }
 
@@ -50,6 +51,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     meeting_type: meeting.meetingType || "presencial",
     trigger: meeting.trigger || "imovel",
     user_id: userId,
+    funnel_stage: meeting.funnelStage || "appointment",
   } as any);
   if (error) throw error;
 }
@@ -72,6 +74,7 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
       marking_type: meeting.markingType,
       meeting_type: meeting.meetingType,
       trigger: meeting.trigger,
+      funnel_stage: meeting.funnelStage,
     } as any)
     .eq("id", meeting.id);
   if (error) throw error;
@@ -87,6 +90,14 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
 
 export async function deleteMeeting(id: string): Promise<void> {
   const { error } = await supabase.from("meetings").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateFunnelStage(id: string, stage: FunnelStage): Promise<void> {
+  const { error } = await supabase
+    .from("meetings")
+    .update({ funnel_stage: stage } as any)
+    .eq("id", id);
   if (error) throw error;
 }
 

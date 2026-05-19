@@ -20,6 +20,7 @@ export type Database = {
           created_at: string
           date: string
           down_payment: string | null
+          funnel_stage: string | null
           id: string
           installment: string | null
           lead_name: string
@@ -39,6 +40,7 @@ export type Database = {
           created_at?: string
           date: string
           down_payment?: string | null
+          funnel_stage?: string | null
           id?: string
           installment?: string | null
           lead_name: string
@@ -58,6 +60,7 @@ export type Database = {
           created_at?: string
           date?: string
           down_payment?: string | null
+          funnel_stage?: string | null
           id?: string
           installment?: string | null
           lead_name?: string

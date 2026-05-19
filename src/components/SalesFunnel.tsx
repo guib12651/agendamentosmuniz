@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getFunnelData, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
+import { updateFunnelStage, getMeetings } from "@/lib/store";
+import { Meeting, FunnelStage } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ export default function SalesFunnel({ date }: { date: string }) {
   const [editingLeads, setEditingLeads] = useState(false);
   const [tempLeads, setTempLeads] = useState(0);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
 
@@ -33,8 +36,13 @@ export default function SalesFunnel({ date }: { date: string }) {
   const loadData = async () => {
     setLoading(true);
     try {
-      const result = await getFunnelData(date);
+      const [result, m] = await Promise.all([
+        getFunnelData(date),
+        getMeetings()
+      ]);
       setData(result);
+      // Filtramos apenas reuniões daquela data para o funil diário
+      setMeetings(m.filter(item => item.date === date));
       if (result) setTempLeads(result.totalLeadsCaptured);
     } catch (err) {
       console.error(err);
@@ -101,8 +109,37 @@ export default function SalesFunnel({ date }: { date: string }) {
     { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || 0 },
     { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: data?.distribution.reduce((acc, d) => acc + d.visitsCompleted, 0) || 0 },
     { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: data?.distribution.reduce((acc, d) => acc + d.negotiationsStarted, 0) || 0 },
-    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || 0 },
+    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || meetings.filter(m => m.funnelStage === 'sale').length },
   ];
+
+  const handleStageMove = async (meetingId: string, nextStage: FunnelStage) => {
+    try {
+      await updateFunnelStage(meetingId, nextStage);
+      toast.success("Lead movido no funil!");
+      loadData();
+    } catch (err) {
+      toast.error("Erro ao mover lead.");
+    }
+  };
+
+  const getMeetingsInStage = (stageId: string) => {
+    const stageMap: Record<string, FunnelStage> = {
+        appointments: "appointment",
+        visits: "visit",
+        negotiations: "negotiation",
+        sales: "sale"
+    };
+    const targetStage = stageMap[stageId];
+    if (!targetStage) return [];
+    
+    return meetings.filter(m => {
+        const isCorrectStage = m.funnelStage === targetStage;
+        if (!isAdmin) {
+            return isCorrectStage && m.preSeller === profile?.displayName;
+        }
+        return isCorrectStage;
+    });
+  };
 
   const toggleStage = (id: string) => {
     setExpandedStage(expandedStage === id ? null : id);
@@ -169,6 +206,62 @@ export default function SalesFunnel({ date }: { date: string }) {
 
           {expandedStage !== "capture" && (
             <div className="space-y-4">
+              {/* Seção de Listagem de Leads para a etapa atual */}
+              {getMeetingsInStage(expandedStage).length > 0 && (
+                <div className="space-y-3 mb-6">
+                    <Label className="text-xs uppercase tracking-wider opacity-70">Leads nesta etapa:</Label>
+                    <div className="grid gap-2">
+                        {getMeetingsInStage(expandedStage).map(m => (
+                            <div key={m.id} className="p-3 bg-card border border-border rounded-md flex flex-col gap-2">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-bold text-sm">{m.leadName}</p>
+                                        <p className="text-[10px] text-muted-foreground">{m.preSeller} • {m.time}</p>
+                                    </div>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                                        {m.markingType === 'reagendamento' ? 'Reagendamento' : 'Novo'}
+                                    </span>
+                                </div>
+                                
+                                <div className="flex gap-1 mt-1">
+                                    {expandedStage !== "visits" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+                                            onClick={() => handleStageMove(m.id, 'visit')}
+                                        >
+                                            Visita
+                                        </Button>
+                                    )}
+                                    {expandedStage !== "negotiations" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
+                                            onClick={() => handleStageMove(m.id, 'negotiation')}
+                                        >
+                                            Negociação
+                                        </Button>
+                                    )}
+                                    {isAdmin && expandedStage !== "sales" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
+                                            onClick={() => handleStageMove(m.id, 'sale')}
+                                        >
+                                            Venda
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <hr className="border-border/50 my-4" />
+                </div>
+              )}
+
               {isAdmin ? (
                 preSellers.map(ps => {
                     const dist = data?.distribution.find(d => d.userId === ps.id);
