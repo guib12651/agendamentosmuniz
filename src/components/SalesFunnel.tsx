@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getFunnelData, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
+import { getFunnelData, getFunnelDataRange, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
 import { updateFunnelStage, getMeetings } from "@/lib/store";
 import { Meeting, FunnelStage } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,8 +10,16 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target } from "lucide-react";
 
-export default function SalesFunnel({ date }: { date: string }) {
+import PeriodFilter, { PeriodType, getDateRange } from "./PeriodFilter";
+
+export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const { isAdmin, profile } = useAuth();
+  
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [period, setPeriod] = useState<PeriodType>("daily");
+  const [customStart, setCustomStart] = useState(initialDate);
+  const [customEnd, setCustomEnd] = useState(initialDate);
+
   const [data, setData] = useState<SalesFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingLeads, setEditingLeads] = useState(false);
@@ -147,9 +155,24 @@ export default function SalesFunnel({ date }: { date: string }) {
 
   return (
     <div className="card-meeting space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display font-bold text-lg text-primary">Funil de Vendas</h2>
-        <span className="text-xs text-muted-foreground">{date.split("-").reverse().join("/")}</span>
+      <div className="flex flex-col gap-4">
+        <PeriodFilter 
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+        />
+      </div>
+
+      <div className="flex items-center justify-between border-t pt-4">
+        <h2 className="font-display font-bold text-lg text-primary">Consolidado</h2>
+        <span className="text-xs text-muted-foreground">
+            {period === 'daily' ? selectedDate.split("-").reverse().join("/") : 'Período Selecionado'}
+        </span>
       </div>
 
       {/* Funnel Visual */}
@@ -286,12 +309,16 @@ export default function SalesFunnel({ date }: { date: string }) {
                     return (
                         <div key={ps.id} className="flex items-center justify-between gap-4">
                             <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
-                            <Input 
-                                type="number" 
-                                className="w-20 h-8 text-right" 
-                                value={getVal()} 
-                                onChange={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                            />
+                            {period === "daily" ? (
+                                <Input 
+                                    type="number" 
+                                    className="w-20 h-8 text-right" 
+                                    value={getVal()} 
+                                    onChange={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                />
+                            ) : (
+                                <span className="font-bold text-primary">{getVal()}</span>
+                            )}
                         </div>
                     );
                 })
@@ -326,12 +353,16 @@ export default function SalesFunnel({ date }: { date: string }) {
                         return (
                             <div className="flex items-center justify-between gap-4">
                                 <span className="text-sm">Quantidade</span>
-                                <Input 
-                                    type="number" 
-                                    className="w-20 h-9 text-right" 
-                                    value={getVal()} 
-                                    onChange={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                                />
+                                {period === "daily" ? (
+                                    <Input 
+                                        type="number" 
+                                        className="w-20 h-9 text-right" 
+                                        value={getVal()} 
+                                        onChange={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                    />
+                                ) : (
+                                    <span className="font-bold text-primary">{getVal()}</span>
+                                )}
                             </div>
                         );
                     })()}
