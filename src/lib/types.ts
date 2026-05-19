@@ -4,6 +4,8 @@ export type MarkingType = "lead_quente" | "cnpj" | "lista_fria" | "instagram" | 
 export type MeetingType = "presencial" | "online";
 export type TriggerType = "imovel" | "construcao" | "reforma" | "carro" | "moto" | "caminhao" | "maquinario" | "rural";
 
+export type FunnelStage = "appointment" | "visit" | "negotiation" | "sale";
+
 export interface Meeting {
   id: string;
   leadName: string;
@@ -22,6 +24,7 @@ export interface Meeting {
   trigger: TriggerType;
   userId?: string | null;
   createdAt?: string; // ISO timestamp when the meeting was registered
+  funnelStage?: FunnelStage;
 }
 
 export interface TimeBlock {
