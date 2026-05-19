@@ -206,6 +206,62 @@ export default function SalesFunnel({ date }: { date: string }) {
 
           {expandedStage !== "capture" && (
             <div className="space-y-4">
+              {/* Seção de Listagem de Leads para a etapa atual */}
+              {getMeetingsInStage(expandedStage).length > 0 && (
+                <div className="space-y-3 mb-6">
+                    <Label className="text-xs uppercase tracking-wider opacity-70">Leads nesta etapa:</Label>
+                    <div className="grid gap-2">
+                        {getMeetingsInStage(expandedStage).map(m => (
+                            <div key={m.id} className="p-3 bg-card border border-border rounded-md flex flex-col gap-2">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <p className="font-bold text-sm">{m.leadName}</p>
+                                        <p className="text-[10px] text-muted-foreground">{m.preSeller} • {m.time}</p>
+                                    </div>
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
+                                        {m.markingType === 'reagendamento' ? 'Reagendamento' : 'Novo'}
+                                    </span>
+                                </div>
+                                
+                                <div className="flex gap-1 mt-1">
+                                    {expandedStage !== "visits" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
+                                            onClick={() => handleStageMove(m.id, 'visit')}
+                                        >
+                                            Visita
+                                        </Button>
+                                    )}
+                                    {expandedStage !== "negotiations" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
+                                            onClick={() => handleStageMove(m.id, 'negotiation')}
+                                        >
+                                            Negociação
+                                        </Button>
+                                    )}
+                                    {isAdmin && expandedStage !== "sales" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
+                                            onClick={() => handleStageMove(m.id, 'sale')}
+                                        >
+                                            Venda
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <hr className="border-border/50 my-4" />
+                </div>
+              )}
+
               {isAdmin ? (
                 preSellers.map(ps => {
                     const dist = data?.distribution.find(d => d.userId === ps.id);
