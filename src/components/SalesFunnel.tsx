@@ -26,6 +26,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
+  const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
   const [selectedPreSeller, setSelectedPreSeller] = useState<string>("all");
 
   useEffect(() => {
