@@ -357,7 +357,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               <div className="flex gap-2">
                 <Input 
                   type="number" 
-                  value={tempLeads} 
+                  value={tempLeads === 0 ? '' : tempLeads} 
+                  placeholder="0"
                   onChange={(e) => setTempLeads(parseInt(e.target.value) || 0)}
                   className="h-10"
                 />
