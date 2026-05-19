@@ -22,8 +22,8 @@ export default function SalesFunnel({ date }: { date: string }) {
     if (isAdmin) {
       supabase
         .from("profiles")
-        .select("id, display_name")
-        .eq("role", "pre_seller")
+        .select("id, display_name, role")
+        .or("role.eq.pre_seller,display_name.eq.Ketullen")
         .then(({ data }) => {
           if (data) setPreSellers(data.map((p: any) => ({ id: p.id, displayName: p.display_name })));
         });
