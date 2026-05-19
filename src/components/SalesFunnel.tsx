@@ -91,7 +91,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
   const handleSaveTotalLeads = async () => {
     try {
-      await saveFunnelDay(selectedDate, tempLeads);
+      await saveFunnelDay(selectedDate, localLeadsCaptured !== null ? localLeadsCaptured : tempLeads);
       toast.success("Total de leads captados atualizado!");
       loadData();
     } catch (err) {
