@@ -127,12 +127,60 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       icon: Target, 
       value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
     },
-    { id: "distribution", label: "Distribuição", color: "bg-indigo-500", icon: Users, value: data?.distribution.reduce((acc, d) => acc + d.leadsReceived, 0) || 0 },
-    { id: "calls", label: "Ligações", color: "bg-purple-500", icon: Phone, value: data?.distribution.reduce((acc, d) => acc + d.callsMade, 0) || 0 },
-    { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || getMeetingsInStageCount("appointments") },
-    { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: data?.distribution.reduce((acc, d) => acc + d.visitsCompleted, 0) || getMeetingsInStageCount("visits") },
-    { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: data?.distribution.reduce((acc, d) => acc + d.negotiationsStarted, 0) || getMeetingsInStageCount("negotiations") },
-    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || getMeetingsInStageCount("sales") },
+    { 
+      id: "distribution", 
+      label: "Distribuição", 
+      color: "bg-indigo-500", 
+      icon: Users, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.leadsReceived || 0), 0) 
+    },
+    { 
+      id: "calls", 
+      label: "Ligações", 
+      color: "bg-purple-500", 
+      icon: Phone, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.callsMade || 0), 0) 
+    },
+    { 
+      id: "appointments", 
+      label: "Agendamentos", 
+      color: "bg-amber-500", 
+      icon: Calendar, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.appointmentsMade || 0), 0) || getMeetingsInStageCount("appointments") 
+    },
+    { 
+      id: "visits", 
+      label: "Visitas", 
+      color: "bg-orange-500", 
+      icon: MapPin, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.visitsCompleted || 0), 0) || getMeetingsInStageCount("visits") 
+    },
+    { 
+      id: "negotiations", 
+      label: "Negociações", 
+      color: "bg-emerald-500", 
+      icon: Handshake, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.negotiationsStarted || 0), 0) || getMeetingsInStageCount("negotiations") 
+    },
+    { 
+      id: "sales", 
+      label: "Vendas", 
+      color: "bg-rose-600", 
+      icon: ShoppingCart, 
+      value: (data?.distribution || [])
+        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .reduce((acc, d) => acc + (d.salesCompleted || 0), 0) || getMeetingsInStageCount("sales") 
+    },
   ];
 
   function getMeetingsInStageCount(stageId: string) {
@@ -143,7 +191,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         sales: "sale"
     };
     const targetStage = stageMap[stageId];
-    return meetings.filter(m => m.funnelStage === targetStage).length;
+    return meetings.filter(m => {
+        const isCorrectStage = m.funnelStage === targetStage;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+        return isCorrectStage && matchesSeller;
+    }).length;
   }
 
   const handleStageMove = async (meetingId: string, nextStage: FunnelStage) => {
