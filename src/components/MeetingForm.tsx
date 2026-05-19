@@ -27,6 +27,7 @@ const markingTypeLabels: Record<MarkingType, string> = {
   lista_fria: "Lista fria",
   instagram: "Instagram",
   indicacao: "Indicação",
+  reagendamento: "Reagendamento",
 };
 
 const triggerLabels: Record<TriggerType, string> = {

@@ -1,6 +1,6 @@
 export type RestrictionType = "clean" | "up_to_10k" | "above_10k";
 export type MeetingStatus = "pending" | "compareceu" | "nao_compareceu";
-export type MarkingType = "lead_quente" | "cnpj" | "lista_fria" | "instagram" | "indicacao";
+export type MarkingType = "lead_quente" | "cnpj" | "lista_fria" | "instagram" | "indicacao" | "reagendamento";
 export type MeetingType = "presencial" | "online";
 export type TriggerType = "imovel" | "construcao" | "reforma" | "carro" | "moto" | "caminhao" | "maquinario" | "rural";
 

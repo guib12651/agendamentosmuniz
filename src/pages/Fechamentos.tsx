@@ -24,6 +24,7 @@ const markingLabels: Record<string, string> = {
   lista_fria: "Lista fria",
   instagram: "Instagram",
   indicacao: "Indicação",
+  reagendamento: "Reagendamento",
 };
 
 function formatDateBR(iso: string) {
