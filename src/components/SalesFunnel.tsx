@@ -165,7 +165,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       icon: Users, 
       value: (data?.distribution || [])
         .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
-        .reduce((acc, d) => acc + (d.leadsReceived || 0), 0) + (selectedPreSeller === "all" ? 0 : 0) // Placeholder para soma de reuniões se necessário futuramente em distribuição
+        .reduce((acc, d) => acc + (d.leadsReceived || 0), 0) 
     },
     { 
       id: "calls", 
