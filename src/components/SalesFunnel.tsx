@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getFunnelData, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
+import { getFunnelDataRange, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
 import { updateFunnelStage, getMeetings } from "@/lib/store";
 import { Meeting, FunnelStage } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -10,11 +10,18 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target } from "lucide-react";
 
-export default function SalesFunnel({ date }: { date: string }) {
+import PeriodFilter, { PeriodType, getDateRange } from "./PeriodFilter";
+
+export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const { isAdmin, profile } = useAuth();
+  
+  const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [period, setPeriod] = useState<PeriodType>("daily");
+  const [customStart, setCustomStart] = useState(initialDate);
+  const [customEnd, setCustomEnd] = useState(initialDate);
+
   const [data, setData] = useState<SalesFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [editingLeads, setEditingLeads] = useState(false);
   const [tempLeads, setTempLeads] = useState(0);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -36,14 +43,16 @@ export default function SalesFunnel({ date }: { date: string }) {
   const loadData = async () => {
     setLoading(true);
     try {
+      const range = getDateRange(period, selectedDate, customStart, customEnd);
+      
       const [result, m] = await Promise.all([
-        getFunnelData(date),
+        getFunnelDataRange(range.start, range.end),
         getMeetings()
       ]);
       setData(result);
-      // Filtramos apenas reuniões daquela data para o funil diário
-      setMeetings(m.filter(item => item.date === date));
-      if (result) setTempLeads(result.totalLeadsCaptured);
+      // Filtramos reuniões no intervalo
+      setMeetings(m.filter(item => item.date >= range.start && item.date <= range.end));
+      if (result && period === "daily") setTempLeads(result.totalLeadsCaptured);
     } catch (err) {
       console.error(err);
     } finally {
@@ -54,31 +63,22 @@ export default function SalesFunnel({ date }: { date: string }) {
   useEffect(() => {
     loadData();
 
-    // Inscrição em tempo real para atualizações no funil
     const channel = supabase
       .channel("realtime-funnel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "sales_funnel_days" },
-        () => loadData()
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "sales_funnel_distribution" },
-        () => loadData()
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_days" }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_distribution" }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, () => loadData())
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [date]);
+  }, [selectedDate, period, customStart, customEnd]);
 
   const handleSaveTotalLeads = async () => {
     try {
-      await saveFunnelDay(date, tempLeads);
+      await saveFunnelDay(selectedDate, tempLeads);
       toast.success("Total de leads captados atualizado!");
-      setEditingLeads(false);
       loadData();
     } catch (err) {
       toast.error("Erro ao salvar.");
@@ -86,12 +86,22 @@ export default function SalesFunnel({ date }: { date: string }) {
   };
 
   const handleUpdateMetric = async (userId: string, field: string, value: number) => {
-    if (!data?.id) {
-        // Se não existir o dia, cria primeiro
-        const day = await saveFunnelDay(date, 0);
+    if (period !== "daily") {
+        toast.error("Edição de métricas permitida apenas na visão Diária.");
+        return;
+    }
+
+    const { data: dayData } = await supabase
+      .from("sales_funnel_days")
+      .select("id")
+      .eq("date", selectedDate)
+      .maybeSingle();
+
+    if (!dayData) {
+        const day = await saveFunnelDay(selectedDate, 0);
         await saveFunnelDistribution(day.id, userId, { [field]: value });
     } else {
-        await saveFunnelDistribution(data.id, userId, { [field]: value });
+        await saveFunnelDistribution(dayData.id, userId, { [field]: value });
     }
     loadData();
   };
@@ -102,15 +112,26 @@ export default function SalesFunnel({ date }: { date: string }) {
       label: "Captação", 
       color: "bg-blue-500", 
       icon: Target, 
-      value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
+      value: (expandedStage === "capture" && isAdmin && period === "daily") ? tempLeads : (data?.totalLeadsCaptured || 0) 
     },
     { id: "distribution", label: "Distribuição", color: "bg-indigo-500", icon: Users, value: data?.distribution.reduce((acc, d) => acc + d.leadsReceived, 0) || 0 },
     { id: "calls", label: "Ligações", color: "bg-purple-500", icon: Phone, value: data?.distribution.reduce((acc, d) => acc + d.callsMade, 0) || 0 },
-    { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || 0 },
-    { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: data?.distribution.reduce((acc, d) => acc + d.visitsCompleted, 0) || 0 },
-    { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: data?.distribution.reduce((acc, d) => acc + d.negotiationsStarted, 0) || 0 },
-    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || meetings.filter(m => m.funnelStage === 'sale').length },
+    { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || getMeetingsInStageCount("appointments") },
+    { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: data?.distribution.reduce((acc, d) => acc + d.visitsCompleted, 0) || getMeetingsInStageCount("visits") },
+    { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: data?.distribution.reduce((acc, d) => acc + d.negotiationsStarted, 0) || getMeetingsInStageCount("negotiations") },
+    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || getMeetingsInStageCount("sales") },
   ];
+
+  function getMeetingsInStageCount(stageId: string) {
+    const stageMap: Record<string, FunnelStage> = {
+        appointments: "appointment",
+        visits: "visit",
+        negotiations: "negotiation",
+        sales: "sale"
+    };
+    const targetStage = stageMap[stageId];
+    return meetings.filter(m => m.funnelStage === targetStage).length;
+  }
 
   const handleStageMove = async (meetingId: string, nextStage: FunnelStage) => {
     try {
@@ -147,9 +168,24 @@ export default function SalesFunnel({ date }: { date: string }) {
 
   return (
     <div className="card-meeting space-y-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display font-bold text-lg text-primary">Funil de Vendas</h2>
-        <span className="text-xs text-muted-foreground">{date.split("-").reverse().join("/")}</span>
+      <div className="flex flex-col gap-4">
+        <PeriodFilter 
+            selectedDate={selectedDate}
+            onDateChange={setSelectedDate}
+            period={period}
+            onPeriodChange={setPeriod}
+            customStart={customStart}
+            customEnd={customEnd}
+            onCustomStartChange={setCustomStart}
+            onCustomEndChange={setCustomEnd}
+        />
+      </div>
+
+      <div className="flex items-center justify-between border-t pt-4">
+        <h2 className="font-display font-bold text-lg text-primary">Consolidado</h2>
+        <span className="text-xs text-muted-foreground">
+            {period === 'daily' ? selectedDate.split("-").reverse().join("/") : 'Período Selecionado'}
+        </span>
       </div>
 
       {/* Funnel Visual */}
@@ -189,7 +225,7 @@ export default function SalesFunnel({ date }: { date: string }) {
              {stages.find(s => s.id === expandedStage)?.label} - Detalhes
           </h3>
 
-          {expandedStage === "capture" && isAdmin && (
+          {expandedStage === "capture" && isAdmin && period === "daily" && (
             <div className="space-y-3">
               <Label>Total de leads captados no dia</Label>
               <div className="flex gap-2">
@@ -202,6 +238,10 @@ export default function SalesFunnel({ date }: { date: string }) {
                 <Button onClick={handleSaveTotalLeads}>Salvar</Button>
               </div>
             </div>
+          )}
+
+          {expandedStage === "capture" && period !== "daily" && (
+            <p className="text-sm text-center text-muted-foreground">O total captado no período é a soma dos valores diários.</p>
           )}
 
           {expandedStage !== "capture" && (
@@ -286,12 +326,16 @@ export default function SalesFunnel({ date }: { date: string }) {
                     return (
                         <div key={ps.id} className="flex items-center justify-between gap-4">
                             <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
-                            <Input 
-                                type="number" 
-                                className="w-20 h-8 text-right" 
-                                value={getVal()} 
-                                onChange={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                            />
+                            {period === "daily" ? (
+                                <Input 
+                                    type="number" 
+                                    className="w-20 h-8 text-right" 
+                                    value={getVal()} 
+                                    onChange={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                />
+                            ) : (
+                                <span className="font-bold text-primary">{getVal()}</span>
+                            )}
                         </div>
                     );
                 })
@@ -326,12 +370,16 @@ export default function SalesFunnel({ date }: { date: string }) {
                         return (
                             <div className="flex items-center justify-between gap-4">
                                 <span className="text-sm">Quantidade</span>
-                                <Input 
-                                    type="number" 
-                                    className="w-20 h-9 text-right" 
-                                    value={getVal()} 
-                                    onChange={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                                />
+                                {period === "daily" ? (
+                                    <Input 
+                                        type="number" 
+                                        className="w-20 h-9 text-right" 
+                                        value={getVal()} 
+                                        onChange={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                    />
+                                ) : (
+                                    <span className="font-bold text-primary">{getVal()}</span>
+                                )}
                             </div>
                         );
                     })()}
