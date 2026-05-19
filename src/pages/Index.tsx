@@ -318,7 +318,13 @@ export default function Index() {
         )}
 
         {/* Lead / notes search (visible to all users) */}
-        <div className="flex gap-2 items-center">
+        <form 
+          className="flex gap-2 items-center"
+          onSubmit={(e) => {
+            e.preventDefault();
+            (document.activeElement as HTMLElement)?.blur();
+          }}
+        >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -330,6 +336,7 @@ export default function Index() {
           </div>
           {leadSearch && (
             <Button
+              type="button"
               size="sm"
               variant="ghost"
               onClick={() => setLeadSearch("")}
@@ -338,7 +345,7 @@ export default function Index() {
               <X className="w-4 h-4 mr-1" /> Limpar
             </Button>
           )}
-        </div>
+        </form>
 
         {/* Period filter */}
         <PeriodFilter
