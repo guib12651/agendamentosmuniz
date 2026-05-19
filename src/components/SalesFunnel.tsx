@@ -104,18 +104,48 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         return;
     }
 
-    const { data: dayData } = await supabase
+    // Busca o dia específico para edição (sempre usa selectedDate)
+    const { data: dayData, error: dayError } = await supabase
       .from("sales_funnel_days")
       .select("id")
       .eq("date", selectedDate)
       .maybeSingle();
 
-    if (!dayData) {
-        const day = await saveFunnelDay(selectedDate, 0);
-        await saveFunnelDistribution(day.id, userId, { [field]: value });
-    } else {
-        await saveFunnelDistribution(dayData.id, userId, { [field]: value });
+    if (dayError) {
+        console.error("Erro ao buscar dia:", dayError);
+        return;
     }
+
+    let dayId = dayData?.id;
+
+    if (!dayId) {
+        // Se não existir o dia, cria primeiro
+        const newDay = await saveFunnelDay(selectedDate, 0);
+        dayId = newDay.id;
+    }
+
+    // Busca a distribuição atual para não sobrescrever outros campos se necessário (embora o upsert trate isso se mapearmos tudo)
+    const { data: currentDist } = await supabase
+        .from("sales_funnel_distribution")
+        .select("*")
+        .eq("day_id", dayId)
+        .eq("user_id", userId)
+        .maybeSingle();
+
+    // Mapeia métricas atuais ou usa 0
+    const metrics: any = {
+        leadsReceived: currentDist?.leads_received || 0,
+        callsMade: currentDist?.calls_made || 0,
+        appointmentsMade: currentDist?.appointments_made || 0,
+        visitsCompleted: currentDist?.visits_completed || 0,
+        negotiationsStarted: currentDist?.negotiations_started || 0,
+        salesCompleted: currentDist?.sales_completed || 0,
+    };
+
+    // Atualiza apenas o campo que mudou
+    metrics[field] = value;
+
+    await saveFunnelDistribution(dayId, userId, metrics);
     loadData();
   };
 
