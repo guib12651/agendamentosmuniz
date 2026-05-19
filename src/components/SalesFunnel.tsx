@@ -263,11 +263,20 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     if (!targetStage) return [];
     
     return meetings.filter(m => {
-        const isCorrectStage = m.funnelStage === targetStage;
+        let isCorrectStage = false;
+        
+        if (stageId === "appointments") {
+            isCorrectStage = true; // Mostra todos os agendamentos nos detalhes
+        } else if (stageId === "visits") {
+            isCorrectStage = m.status === "compareceu"; // Mostra apenas quem compareceu nos detalhes de Visitas
+        } else {
+            isCorrectStage = m.funnelStage === targetStage;
+        }
+
         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
         
         if (!isAdmin) {
-            return isCorrectStage && m.preSeller === profile?.displayName;
+            return isCorrectStage && m.preSeller === profile?.displayName && matchesSeller;
         }
         return isCorrectStage && matchesSeller;
     });
