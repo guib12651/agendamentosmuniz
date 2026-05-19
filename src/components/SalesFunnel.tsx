@@ -507,8 +507,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                     <Input 
                                         type="number" 
                                         className="w-20 h-9 text-right" 
-                                        value={getVal()} 
-                                        onChange={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                        defaultValue={getVal() || ''}
+                                        key={`${profile?.id}-${expandedStage}-${getVal()}`}
+                                        placeholder="0"
+                                        onBlur={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
+                                            }
+                                        }}
                                     />
                                 ) : (
                                     <span className="font-bold text-primary">{getVal()}</span>
