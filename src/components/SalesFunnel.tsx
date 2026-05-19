@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { getFunnelData, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
+import { updateFunnelStage, getMeetings } from "@/lib/store";
+import { Meeting, FunnelStage } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
