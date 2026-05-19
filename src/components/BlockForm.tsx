@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface BlockFormProps {
   onSave: () => void;
@@ -13,6 +14,9 @@ interface BlockFormProps {
 }
 
 export default function BlockForm({ onSave, editBlock, onCancel }: BlockFormProps) {
+  const { isAdmin } = useAuth();
+  
+  if (!isAdmin) return null;
   const [form, setForm] = useState({
     date: editBlock?.date || new Date().toISOString().split("T")[0],
     startTime: editBlock?.startTime || "",
