@@ -244,6 +244,35 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             onCustomStartChange={setCustomStart}
             onCustomEndChange={setCustomEnd}
         />
+        
+        {isAdmin && (
+          <div className="space-y-1">
+            <label className="text-xs text-muted-foreground flex items-center gap-1">
+              <Search className="w-3 h-3" /> Filtrar por pré-vendedor
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              <Button
+                size="sm"
+                variant={selectedPreSeller === "all" ? "default" : "outline"}
+                onClick={() => setSelectedPreSeller("all")}
+                className="h-8 text-xs px-2.5"
+              >
+                Todos
+              </Button>
+              {preSellers.map((ps) => (
+                <Button
+                  key={ps.id}
+                  size="sm"
+                  variant={selectedPreSeller === ps.displayName ? "default" : "outline"}
+                  onClick={() => setSelectedPreSeller(ps.displayName)}
+                  className="h-8 text-xs px-2.5"
+                >
+                  {ps.displayName}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t pt-4">
