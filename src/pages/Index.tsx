@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,7 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
+  const [showFunnel, setShowFunnel] = useState(false);
   
 
 
@@ -263,6 +264,9 @@ export default function Index() {
                 <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
               </Button>
             )}
+            <Button size="sm" variant="outline" onClick={() => setShowFunnel(true)} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Funil de Vendas">
+              <Filter className="w-4 h-4 sm:mr-1 rotate-180" /><span className="hidden sm:inline">Funil</span>
+            </Button>
             <Button size="sm" variant="outline" onClick={() => navigate("/meus-agendamentos")} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Meus agendamentos">
               <CalendarCheck className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Por dia</span>
             </Button>
@@ -359,11 +363,6 @@ export default function Index() {
           onCustomStartChange={setCustomStart}
           onCustomEndChange={setCustomEnd}
         />
-
-        {/* Sales Funnel - Daily view only */}
-        {period === "daily" && !leadSearch.trim() && (
-          <SalesFunnel date={filterDate} />
-        )}
 
         {/* 1. Stats (top) */}
         <StatsBar meetings={periodMeetings} />
@@ -491,6 +490,15 @@ export default function Index() {
             }}
             onCancel={() => setShowMeetingForm(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showFunnel} onOpenChange={setShowFunnel}>
+        <DialogContent className="max-w-2xl mx-2 sm:mx-auto max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Funil de Vendas</DialogTitle>
+          </DialogHeader>
+          <SalesFunnel date={filterDate} />
         </DialogContent>
       </Dialog>
 
