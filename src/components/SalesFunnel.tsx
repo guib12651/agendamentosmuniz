@@ -109,8 +109,37 @@ export default function SalesFunnel({ date }: { date: string }) {
     { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: data?.distribution.reduce((acc, d) => acc + d.appointmentsMade, 0) || 0 },
     { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: data?.distribution.reduce((acc, d) => acc + d.visitsCompleted, 0) || 0 },
     { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: data?.distribution.reduce((acc, d) => acc + d.negotiationsStarted, 0) || 0 },
-    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || 0 },
+    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: data?.distribution.reduce((acc, d) => acc + d.salesCompleted, 0) || meetings.filter(m => m.funnelStage === 'sale').length },
   ];
+
+  const handleStageMove = async (meetingId: string, nextStage: FunnelStage) => {
+    try {
+      await updateFunnelStage(meetingId, nextStage);
+      toast.success("Lead movido no funil!");
+      loadData();
+    } catch (err) {
+      toast.error("Erro ao mover lead.");
+    }
+  };
+
+  const getMeetingsInStage = (stageId: string) => {
+    const stageMap: Record<string, FunnelStage> = {
+        appointments: "appointment",
+        visits: "visit",
+        negotiations: "negotiation",
+        sales: "sale"
+    };
+    const targetStage = stageMap[stageId];
+    if (!targetStage) return [];
+    
+    return meetings.filter(m => {
+        const isCorrectStage = m.funnelStage === targetStage;
+        if (!isAdmin) {
+            return isCorrectStage && m.preSeller === profile?.displayName;
+        }
+        return isCorrectStage;
+    });
+  };
 
   const toggleStage = (id: string) => {
     setExpandedStage(expandedStage === id ? null : id);
