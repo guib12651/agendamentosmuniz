@@ -24,6 +24,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const [loading, setLoading] = useState(true);
   const [tempLeads, setTempLeads] = useState(0);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
+  const [localLeadsCaptured, setLocalLeadsCaptured] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
@@ -90,7 +91,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
   const handleSaveTotalLeads = async () => {
     try {
-      await saveFunnelDay(selectedDate, tempLeads);
+      await saveFunnelDay(selectedDate, localLeadsCaptured !== null ? localLeadsCaptured : tempLeads);
       toast.success("Total de leads captados atualizado!");
       loadData();
     } catch (err) {
@@ -155,7 +156,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Captação", 
       color: "bg-blue-500", 
       icon: Target, 
-      value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
+      value: (expandedStage === "capture" && isAdmin && period === "daily") ? (localLeadsCaptured !== null ? localLeadsCaptured : tempLeads) : (data?.totalLeadsCaptured || 0) 
     },
     { 
       id: "distribution", 
@@ -357,12 +358,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               <div className="flex gap-2">
                 <Input 
                   type="number" 
-                  value={tempLeads === 0 ? '' : tempLeads} 
+                  value={localLeadsCaptured !== null ? (localLeadsCaptured === 0 ? '' : localLeadsCaptured) : (tempLeads === 0 ? '' : tempLeads)} 
                   placeholder="0"
-                  onChange={(e) => setTempLeads(parseInt(e.target.value) || 0)}
+                  onChange={(e) => setLocalLeadsCaptured(parseInt(e.target.value) || 0)}
                   className="h-10"
                 />
-                <Button onClick={handleSaveTotalLeads}>Salvar</Button>
+                <Button onClick={async () => {
+                    await handleSaveTotalLeads();
+                    setLocalLeadsCaptured(null);
+                }}>Salvar</Button>
               </div>
             </div>
           )}
@@ -458,7 +462,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                     type="number" 
                                     className="w-20 h-8 text-right" 
                                     defaultValue={getVal() || ''}
-                                    key={`${ps.id}-${expandedStage}-${getVal()}`}
+                                    key={`${ps.id}-${expandedStage}-${getVal()}-${selectedDate}`}
                                     placeholder="0"
                                     onBlur={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
                                     onKeyDown={(e) => {
@@ -509,7 +513,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                         type="number" 
                                         className="w-20 h-9 text-right" 
                                         defaultValue={getVal() || ''}
-                                        key={`${profile?.id}-${expandedStage}-${getVal()}`}
+                                        key={`${profile?.id}-${expandedStage}-${getVal()}-${selectedDate}`}
                                         placeholder="0"
                                         onBlur={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
                                         onKeyDown={(e) => {
