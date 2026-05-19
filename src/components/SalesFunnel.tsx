@@ -181,9 +181,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Agendamentos", 
       color: "bg-amber-500", 
       icon: Calendar, 
-      value: (data?.distribution || [])
+      value: ((data?.distribution || [])
         .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
-        .reduce((acc, d) => acc + (d.appointmentsMade || 0), 0) || getMeetingsInStageCount("appointments") 
+        .reduce((acc, d) => acc + (d.appointmentsMade || 0), 0)) + getMeetingsInStageCount("appointments") 
     },
     { 
       id: "visits", 
