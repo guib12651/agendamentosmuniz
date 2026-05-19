@@ -223,6 +223,19 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     };
     const targetStage = stageMap[stageId];
     return meetings.filter(m => {
+        // Se for agendamento ou visita, consideramos o status compareceu/pendente etc conforme a lógica do negócio
+        // Para Agendamentos, contamos TODOS os agendamentos no período
+        if (stageId === "appointments") {
+            const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+            return matchesSeller;
+        }
+        
+        // Para Visitas, contamos apenas quem tem status "compareceu"
+        if (stageId === "visits") {
+            const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+            return m.status === "compareceu" && matchesSeller;
+        }
+
         const isCorrectStage = m.funnelStage === targetStage;
         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
         return isCorrectStage && matchesSeller;
