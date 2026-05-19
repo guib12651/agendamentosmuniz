@@ -156,7 +156,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Captação", 
       color: "bg-blue-500", 
       icon: Target, 
-      value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
+      value: (expandedStage === "capture" && isAdmin && period === "daily") ? (localLeadsCaptured !== null ? localLeadsCaptured : tempLeads) : (data?.totalLeadsCaptured || 0) 
     },
     { 
       id: "distribution", 
