@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType } from "./types";
+import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType, FunnelStage } from "./types";
 
 export async function getMeetings(): Promise<Meeting[]> {
   const { data, error } = await supabase
