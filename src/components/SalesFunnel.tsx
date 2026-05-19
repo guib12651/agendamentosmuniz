@@ -199,18 +199,18 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Negociações", 
       color: "bg-emerald-500", 
       icon: Handshake, 
-      value: (data?.distribution || [])
+      value: ((data?.distribution || [])
         .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
-        .reduce((acc, d) => acc + (d.negotiationsStarted || 0), 0) || getMeetingsInStageCount("negotiations") 
+        .reduce((acc, d) => acc + (d.negotiationsStarted || 0), 0)) + getMeetingsInStageCount("negotiations") 
     },
     { 
       id: "sales", 
       label: "Vendas", 
       color: "bg-rose-600", 
       icon: ShoppingCart, 
-      value: (data?.distribution || [])
+      value: ((data?.distribution || [])
         .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
-        .reduce((acc, d) => acc + (d.salesCompleted || 0), 0) || getMeetingsInStageCount("sales") 
+        .reduce((acc, d) => acc + (d.salesCompleted || 0), 0)) + getMeetingsInStageCount("sales") 
     },
   ];
 
