@@ -400,7 +400,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
               {isAdmin ? (
                 preSellers.map(ps => {
-                    const dist = data?.distribution.find(d => d.userId === ps.id);
+                    const dist = (data?.distribution || []).find(d => d.userId === ps.id);
                     const getVal = () => {
                         if (expandedStage === "distribution") return dist?.leadsReceived || 0;
                         if (expandedStage === "calls") return dist?.callsMade || 0;
