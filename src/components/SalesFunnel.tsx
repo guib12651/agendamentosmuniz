@@ -52,7 +52,19 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       setData(result);
       // Filtramos reuniões no intervalo
       setMeetings(m.filter(item => item.date >= range.start && item.date <= range.end));
-      if (result && period === "daily") setTempLeads(result.totalLeadsCaptured);
+      
+      // Carrega tempLeads com base na data selecionada atual para edição
+      const { data: currentDay } = await supabase
+        .from("sales_funnel_days")
+        .select("total_leads_captured")
+        .eq("date", selectedDate)
+        .maybeSingle();
+      
+      if (currentDay) {
+        setTempLeads(currentDay.total_leads_captured || 0);
+      } else {
+        setTempLeads(0);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -86,8 +98,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   };
 
   const handleUpdateMetric = async (userId: string, field: string, value: number) => {
-    if (period !== "daily") {
-        toast.error("Edição de métricas permitida apenas na visão Diária.");
+    if (period !== "daily" && !isAdmin) {
+        toast.error("Edição de métricas em períodos consolidados permitida apenas para administradores.");
         return;
     }
 
@@ -112,7 +124,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Captação", 
       color: "bg-blue-500", 
       icon: Target, 
-      value: (expandedStage === "capture" && isAdmin && period === "daily") ? tempLeads : (data?.totalLeadsCaptured || 0) 
+      value: (expandedStage === "capture" && isAdmin) ? tempLeads : (data?.totalLeadsCaptured || 0) 
     },
     { id: "distribution", label: "Distribuição", color: "bg-indigo-500", icon: Users, value: data?.distribution.reduce((acc, d) => acc + d.leadsReceived, 0) || 0 },
     { id: "calls", label: "Ligações", color: "bg-purple-500", icon: Phone, value: data?.distribution.reduce((acc, d) => acc + d.callsMade, 0) || 0 },
@@ -225,9 +237,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
              {stages.find(s => s.id === expandedStage)?.label} - Detalhes
           </h3>
 
-          {expandedStage === "capture" && isAdmin && period === "daily" && (
+          {expandedStage === "capture" && isAdmin && (
             <div className="space-y-3">
-              <Label>Total de leads captados no dia</Label>
+              <Label>Total de leads captados (Data: {selectedDate.split("-").reverse().join("/")})</Label>
               <div className="flex gap-2">
                 <Input 
                   type="number" 
@@ -240,7 +252,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             </div>
           )}
 
-          {expandedStage === "capture" && period !== "daily" && (
+          {expandedStage === "capture" && period !== "daily" && !isAdmin && (
             <p className="text-sm text-center text-muted-foreground">O total captado no período é a soma dos valores diários.</p>
           )}
 
