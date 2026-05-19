@@ -24,6 +24,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const [loading, setLoading] = useState(true);
   const [tempLeads, setTempLeads] = useState(0);
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
+  const [localLeadsCaptured, setLocalLeadsCaptured] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
