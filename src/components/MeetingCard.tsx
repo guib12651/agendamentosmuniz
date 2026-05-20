@@ -129,12 +129,12 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
                 </Button>
               )}
               {meeting.status !== "em_negociacao" && (
-                <Button size="sm" variant="outline" className="text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("em_negociacao" as any)}>
+                <Button size="sm" variant="outline" className="text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("em_negociacao")}>
                   <Handshake className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Negociação
                 </Button>
               )}
               {meeting.status !== "venda_concluida" && (
-                <Button size="sm" variant="outline" className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("venda_concluida" as any)}>
+                <Button size="sm" variant="outline" className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("venda_concluida")}>
                   <ShoppingCart className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Venda
                 </Button>
               )}
