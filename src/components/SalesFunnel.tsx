@@ -583,21 +583,6 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                 </div>
               )}
 
-                                        onBlur={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <span className="font-bold text-primary">{getVal()}</span>
-                                )}
-                            </div>
-                        );
-                    })()}
-                </div>
-              )}
             </div>
           )}
           
