@@ -115,9 +115,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       ]);
       setData(result);
       setMeetings(m.filter(item => {
-        const itemDate = item.date;
+        const itemDate = item.date.trim();
         return itemDate >= range.start && itemDate <= range.end;
       }));
+
 
       setCalls(c);
       
