@@ -153,7 +153,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedDate, period, customStart, customEnd]);
+  }, [selectedDate, period, customStart, customEnd, selectedPreSeller]);
 
   const handleSaveTotalLeads = async () => {
     try {
