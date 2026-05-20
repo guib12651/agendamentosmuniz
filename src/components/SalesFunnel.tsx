@@ -512,6 +512,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               <div className="grid gap-3">
                 {getMeetingsInStage(expandedStage).map(m => (
 
+
                       <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-300">
                         <div className="flex justify-between items-start">
                           <h4 className="font-bold text-primary">{m.leadName}</h4>
