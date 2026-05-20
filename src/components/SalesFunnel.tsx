@@ -310,16 +310,36 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         <div className="mt-4 p-4 bg-muted/30 rounded-lg border border-border animate-in fade-in slide-in-from-top-2">
           <h3 className="font-display font-bold text-sm mb-3 flex items-center gap-2">{stages.find(s => s.id === expandedStage)?.label} - Detalhes</h3>
           {expandedStage === "capture" && isAdmin && (
-            <div className="space-y-3">
-              <Label>Total de leads captados (Data: {selectedDate.split("-").reverse().join("/")})</Label>
-              <div className="flex gap-2">
-                <Input type="number" value={localLeadsCaptured !== null ? (localLeadsCaptured === 0 ? '' : localLeadsCaptured) : (tempLeads === 0 ? '' : tempLeads)} placeholder="0" onChange={(e) => setLocalLeadsCaptured(parseInt(e.target.value) || 0)} className="h-10" />
-                <Button onClick={async () => {
-                    const finalLeads = localLeadsCaptured !== null ? localLeadsCaptured : tempLeads;
-                    await handleSaveTotalLeads();
-                    setTempLeads(finalLeads);
-                    setLocalLeadsCaptured(null);
-                }}>Salvar</Button>
+            <div className="space-y-4">
+              <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                <div className="space-y-2">
+                  <Label className="text-slate-900 font-bold">Quantidade captada</Label>
+                  <div className="flex gap-2">
+                    <Input type="number" value={localLeadsCaptured !== null ? (localLeadsCaptured === 0 ? '' : localLeadsCaptured) : (tempLeads === 0 ? '' : tempLeads)} placeholder="0" onChange={(e) => setLocalLeadsCaptured(parseInt(e.target.value) || 0)} className="h-11 rounded-xl border-slate-200 focus:ring-primary shadow-sm" />
+                    <Button className="h-11 px-6 rounded-xl font-bold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm" onClick={async () => {
+                        const finalLeads = localLeadsCaptured !== null ? localLeadsCaptured : tempLeads;
+                        await handleSaveTotalLeads();
+                        setTempLeads(finalLeads);
+                        setLocalLeadsCaptured(null);
+                    }}>Salvar</Button>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100">
+                  <Label className="text-slate-900 font-bold block mb-3">Origem dos Leads</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {["Instagram", "Meta Ads", "Indicação", "Lista fria", "CNPJ", "Orgânico", "Outros"].map(source => (
+                      <div key={source} className="px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-medium text-slate-600">
+                        {source}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4 flex items-center justify-between text-[11px] text-muted-foreground italic">
+                  <span>Data: {selectedDate.split("-").reverse().join("/")}</span>
+                  <span>Responsável: {profile?.displayName || 'Administrador'}</span>
+                </div>
               </div>
             </div>
           )}
