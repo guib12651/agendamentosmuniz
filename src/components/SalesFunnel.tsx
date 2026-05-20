@@ -292,15 +292,16 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
           const width = 100 - (idx * 6);
           const isExpanded = expandedStage === stage.id;
           return (
-            <div key={stage.id} onClick={() => toggleStage(stage.id)} className={`group relative cursor-pointer transition-all duration-300 ease-out flex items-center justify-between px-6 py-3.5 rounded-xl text-white font-bold shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 active:scale-[0.98] ${stage.color} ${isExpanded ? 'ring-2 ring-offset-2 ring-offset-background ring-primary/20 scale-[1.02] z-10' : ''}`} style={{ width: `${width}%`, minWidth: '220px', background: `linear-gradient(135deg, ${getHexForColor(stage.color)}, ${getDarkerHex(stage.color)})` }}>
-              <div className="flex items-center gap-3 relative z-10">
-                <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300"><stage.icon className="w-5 h-5" /></div>
-                <span className="text-sm md:text-base tracking-tight truncate">{stage.label}</span>
-              </div>
+            <div key={stage.id} onClick={() => toggleStage(stage.id)} className={`group relative cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] flex items-center justify-between px-6 py-4 rounded-2xl text-white font-bold shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] hover:-translate-y-1 active:scale-[0.97] ${stage.color} ${isExpanded ? 'ring-4 ring-primary/20 scale-[1.03] z-20' : ''}`} style={{ width: `${width}%`, minWidth: '240px', background: `linear-gradient(135deg, ${getHexForColor(stage.color)}, ${getDarkerHex(stage.color)})` }}>
               <div className="flex items-center gap-4 relative z-10">
-                <div className="text-xl md:text-2xl font-black font-display tabular-nums"><AnimatedCounter value={stage.value} /></div>
-                {isExpanded ? <ChevronUp className="w-5 h-5 opacity-70" /> : <ChevronDown className="w-5 h-5 opacity-70 group-hover:translate-y-0.5 transition-transform" />}
+                <div className="p-2.5 rounded-xl bg-white/20 backdrop-blur-md group-hover:scale-110 transition-transform duration-500 shadow-sm"><stage.icon className="w-5 h-5" /></div>
+                <span className="text-sm md:text-base tracking-tight truncate drop-shadow-sm">{stage.label}</span>
               </div>
+              <div className="flex items-center gap-5 relative z-10">
+                <div className="text-2xl md:text-3xl font-black font-display tabular-nums tracking-tighter drop-shadow-md"><AnimatedCounter value={stage.value} /></div>
+                {isExpanded ? <ChevronUp className="w-6 h-6 opacity-80" /> : <ChevronDown className="w-6 h-6 opacity-60 group-hover:translate-y-1 transition-transform duration-300" />}
+              </div>
+              {isExpanded && <div className="absolute inset-0 rounded-2xl bg-white/5 animate-pulse pointer-events-none" />}
             </div>
           );
         })}
