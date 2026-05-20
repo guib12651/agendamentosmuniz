@@ -43,26 +43,26 @@ function AnimatedCounter({ value }: { value: number }) {
 
 const getHexForColor = (colorClass: string) => {
   const map: Record<string, string> = {
-    'bg-blue-500': '#3b82f6',
-    'bg-indigo-500': '#6366f1',
-    'bg-purple-500': '#a855f7',
+    'bg-slate-800': '#1e293b',
+    'bg-slate-700': '#334155',
+    'bg-slate-600': '#475569',
     'bg-amber-500': '#f59e0b',
-    'bg-orange-500': '#f97316',
-    'bg-emerald-500': '#10b981',
-    'bg-rose-600': '#e11d48',
+    'bg-primary': '#FFD700', // Yellow Muniz
+    'bg-blue-600': '#2563eb',
+    'bg-emerald-600': '#059669',
   };
   return map[colorClass] || '#3b82f6';
 };
 
 const getDarkerHex = (colorClass: string) => {
   const map: Record<string, string> = {
-    'bg-blue-500': '#2563eb',
-    'bg-indigo-500': '#4f46e5',
-    'bg-purple-500': '#9333ea',
+    'bg-slate-800': '#0f172a',
+    'bg-slate-700': '#1e293b',
+    'bg-slate-600': '#334155',
     'bg-amber-500': '#d97706',
-    'bg-orange-500': '#ea580c',
-    'bg-emerald-500': '#059669',
-    'bg-rose-600': '#be123c',
+    'bg-primary': '#E6C200',
+    'bg-blue-600': '#1e40af',
+    'bg-emerald-600': '#065f46',
   };
   return map[colorClass] || '#2563eb';
 };
