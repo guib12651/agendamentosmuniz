@@ -303,7 +303,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             return m.status === "venda_concluida" as any;
         }
 
-        return m.funnelStage === targetStage;
+        return m.funnelStage === targetStage || (stageId === 'visits' && (m.status === 'compareceu' || m.status === 'visita_realizada'));
     }).length;
   }
 
