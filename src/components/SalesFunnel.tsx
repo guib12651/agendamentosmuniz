@@ -664,9 +664,13 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
                 {expandedStage === "visits" && (
                   meetings
-                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada')
-                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
-                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit')
+                    .filter(m => {
+                        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+                        if (!isAdmin) return m.preSeller === profile?.displayName && matchesSeller;
+                        return matchesSeller;
+                    })
+
                     .map(m => (
                       <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
                         <div className="flex justify-between items-start">
