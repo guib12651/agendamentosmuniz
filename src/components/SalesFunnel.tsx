@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import { getFunnelDataRange, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
-import { updateFunnelStage, getMeetings } from "@/lib/store";
-import { Meeting, FunnelStage } from "@/lib/types";
+import { updateFunnelStage, getMeetings, getCalls, addCall } from "@/lib/store";
+import { Meeting, FunnelStage, Call } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target, Search, MoreHorizontal } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target, Search, MoreHorizontal, Plus, Clock, CheckCircle2, XCircle, TrendingUp } from "lucide-react";
 
 // Helper components for animation and styles
 function AnimatedCounter({ value }: { value: number }) {
