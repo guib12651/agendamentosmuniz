@@ -225,21 +225,28 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
   function getMeetingsInStageCount(stageId: string) {
     const stageMap: Record<string, FunnelStage> = { appointments: "appointment", visits: "visit", negotiations: "negotiation", sales: "sale" };
-    const targetStage = stageMap[stageId];
     return meetings.filter(m => {
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
-        if (!isAdmin && !isOwner) return false;
-        if (isAdmin && !matchesSeller) return false;
-
-        if (stageId === "appointments") return true;
         
+        // Se não for admin, só vê os seus próprios leads
+        if (!isAdmin && !isOwner) return false;
+        
+        // Se for admin e tiver filtro de pré-vendedor, respeita o filtro
+        if (isAdmin && selectedPreSeller !== "all" && !matchesSeller) return false;
+
         const status = m.status?.toLowerCase().trim();
-        if (stageId === "visits") return status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit";
+        
+        // Aba de Visitas: Captura status 'compareceu' ou funnelStage 'visit'
+        if (stageId === "visits") {
+            return status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit";
+        }
+        
+        if (stageId === "appointments") return true; // Todos os agendamentos aparecem na primeira aba
         if (stageId === "negotiations") return status === "em_negociacao" || m.funnelStage === "negotiation";
         if (stageId === "sales") return status === "venda_concluida" || m.funnelStage === "sale";
 
-        return m.funnelStage === targetStage;
+        return m.funnelStage === stageMap[stageId];
     }).length;
   }
 
@@ -259,8 +266,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         else isCorrectStage = m.funnelStage === targetStage;
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
-        if (!isAdmin) return isCorrectStage && m.preSeller?.trim() === profile?.displayName?.trim() && matchesSeller;
-        return isCorrectStage && matchesSeller;
+        const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
+
+        if (!isAdmin) return isCorrectStage && isOwner;
+        return isCorrectStage && (selectedPreSeller === "all" || matchesSeller);
     });
   };
 
