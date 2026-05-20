@@ -232,14 +232,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Ligações", 
       color: "bg-purple-500", 
       icon: Phone, 
-      value: (data?.distribution || [])
-        .filter(d => {
-          if (isAdmin) {
-            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
-          }
-          return d.userId === profile?.id;
-        })
-        .reduce((acc, d) => acc + (d.callsMade || 0), 0) 
+      value: calls.filter(c => {
+        const matchesSeller = selectedPreSeller === "all" || c.userDisplayName === selectedPreSeller;
+        if (!isAdmin) return c.userId === profile?.id;
+        return matchesSeller;
+      }).length
     },
     { 
       id: "appointments", 
