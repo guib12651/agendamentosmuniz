@@ -334,14 +334,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         if (stageId === "appointments") {
             isCorrectStage = true; // Mostra todos os agendamentos nos detalhes
         } else if (stageId === "visits") {
-            isCorrectStage = m.status === "compareceu" || m.status === "visita_realizada" as any; 
+            isCorrectStage = m.status === "compareceu" || m.status === "visita_realizada" || m.funnelStage === "visit"; 
         } else if (stageId === "negotiations") {
-            isCorrectStage = m.status === "em_negociacao" as any;
+            isCorrectStage = m.status === "em_negociacao" || m.funnelStage === "negotiation";
         } else if (stageId === "sales") {
-            isCorrectStage = m.status === "venda_concluida" as any;
+            isCorrectStage = m.status === "venda_concluida" || m.funnelStage === "sale";
         } else {
-            isCorrectStage = m.funnelStage === targetStage || (stageId === 'visits' && (m.status === 'compareceu' || m.status === 'visita_realizada'));
+            isCorrectStage = m.funnelStage === targetStage;
         }
+
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
         
