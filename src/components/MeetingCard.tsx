@@ -1,5 +1,5 @@
 import { Meeting, MeetingStatus, MarkingType, TriggerType } from "@/lib/types";
-import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video, Target } from "lucide-react";
+import { Phone, User, Briefcase, Edit2, Trash2, DollarSign, AlertTriangle, CheckCircle, XCircle, Clock, Tag, MapPin, Video, Target, Handshake, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 
@@ -33,7 +33,10 @@ const restrictionConfig = {
 const statusConfig = {
   pending: { label: "Pendente", className: "bg-muted text-muted-foreground", icon: Clock },
   compareceu: { label: "Compareceu", className: "bg-success/20 text-success", icon: CheckCircle },
+  visita_realizada: { label: "Visita Realizada", className: "bg-success/20 text-success", icon: CheckCircle },
   nao_compareceu: { label: "Não compareceu", className: "bg-destructive/20 text-destructive", icon: XCircle },
+  em_negociacao: { label: "Em Negociação", className: "bg-emerald-500/20 text-emerald-500", icon: Handshake },
+  venda_concluida: { label: "Venda Concluída", className: "bg-rose-500/20 text-rose-500", icon: ShoppingCart },
 };
 
 const markingTypeLabels: Record<MarkingType, string> = {
@@ -115,7 +118,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
           {/* Status buttons - Only for Admin */}
           {isAdmin && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {meeting.status !== "compareceu" && (
+              {meeting.status !== "compareceu" && meeting.status !== "visita_realizada" && (
                 <Button size="sm" variant="outline" className="text-success border-success/30 hover:bg-success/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("compareceu")}>
                   <CheckCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Compareceu
                 </Button>
@@ -123,6 +126,16 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
               {meeting.status !== "nao_compareceu" && (
                 <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("nao_compareceu")}>
                   <XCircle className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Não compareceu
+                </Button>
+              )}
+              {meeting.status !== "em_negociacao" && (
+                <Button size="sm" variant="outline" className="text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("em_negociacao")}>
+                  <Handshake className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Negociação
+                </Button>
+              )}
+              {meeting.status !== "venda_concluida" && (
+                <Button size="sm" variant="outline" className="text-rose-500 border-rose-500/30 hover:bg-rose-500/10 h-10 sm:h-8 text-sm px-3" onClick={() => onStatusChange("venda_concluida")}>
+                  <ShoppingCart className="w-4 h-4 sm:w-3.5 sm:h-3.5 mr-1" /> Venda
                 </Button>
               )}
               {meeting.status !== "pending" && (

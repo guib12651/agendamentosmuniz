@@ -96,7 +96,12 @@ export async function deleteMeeting(id: string): Promise<void> {
 export async function updateFunnelStage(id: string, stage: FunnelStage): Promise<void> {
   const { error } = await supabase
     .from("meetings")
-    .update({ funnel_stage: stage } as any)
+    .update({ 
+      funnel_stage: stage,
+      status: stage === 'visit' ? 'compareceu' : 
+              stage === 'negotiation' ? 'em_negociacao' : 
+              stage === 'sale' ? 'venda_concluida' : 'pending'
+    } as any)
     .eq("id", id);
   if (error) throw error;
 }
