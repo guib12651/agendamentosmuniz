@@ -110,6 +110,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       const [result, m, c] = await Promise.all([
         getFunnelDataRange(range.start, range.end),
         getMeetings(),
+
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
       setData(result);
