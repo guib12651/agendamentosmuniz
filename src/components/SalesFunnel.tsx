@@ -82,6 +82,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
   const [localLeadsCaptured, setLocalLeadsCaptured] = useState<number | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [calls, setCalls] = useState<Call[]>([]);
+  const [isAddingCall, setIsAddingCall] = useState(false);
+  const [newCall, setNewCall] = useState({ leadName: '', result: 'Não atendeu' });
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
   const [selectedPreSeller, setSelectedPreSeller] = useState<string>("all");
