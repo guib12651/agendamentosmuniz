@@ -664,9 +664,13 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
                 {expandedStage === "visits" && (
                   meetings
-                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada')
-                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
-                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit')
+                    .filter(m => {
+                        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+                        if (!isAdmin) return m.preSeller === profile?.displayName && matchesSeller;
+                        return matchesSeller;
+                    })
+
                     .map(m => (
                       <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
                         <div className="flex justify-between items-start">
@@ -816,7 +820,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                 {expandedStage !== "capture" && expandedStage !== "distribution" && 
                   ((expandedStage === "appointments" && meetings.length === 0) ||
                    (expandedStage === "calls" && calls.length === 0 && !isAddingCall) ||
-                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length === 0) ||
+                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit').length === 0) ||
                    (expandedStage === "negotiations" && meetings.filter(m => m.status === 'em_negociacao').length === 0) ||
                    (expandedStage === "sales" && meetings.filter(m => m.status === 'venda_concluida').length === 0)) && (
                   <div className="py-8 text-center">
