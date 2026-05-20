@@ -14,8 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      calls: {
+        Row: {
+          call_time: string | null
+          created_at: string | null
+          id: string
+          lead_name: string
+          result: string
+          user_id: string
+        }
+        Insert: {
+          call_time?: string | null
+          created_at?: string | null
+          id?: string
+          lead_name: string
+          result: string
+          user_id: string
+        }
+        Update: {
+          call_time?: string | null
+          created_at?: string | null
+          id?: string
+          lead_name?: string
+          result?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
+          city: string | null
           consultant: string
           created_at: string
           date: string
@@ -36,6 +64,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          city?: string | null
           consultant: string
           created_at?: string
           date: string
@@ -56,6 +85,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          city?: string | null
           consultant?: string
           created_at?: string
           date?: string
