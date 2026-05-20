@@ -326,30 +326,63 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
           {expandedStage !== "capture" && expandedStage !== "distribution" && expandedStage !== "calls" && (
             <div className="space-y-4">
-              <div className="grid gap-3">
+              <div className="grid gap-4">
                 {getMeetingsInStage(expandedStage).map(m => (
-                  <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-300">
+                  <div key={m.id} className="bg-white p-5 rounded-2xl border-0 shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-300 hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] transition-all">
                     <div className="flex justify-between items-start">
-                      <h4 className="font-bold text-primary">{m.leadName}</h4>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${m.status === 'pending' ? 'bg-amber-100 text-amber-700' : m.status === 'compareceu' ? 'bg-emerald-100 text-emerald-700' : m.status === 'nao_compareceu' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'}`}>
-                        {m.status === 'pending' ? 'Agendado' : m.status.replace('_', ' ')}
-                      </span>
+                      <div className="space-y-1">
+                        <h4 className="font-black text-slate-900 text-base">{m.leadName}</h4>
+                        <div className="flex items-center gap-2">
+                           <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${
+                             m.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
+                             m.status === 'compareceu' ? 'bg-emerald-100 text-emerald-700' : 
+                             m.status === 'nao_compareceu' ? 'bg-rose-100 text-rose-700' : 
+                             'bg-blue-100 text-blue-700'
+                           }`}>
+                            {m.status === 'pending' ? 'Agendado' : m.status.replace('_', ' ')}
+                          </span>
+                          <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded-full font-bold">
+                            {m.meetingType === 'presencial' ? 'Presencial' : 'Online'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="bg-primary/10 p-2 rounded-xl text-primary">
+                        {expandedStage === 'appointments' && <Calendar className="w-5 h-5" />}
+                        {expandedStage === 'visits' && <MapPin className="w-5 h-5" />}
+                        {expandedStage === 'negotiations' && <Handshake className="w-5 h-5" />}
+                        {expandedStage === 'sales' && <ShoppingCart className="w-5 h-5" />}
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-y-2 text-xs">
-                      <div className="flex items-center gap-1.5 text-muted-foreground"><Calendar className="w-3.5 h-3.5 text-primary/60" /> {m.date.split("-").reverse().join("/")}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground"><Clock className="w-3.5 h-3.5 text-primary/60" /> {m.time}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground"><Users className="w-3.5 h-3.5 text-primary/60" /> {m.preSeller}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground">{m.meetingType === 'presencial' ? <MapPin className="w-3.5 h-3.5 text-primary/60" /> : <div className="w-3.5 h-3.5 flex items-center justify-center text-primary/60">💻</div>} {m.meetingType === 'presencial' ? 'Presencial' : 'Online'}</div>
-                      <div className="flex items-center gap-1.5 text-muted-foreground col-span-2"><Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger || 'Não informado'}</div>
-                      {m.city && <div className="flex items-center gap-1.5 text-muted-foreground col-span-2"><MapPin className="w-3.5 h-3.5 text-primary/60" /> {m.city}</div>}
+
+                    <div className="grid grid-cols-2 gap-4 text-[11px] bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+                      <div className="flex items-center gap-2 text-slate-600 font-medium"><Calendar className="w-4 h-4 text-primary" /> {m.date.split("-").reverse().join("/")}</div>
+                      <div className="flex items-center gap-2 text-slate-600 font-medium"><Clock className="w-4 h-4 text-primary" /> {m.time}</div>
+                      <div className="flex items-center gap-2 text-slate-600 font-medium"><Users className="w-4 h-4 text-primary" /> {m.preSeller}</div>
+                      <div className="flex items-center gap-2 text-slate-600 font-medium truncate"><Target className="w-4 h-4 text-primary" /> {m.trigger || 'Não informado'}</div>
+                      {m.city && <div className="flex items-center gap-2 text-slate-600 font-medium col-span-2"><MapPin className="w-4 h-4 text-primary" /> {m.city}</div>}
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50">
+
+                    <div className="flex flex-wrap gap-2 pt-2">
                       {m.status === 'pending' && (
-                        <><Button size="sm" variant="outline" className="h-7 text-[10px] px-2 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100" onClick={() => supabase.from("meetings").update({ status: 'compareceu' }).eq("id", m.id).then(() => loadData())}>Compareceu</Button>
-                        <Button size="sm" variant="outline" className="h-7 text-[10px] px-2 bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100" onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}>Faltou</Button></>
+                        <>
+                          <Button size="sm" className="flex-1 h-9 rounded-xl font-bold bg-emerald-500 hover:bg-emerald-600 text-white border-0 shadow-sm" onClick={() => supabase.from("meetings").update({ status: 'compareceu' }).eq("id", m.id).then(() => loadData())}>
+                            Confirmar Comparecimento
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-9 rounded-xl font-bold text-rose-600 hover:bg-rose-50 hover:text-rose-700" onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}>
+                            Faltou
+                          </Button>
+                        </>
                       )}
-                      {m.status === 'compareceu' && <Button size="sm" variant="outline" className="h-7 text-[10px] px-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100" onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}>Negociação</Button>}
-                      {m.status === 'em_negociacao' && <Button size="sm" variant="outline" className="h-7 text-[10px] px-2 bg-emerald-600 border-emerald-700 text-white hover:bg-emerald-700" onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}>Venda</Button>}
+                      {m.status === 'compareceu' && (
+                        <Button size="sm" className="w-full h-10 rounded-xl font-black bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-md flex items-center justify-center gap-2" onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}>
+                          Entrou em Negociação <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      )}
+                      {m.status === 'em_negociacao' && (
+                        <Button size="sm" className="w-full h-10 rounded-xl font-black bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-md flex items-center justify-center gap-2" onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}>
+                          Venda Concluída <CheckCircle2 className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
