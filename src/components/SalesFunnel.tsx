@@ -301,16 +301,20 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         
         // Para Visitas, contamos leads com status compareceu/visita_realizada OU que estão no estágio de visita
         if (stageId === "visits") {
-            return m.status === "compareceu" || m.status === "visita_realizada" || m.funnelStage === "visit";
+            const status = m.status?.toLowerCase().trim();
+            return status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit";
         }
 
         if (stageId === "negotiations") {
-            return m.status === "em_negociacao" || m.funnelStage === "negotiation";
+            const status = m.status?.toLowerCase().trim();
+            return status === "em_negociacao" || m.funnelStage === "negotiation";
         }
 
         if (stageId === "sales") {
-            return m.status === "venda_concluida" || m.funnelStage === "sale";
+            const status = m.status?.toLowerCase().trim();
+            return status === "venda_concluida" || m.funnelStage === "sale";
         }
+
 
         return m.funnelStage === targetStage;
 
