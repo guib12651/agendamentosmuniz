@@ -529,6 +529,49 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                             </div>
                           )}
                         </div>
+                        
+                        <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50">
+                          {m.status === 'pending' && (
+                            <>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-7 text-[10px] px-2 bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                onClick={() => supabase.from("meetings").update({ status: 'compareceu' }).eq("id", m.id).then(() => loadData())}
+                              >
+                                Compareceu
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                className="h-7 text-[10px] px-2 bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                                onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}
+                              >
+                                Faltou
+                              </Button>
+                            </>
+                          )}
+                          {m.status === 'compareceu' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-7 text-[10px] px-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                              onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}
+                            >
+                              Negociação
+                            </Button>
+                          )}
+                          {m.status === 'em_negociacao' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-7 text-[10px] px-2 bg-emerald-600 border-emerald-700 text-white hover:bg-emerald-700"
+                              onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}
+                            >
+                              Venda
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     ))
                 )}
