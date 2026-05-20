@@ -345,27 +345,28 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     
     return meetings.filter(m => {
         let isCorrectStage = false;
+        const status = m.status?.toLowerCase().trim();
         
         if (stageId === "appointments") {
-            isCorrectStage = true; // Mostra todos os agendamentos nos detalhes
+            isCorrectStage = true;
         } else if (stageId === "visits") {
-            isCorrectStage = m.status === "compareceu" || m.status === "visita_realizada" || m.funnelStage === "visit"; 
+            isCorrectStage = status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit"; 
         } else if (stageId === "negotiations") {
-            isCorrectStage = m.status === "em_negociacao" || m.funnelStage === "negotiation";
+            isCorrectStage = status === "em_negociacao" || m.funnelStage === "negotiation";
         } else if (stageId === "sales") {
-            isCorrectStage = m.status === "venda_concluida" || m.funnelStage === "sale";
+            isCorrectStage = status === "venda_concluida" || m.funnelStage === "sale";
         } else {
             isCorrectStage = m.funnelStage === targetStage;
         }
 
-
-        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         
         if (!isAdmin) {
-            return isCorrectStage && m.preSeller === profile?.displayName && matchesSeller;
+            return isCorrectStage && m.preSeller?.trim() === profile?.displayName?.trim() && matchesSeller;
         }
         return isCorrectStage && matchesSeller;
     });
+
   };
 
   const toggleStage = (id: string) => {
