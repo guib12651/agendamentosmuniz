@@ -56,6 +56,7 @@ const emptyForm = {
   markingType: "" as MarkingType | "",
   meetingType: "" as MeetingType | "",
   trigger: "" as TriggerType | "",
+  city: "",
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
