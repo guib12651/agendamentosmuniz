@@ -173,7 +173,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       color: "bg-purple-500", 
       icon: Phone, 
       value: (data?.distribution || [])
-        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .filter(d => {
+          if (isAdmin) {
+            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
+          }
+          return d.userId === profile?.id;
+        })
         .reduce((acc, d) => acc + (d.callsMade || 0), 0) 
     },
     { 
@@ -182,7 +187,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       color: "bg-amber-500", 
       icon: Calendar, 
       value: ((data?.distribution || [])
-        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .filter(d => {
+          if (isAdmin) {
+            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
+          }
+          return d.userId === profile?.id;
+        })
         .reduce((acc, d) => acc + (d.appointmentsMade || 0), 0)) + getMeetingsInStageCount("appointments") 
     },
     { 
@@ -191,7 +201,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       color: "bg-orange-500", 
       icon: MapPin, 
       value: ((data?.distribution || [])
-        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .filter(d => {
+          if (isAdmin) {
+            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
+          }
+          return d.userId === profile?.id;
+        })
         .reduce((acc, d) => acc + (d.visitsCompleted || 0), 0)) + getMeetingsInStageCount("visits") 
     },
     { 
@@ -200,7 +215,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       color: "bg-emerald-500", 
       icon: Handshake, 
       value: ((data?.distribution || [])
-        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .filter(d => {
+          if (isAdmin) {
+            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
+          }
+          return d.userId === profile?.id;
+        })
         .reduce((acc, d) => acc + (d.negotiationsStarted || 0), 0)) + getMeetingsInStageCount("negotiations") 
     },
     { 
@@ -209,7 +229,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       color: "bg-rose-600", 
       icon: ShoppingCart, 
       value: ((data?.distribution || [])
-        .filter(d => selectedPreSeller === "all" || d.displayName === selectedPreSeller)
+        .filter(d => {
+          if (isAdmin) {
+            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
+          }
+          return d.userId === profile?.id;
+        })
         .reduce((acc, d) => acc + (d.salesCompleted || 0), 0)) + getMeetingsInStageCount("sales") 
     },
   ];
@@ -224,7 +249,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     const targetStage = stageMap[stageId];
     return meetings.filter(m => {
         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
-        if (!matchesSeller) return false;
+        
+        // Se não for admin, só vê os seus próprios agendamentos no contador
+        const isOwner = m.preSeller === profile?.displayName;
+        if (!isAdmin && !isOwner) return false;
+        if (isAdmin && !matchesSeller) return false;
 
         // Para Agendamentos, contamos TODOS os agendamentos no período
         if (stageId === "appointments") {
