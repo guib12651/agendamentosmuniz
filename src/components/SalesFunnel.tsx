@@ -677,6 +677,17 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                             <Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger || 'Não informado'}
                           </div>
                         </div>
+                        
+                        <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 text-[10px] px-2 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                            onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}
+                          >
+                            Mover para Negociação
+                          </Button>
+                        </div>
                       </div>
                     ))
                 )}
