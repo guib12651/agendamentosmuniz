@@ -478,22 +478,39 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
           )}
 
           {expandedStage === "distribution" && (
-            <div className="space-y-3">
-              {isAdmin ? preSellers.map(ps => {
-                const dist = (data?.distribution || []).find(d => d.userId === ps.id);
-                const val = dist?.leadsReceived || 0;
-                return (
-                  <div key={ps.id} className="flex items-center justify-between gap-4 p-2 bg-card rounded-lg border border-border/50">
-                    <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
-                    {period === "daily" ? (
-                      <Input type="number" className="w-20 h-8 text-right" defaultValue={val || ''} key={`dist-${ps.id}-${val}-${selectedDate}`} placeholder="0" onBlur={(e) => handleUpdateMetric(ps.id, "leadsReceived", parseInt(e.target.value) || 0)} onKeyDown={(e) => { if (e.key === 'Enter') handleUpdateMetric(ps.id, "leadsReceived", parseInt((e.target as HTMLInputElement).value) || 0); }} />
-                    ) : <span className="font-bold text-primary">{val}</span>}
-                  </div>
-                );
-              }) : (
-                <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
-                  <span className="text-sm font-semibold">Leads Recebidos no período:</span>
-                  <span className="text-xl font-black text-primary">{(data?.distribution.find(d => d.userId === profile?.id))?.leadsReceived || 0}</span>
+            <div className="space-y-4">
+              {isAdmin ? (
+                <div className="grid gap-3">
+                  {preSellers.map(ps => {
+                    const dist = (data?.distribution || []).find(d => d.userId === ps.id);
+                    const val = dist?.leadsReceived || 0;
+                    return (
+                      <div key={ps.id} className="flex items-center justify-between gap-4 p-4 bg-white rounded-2xl border border-slate-100 shadow-sm hover:border-primary/20 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600">
+                            {ps.displayName.charAt(0)}
+                          </div>
+                          <span className="text-sm font-bold text-slate-900">{ps.displayName}</span>
+                        </div>
+                        {period === "daily" ? (
+                          <div className="flex items-center gap-2">
+                             <Label className="text-[10px] font-bold text-slate-400 uppercase">Leads:</Label>
+                             <Input type="number" className="w-20 h-10 text-center font-bold rounded-xl border-slate-200" defaultValue={val || ''} key={`dist-${ps.id}-${val}-${selectedDate}`} placeholder="0" onBlur={(e) => handleUpdateMetric(ps.id, "leadsReceived", parseInt(e.target.value) || 0)} onKeyDown={(e) => { if (e.key === 'Enter') handleUpdateMetric(ps.id, "leadsReceived", parseInt((e.target as HTMLInputElement).value) || 0); }} />
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-end">
+                            <span className="text-xl font-black text-primary">{val}</span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase">Total no período</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center gap-2">
+                  <span className="text-slate-500 text-sm font-medium">Leads Recebidos no período:</span>
+                  <span className="text-4xl font-black text-primary">{(data?.distribution.find(d => d.userId === profile?.id))?.leadsReceived || 0}</span>
                 </div>
               )}
             </div>
