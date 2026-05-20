@@ -204,13 +204,13 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   };
 
   const stages = [
-    { id: "capture", label: "Captação", color: "bg-blue-500", icon: Target, value: data?.totalLeadsCaptured || 0 },
+    { id: "capture", label: "Captação", color: "bg-slate-800", icon: Target, value: data?.totalLeadsCaptured || 0 },
     { 
-      id: "distribution", label: "Distribuição", color: "bg-indigo-500", icon: Users, 
+      id: "distribution", label: "Distribuição", color: "bg-slate-700", icon: Users, 
       value: (data?.distribution || []).filter(d => selectedPreSeller === "all" || d.displayName?.trim() === selectedPreSeller?.trim()).reduce((acc, d) => acc + (d.leadsReceived || 0), 0) 
     },
     { 
-      id: "calls", label: "Ligações", color: "bg-purple-500", icon: Phone, 
+      id: "calls", label: "Ligações", color: "bg-slate-600", icon: Phone, 
       value: calls.filter(c => {
         const matchesSeller = selectedPreSeller === "all" || c.userDisplayName?.trim() === selectedPreSeller?.trim();
         if (!isAdmin) return c.userId === profile?.id;
@@ -218,9 +218,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       }).length
     },
     { id: "appointments", label: "Agendamentos", color: "bg-amber-500", icon: Calendar, value: getMeetingsInStageCount("appointments") },
-    { id: "visits", label: "Visitas", color: "bg-orange-500", icon: MapPin, value: getMeetingsInStageCount("visits") },
-    { id: "negotiations", label: "Negociações", color: "bg-emerald-500", icon: Handshake, value: getMeetingsInStageCount("negotiations") },
-    { id: "sales", label: "Vendas", color: "bg-rose-600", icon: ShoppingCart, value: getMeetingsInStageCount("sales") },
+    { id: "visits", label: "Visitas", color: "bg-primary", icon: MapPin, value: getMeetingsInStageCount("visits") },
+    { id: "negotiations", label: "Negociações", color: "bg-blue-600", icon: Handshake, value: getMeetingsInStageCount("negotiations") },
+    { id: "sales", label: "Vendas", color: "bg-emerald-600", icon: ShoppingCart, value: getMeetingsInStageCount("sales") },
   ];
 
   function getMeetingsInStageCount(stageId: string) {
