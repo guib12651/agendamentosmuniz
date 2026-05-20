@@ -56,6 +56,7 @@ const emptyForm = {
   markingType: "" as MarkingType | "",
   meetingType: "" as MeetingType | "",
   trigger: "" as TriggerType | "",
+  city: "",
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
@@ -283,6 +284,10 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Cidade</Label>
+          <Input value={form.city} onChange={(e) => set("city", e.target.value)} placeholder="Ex: Jequié" className="h-12 sm:h-10 text-base sm:text-sm" />
         </div>
       </div>
 

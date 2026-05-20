@@ -22,9 +22,20 @@ export interface Meeting {
   markingType: MarkingType;
   meetingType: MeetingType;
   trigger: TriggerType;
+  city?: string;
   userId?: string | null;
   createdAt?: string; // ISO timestamp when the meeting was registered
   funnelStage?: FunnelStage;
+}
+
+export interface Call {
+  id: string;
+  leadName: string;
+  userId: string;
+  userDisplayName?: string;
+  callTime: string; // ISO string
+  result: string;
+  createdAt?: string;
 }
 
 export interface TimeBlock {
