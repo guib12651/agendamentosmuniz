@@ -591,27 +591,26 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                           )}
                         </div>
                       </div>
-                    ))
-                }
+                    ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           {expandedStage === "calls" && (
             <>
+              <div className="flex justify-between items-center mb-2">
+                <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
+                {!isAddingCall && (
+                  <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={() => setIsAddingCall(true)}>
+                    <Plus className="w-3.5 h-3.5" /> Registrar Ligação
+                  </Button>
+                )}
+              </div>
 
-                    <div className="flex justify-between items-center mb-2">
-                      <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
-                      {!isAddingCall && (
-                        <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={() => setIsAddingCall(true)}>
-                          <Plus className="w-3.5 h-3.5" /> Registrar Ligação
-                        </Button>
-                      )}
-                    </div>
+              {isAddingCall && (
+                <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
+                  <div className="space-y-1.5">
 
-                    {isAddingCall && (
-                      <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
-                        <div className="space-y-1.5">
                           <Label className="text-xs">Nome do Lead</Label>
                           <Input className="h-8 text-xs" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
                         </div>
