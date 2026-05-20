@@ -413,43 +413,67 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
           {expandedStage === "calls" && (
             <div className="space-y-4">
               <div className="flex justify-between items-center mb-2">
-                <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
-                {!isAddingCall && <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={() => setIsAddingCall(true)}><Plus className="w-3.5 h-3.5" /> Registrar Ligação</Button>}
+                <Label className="text-slate-900 font-bold">Registro de Ligações</Label>
+                {!isAddingCall && (
+                  <Button size="sm" className="h-9 gap-2 rounded-xl bg-primary text-primary-foreground font-bold shadow-sm" onClick={() => setIsAddingCall(true)}>
+                    <Plus className="w-4 h-4" /> Registrar Ligação
+                  </Button>
+                )}
               </div>
               {isAddingCall && (
-                <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
-                  <div className="space-y-1.5"><Label className="text-xs">Nome do Lead</Label><Input className="h-8 text-xs" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" /></div>
+                <div className="bg-white p-5 rounded-2xl border border-primary/20 shadow-lg mb-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Resultado da Ligação</Label>
+                    <Label className="text-xs font-bold text-slate-700">Nome do Lead</Label>
+                    <Input className="h-10 rounded-xl border-slate-200" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-bold text-slate-700">Resultado da Ligação</Label>
                     <Select value={newCall.result} onValueChange={v => setNewCall({...newCall, result: v})}>
-                      <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="h-10 rounded-xl border-slate-200">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Não atendeu">Não atendeu</SelectItem>
                         <SelectItem value="Sem interesse">Sem interesse</SelectItem>
                         <SelectItem value="Agendado">Agendado</SelectItem>
                         <SelectItem value="Retornar depois">Retornar depois</SelectItem>
+                        <SelectItem value="Número inválido">Número inválido</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button size="sm" className="flex-1 h-8" onClick={async () => {
+                  <div className="flex gap-2 pt-2">
+                    <Button className="flex-1 h-11 rounded-xl font-bold bg-primary" onClick={async () => {
                       if (!newCall.leadName) return toast.error("Informe o nome do lead");
                       await addCall({ leadName: newCall.leadName, result: newCall.result, userId: profile?.id || '', callTime: new Date().toISOString() });
                       toast.success("Ligação registrada!");
                       setIsAddingCall(false);
                       setNewCall({ leadName: '', result: 'Não atendeu' });
                       loadData();
-                    }}>Salvar</Button>
-                    <Button size="sm" variant="ghost" className="h-8" onClick={() => setIsAddingCall(false)}>Cancelar</Button>
+                    }}>Salvar Registro</Button>
+                    <Button variant="ghost" className="h-11 rounded-xl font-bold" onClick={() => setIsAddingCall(false)}>Cancelar</Button>
                   </div>
                 </div>
               )}
-              {calls.filter(c => selectedPreSeller === "all" || c.userDisplayName?.trim() === selectedPreSeller?.trim()).filter(c => !isAdmin ? c.userId === profile?.id : true).map(c => (
-                <div key={c.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
-                  <div className="flex justify-between items-start"><h4 className="font-bold text-primary">{c.leadName}</h4><span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold uppercase tracking-wider">{c.result}</span></div>
-                  <div className="flex items-center justify-between text-[10px] text-muted-foreground"><div className="flex items-center gap-1"><Users className="w-3 h-3" /> {c.userDisplayName}</div><div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(c.callTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div></div>
-                </div>
-              ))}
+              <div className="space-y-3">
+                {calls.filter(c => selectedPreSeller === "all" || c.userDisplayName?.trim() === selectedPreSeller?.trim()).filter(c => !isAdmin ? c.userId === profile?.id : true).map(c => (
+                  <div key={c.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col gap-2 hover:border-primary/20 transition-colors">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-bold text-slate-900">{c.leadName}</h4>
+                      <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${
+                        c.result === 'Agendado' ? 'bg-emerald-100 text-emerald-700' : 
+                        c.result === 'Sem interesse' ? 'bg-rose-100 text-rose-700' : 
+                        'bg-purple-100 text-purple-700'
+                      }`}>
+                        {c.result}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 font-medium">
+                      <div className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-primary/60" /> {c.userDisplayName}</div>
+                      <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-primary/60" /> {new Date(c.callTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - {new Date(c.callTime).toLocaleDateString()}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
