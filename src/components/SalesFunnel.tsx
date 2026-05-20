@@ -592,7 +592,6 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         </div>
                       </div>
                     ))
-                )}
 
 
                 {expandedStage === "calls" && (
