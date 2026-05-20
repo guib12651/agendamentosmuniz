@@ -229,24 +229,18 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
         
-        // Se não for admin, só vê os seus próprios leads
         if (!isAdmin && !isOwner) return false;
-        
-        // Se for admin e tiver filtro de pré-vendedor, respeita o filtro
         if (isAdmin && selectedPreSeller !== "all" && !matchesSeller) return false;
 
         const status = m.status?.toLowerCase().trim();
         
-        // Aba de Visitas: Captura status 'compareceu' ou funnelStage 'visit'
-        if (stageId === "visits") {
-            return status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit";
-        }
-        
-        if (stageId === "appointments") return true; // Todos os agendamentos aparecem na primeira aba
-        if (stageId === "negotiations") return status === "em_negociacao" || m.funnelStage === "negotiation";
-        if (stageId === "sales") return status === "venda_concluida" || m.funnelStage === "sale";
+        // Operational rule: a lead is in ONLY ONE stage at a time in the counter
+        if (stageId === "sales") return status === "venda_concluida";
+        if (stageId === "negotiations") return status === "em_negociacao";
+        if (stageId === "visits") return status === "compareceu" || status === "visita_realizada";
+        if (stageId === "appointments") return status === "pending";
 
-        return m.funnelStage === stageMap[stageId];
+        return false;
     }).length;
   }
 
