@@ -284,7 +284,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     };
     const targetStage = stageMap[stageId];
     return meetings.filter(m => {
-        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
+
         
         // Se não for admin, só vê os seus próprios agendamentos no contador
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
