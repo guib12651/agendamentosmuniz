@@ -506,15 +506,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             <p className="text-sm text-center text-muted-foreground">O total captado no período é a soma dos valores diários.</p>
           )}
 
-          {expandedStage !== "capture" && (
+          {expandedStage !== "capture" && expandedStage !== "distribution" && expandedStage !== "calls" && (
             <div className="space-y-4">
               {/* Detailed Real Records View */}
               <div className="grid gap-3">
-                {expandedStage === "appointments" && (
-                  meetings
-                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
-                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
-                    .map(m => (
+                {getMeetingsInStage(expandedStage).map(m => (
+
                       <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-300">
                         <div className="flex justify-between items-start">
                           <h4 className="font-bold text-primary">{m.leadName}</h4>
