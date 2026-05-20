@@ -542,15 +542,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                             Visita
                                         </Button>
                                     )}
+                                    {expandedStage !== "negotiations" && (
                                         <Button 
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-red-500/30 text-red-500 hover:bg-red-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}
-                                        >
-                                            Faltou
-                                        </Button>
-                                    )}
                                             size="sm" 
                                             variant="outline" 
                                             className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
@@ -569,24 +562,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                             Venda
                                         </Button>
                                     )}
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
-                                            onClick={() => handleStageMove(m.id, 'negotiation')}
-                                        >
-                                            Negociação
-                                        </Button>
-                                    )}
-                                    {isAdmin && expandedStage !== "sales" && (
-                                        <Button 
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
-                                            onClick={() => handleStageMove(m.id, 'sale')}
-                                        >
-                                            Venda
-                                        </Button>
-                                    )}
+                                    <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="h-7 text-[10px] px-2 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                                        onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}
+                                    >
+                                        Faltou
+                                    </Button>
                                 </div>
                             </div>
                         ))}
