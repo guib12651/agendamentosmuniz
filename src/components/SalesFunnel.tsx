@@ -518,13 +518,23 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
           )}
           
           {expandedStage !== "capture" && expandedStage !== "distribution" && expandedStage !== "calls" && getMeetingsInStage(expandedStage).length === 0 && (
-            <div className="py-8 text-center"><p className="text-sm text-muted-foreground">Nenhum registro encontrado para este período.</p></div>
+            <div className="py-12 flex flex-col items-center justify-center gap-3 animate-in fade-in duration-500">
+               <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+                 <Search className="w-8 h-8" />
+               </div>
+               <p className="text-sm font-bold text-slate-400">Nenhum registro encontrado para este período.</p>
+            </div>
           )}
           {expandedStage === "calls" && calls.length === 0 && !isAddingCall && (
-            <div className="py-8 text-center"><p className="text-sm text-muted-foreground">Nenhum registro de ligação encontrado para este período.</p></div>
+            <div className="py-12 flex flex-col items-center justify-center gap-3 animate-in fade-in duration-500">
+               <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+                 <Phone className="w-8 h-8" />
+               </div>
+               <p className="text-sm font-bold text-slate-400">Nenhum registro de ligação encontrado.</p>
+            </div>
           )}
-          {expandedStage === "capture" && !isAdmin && <p className="text-sm text-muted-foreground text-center">Apenas administradores podem ver/editar o total captado.</p>}
-          {expandedStage === "sales" && !isAdmin && <p className="text-sm text-muted-foreground text-center">Acesso restrito a administradores.</p>}
+          {expandedStage === "capture" && !isAdmin && <p className="text-sm font-bold text-slate-400 text-center py-6">Apenas administradores podem gerenciar a captação.</p>}
+          {expandedStage === "sales" && !isAdmin && <p className="text-sm font-bold text-slate-400 text-center py-6">Relatórios de vendas restritos a administradores.</p>}
         </div>
       )}
     </div>
