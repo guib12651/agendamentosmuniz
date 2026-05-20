@@ -288,7 +288,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         // Se não for admin, só vê os seus próprios agendamentos no contador
         const isOwner = m.preSeller === profile?.displayName;
         if (!isAdmin && !isOwner) return false;
+        
+        // Se for admin e tiver um filtro de pré-vendedor selecionado
         if (isAdmin && !matchesSeller) return false;
+
 
         // Para Agendamentos, contamos TODOS os agendamentos no período
         if (stageId === "appointments") {
