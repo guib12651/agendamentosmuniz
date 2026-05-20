@@ -830,6 +830,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                     )}
                   </div>
                 )}
+
                 
                 {/* Fallback empty message */}
                 {expandedStage !== "capture" && expandedStage !== "distribution" && 
