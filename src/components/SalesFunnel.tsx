@@ -576,7 +576,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                       <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
                         <div className="space-y-1.5">
                           <Label className="text-xs">Nome do Lead</Label>
-                          <Input size="sm" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
+                          <Input className="h-8 text-xs" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
                         </div>
                         <div className="space-y-1.5">
                           <Label className="text-xs">Resultado da Ligação</Label>
