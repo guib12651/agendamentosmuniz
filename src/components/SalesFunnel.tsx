@@ -110,10 +110,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       const [result, m, c] = await Promise.all([
         getFunnelDataRange(range.start, range.end),
         getMeetings(),
+
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
       setData(result);
-      setMeetings(m.filter(item => item.date >= range.start && item.date <= range.end));
+      setMeetings(m.filter(item => {
+        const itemDate = item.date;
+        return itemDate >= range.start && itemDate <= range.end;
+      }));
+
       setCalls(c);
       
       // Carrega tempLeads com base na data selecionada atual para edição
@@ -148,7 +153,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [selectedDate, period, customStart, customEnd]);
+  }, [selectedDate, period, customStart, customEnd, selectedPreSeller]);
 
   const handleSaveTotalLeads = async () => {
     try {
@@ -283,7 +288,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         // Se não for admin, só vê os seus próprios agendamentos no contador
         const isOwner = m.preSeller === profile?.displayName;
         if (!isAdmin && !isOwner) return false;
+        
+        // Se for admin e tiver um filtro de pré-vendedor selecionado
         if (isAdmin && !matchesSeller) return false;
+
 
         // Para Agendamentos, contamos TODOS os agendamentos no período
         if (stageId === "appointments") {
