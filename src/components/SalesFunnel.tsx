@@ -106,13 +106,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     try {
       const range = getDateRange(period, selectedDate, customStart, customEnd);
       
-      const [result, m] = await Promise.all([
+      const [result, m, c] = await Promise.all([
         getFunnelDataRange(range.start, range.end),
-        getMeetings()
+        getMeetings(),
+        getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
       setData(result);
-      // Filtramos reuniões no intervalo
       setMeetings(m.filter(item => item.date >= range.start && item.date <= range.end));
+      setCalls(c);
       
       // Carrega tempLeads com base na data selecionada atual para edição
       const { data: currentDay } = await supabase
