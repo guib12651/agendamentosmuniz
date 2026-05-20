@@ -114,7 +114,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
       setData(result);
-      setMeetings(m.filter(item => item.date >= range.start && item.date <= range.end));
+      setMeetings(m.filter(item => {
+        const itemDate = item.date;
+        return itemDate >= range.start && itemDate <= range.end;
+      }));
+
       setCalls(c);
       
       // Carrega tempLeads com base na data selecionada atual para edição
