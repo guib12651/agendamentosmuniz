@@ -547,7 +547,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                             size="sm" 
                                             variant="outline" 
                                             className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' as any }).eq("id", m.id).then(() => loadData())}
+                                            onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}
                                         >
                                             Negociação
                                         </Button>
@@ -557,7 +557,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                             size="sm" 
                                             variant="outline" 
                                             className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' as any }).eq("id", m.id).then(() => loadData())}
+                                            onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}
                                         >
                                             Venda
                                         </Button>
