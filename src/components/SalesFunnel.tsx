@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getFunnelDataRange, saveFunnelDay, saveFunnelDistribution, SalesFunnelData } from "@/lib/funnelStore";
 import { updateFunnelStage, getMeetings } from "@/lib/store";
 import { Meeting, FunnelStage } from "@/lib/types";
@@ -8,7 +8,63 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target, Search } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, Users, Phone, Calendar, MapPin, Handshake, ShoppingCart, Target, Search, MoreHorizontal } from "lucide-react";
+
+// Helper components for animation and styles
+function AnimatedCounter({ value }: { value: number }) {
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValueRef = useRef(value);
+
+  useEffect(() => {
+    if (prevValueRef.current !== value) {
+      const start = prevValueRef.current;
+      const end = value;
+      const duration = 600;
+      let startTime: number | null = null;
+
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const current = Math.floor(progress * (end - start) + start);
+        setDisplayValue(current);
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          prevValueRef.current = value;
+        }
+      };
+      requestAnimationFrame(animate);
+    }
+  }, [value]);
+
+  return <span>{displayValue}</span>;
+}
+
+const getHexForColor = (colorClass: string) => {
+  const map: Record<string, string> = {
+    'bg-blue-500': '#3b82f6',
+    'bg-indigo-500': '#6366f1',
+    'bg-purple-500': '#a855f7',
+    'bg-amber-500': '#f59e0b',
+    'bg-orange-500': '#f97316',
+    'bg-emerald-500': '#10b981',
+    'bg-rose-600': '#e11d48',
+  };
+  return map[colorClass] || '#3b82f6';
+};
+
+const getDarkerHex = (colorClass: string) => {
+  const map: Record<string, string> = {
+    'bg-blue-500': '#2563eb',
+    'bg-indigo-500': '#4f46e5',
+    'bg-purple-500': '#9333ea',
+    'bg-amber-500': '#d97706',
+    'bg-orange-500': '#ea580c',
+    'bg-emerald-500': '#059669',
+    'bg-rose-600': '#be123c',
+  };
+  return map[colorClass] || '#2563eb';
+};
 
 import PeriodFilter, { PeriodType, getDateRange } from "./PeriodFilter";
 
@@ -262,7 +318,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         
         // Para Visitas, contamos apenas quem tem status "compareceu"
         if (stageId === "visits") {
-            return m.status === "compareceu";
+            return m.status === "compareceu" || m.status === "visita_realizada" as any;
+        }
+
+        if (stageId === "negotiations") {
+            return m.status === "em_negociacao" as any;
+        }
+
+        if (stageId === "sales") {
+            return m.status === "venda_concluida" as any;
         }
 
         return m.funnelStage === targetStage;
@@ -295,7 +359,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         if (stageId === "appointments") {
             isCorrectStage = true; // Mostra todos os agendamentos nos detalhes
         } else if (stageId === "visits") {
-            isCorrectStage = m.status === "compareceu"; // Mostra apenas quem compareceu nos detalhes de Visitas
+            isCorrectStage = m.status === "compareceu" || m.status === "visita_realizada" as any; 
+        } else if (stageId === "negotiations") {
+            isCorrectStage = m.status === "em_negociacao" as any;
+        } else if (stageId === "sales") {
+            isCorrectStage = m.status === "venda_concluida" as any;
         } else {
             isCorrectStage = m.funnelStage === targetStage;
         }
@@ -365,29 +433,49 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       </div>
 
       {/* Funnel Visual */}
-      <div className="flex flex-col items-center gap-1">
+      <div className="flex flex-col items-center gap-1.5 py-4">
         {stages.map((stage, idx) => {
           if (stage.id === "sales" && !isAdmin) return null;
           
-          const width = 100 - (idx * 8);
+          const width = 100 - (idx * 6);
+          const isExpanded = expandedStage === stage.id;
+
           return (
             <div 
               key={stage.id}
               onClick={() => toggleStage(stage.id)}
               className={`
-                relative cursor-pointer transition-all hover:brightness-110 active:scale-[0.98]
-                flex items-center justify-between px-4 py-3 rounded-md text-white font-bold shadow-sm
+                group relative cursor-pointer transition-all duration-300 ease-out
+                flex items-center justify-between px-6 py-3.5 rounded-xl text-white font-bold
+                shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.15)]
+                hover:-translate-y-0.5 active:scale-[0.98]
                 ${stage.color}
+                ${isExpanded ? 'ring-2 ring-offset-2 ring-offset-background ring-primary/20 scale-[1.02] z-10' : ''}
               `}
-              style={{ width: `${width}%`, minWidth: '200px' }}
+              style={{ 
+                width: `${width}%`, 
+                minWidth: '220px',
+                background: `linear-gradient(135deg, ${getHexForColor(stage.color)}, ${getDarkerHex(stage.color)})`
+              }}
             >
-              <div className="flex items-center gap-2">
-                <stage.icon className="w-4 h-4" />
-                <span className="text-sm truncate">{stage.label}</span>
+              {/* Glow effect on hover */}
+              <div className="absolute inset-0 rounded-xl bg-white/0 group-hover:bg-white/5 transition-colors duration-300" />
+              
+              <div className="flex items-center gap-3 relative z-10">
+                <div className="p-2 rounded-lg bg-white/10 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                  <stage.icon className="w-5 h-5" />
+                </div>
+                <span className="text-sm md:text-base tracking-tight truncate">{stage.label}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{stage.value}</span>
-                {expandedStage === stage.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              
+              <div className="flex items-center gap-4 relative z-10">
+                <div className="text-xl md:text-2xl font-black font-display tabular-nums">
+                  <AnimatedCounter value={stage.value} />
+                </div>
+                {isExpanded ? 
+                  <ChevronUp className="w-5 h-5 opacity-70" /> : 
+                  <ChevronDown className="w-5 h-5 opacity-70 group-hover:translate-y-0.5 transition-transform" />
+                }
               </div>
             </div>
           );
@@ -443,19 +531,44 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                                     </span>
                                 </div>
                                 
-                                <div className="flex gap-1 mt-1">
+                                <div className="flex flex-wrap gap-1 mt-1">
                                     {expandedStage !== "visits" && (
                                         <Button 
                                             size="sm" 
                                             variant="outline" 
                                             className="h-7 text-[10px] px-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
-                                            onClick={() => handleStageMove(m.id, 'visit')}
+                                            onClick={() => supabase.from("meetings").update({ status: 'compareceu' }).eq("id", m.id).then(() => loadData())}
                                         >
                                             Visita
                                         </Button>
                                     )}
-                                    {expandedStage !== "negotiations" && (
                                         <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-red-500/30 text-red-500 hover:bg-red-500/10"
+                                            onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}
+                                        >
+                                            Faltou
+                                        </Button>
+                                    )}
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
+                                            onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' as any }).eq("id", m.id).then(() => loadData())}
+                                        >
+                                            Negociação
+                                        </Button>
+                                    )}
+                                    {expandedStage !== "sales" && (
+                                        <Button 
+                                            size="sm" 
+                                            variant="outline" 
+                                            className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
+                                            onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' as any }).eq("id", m.id).then(() => loadData())}
+                                        >
+                                            Venda
+                                        </Button>
+                                    )}
                                             size="sm" 
                                             variant="outline" 
                                             className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
