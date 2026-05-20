@@ -677,10 +677,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                     })
 
                     .filter(m => {
-                        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+                        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
                         if (!isAdmin) return m.preSeller?.trim() === profile?.displayName?.trim() && matchesSeller;
                         return matchesSeller;
                     })
+
 
                     .map(m => (
                       <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
