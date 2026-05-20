@@ -677,7 +677,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
                     .filter(m => {
                         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
-                        if (!isAdmin) return m.preSeller === profile?.displayName && matchesSeller;
+                        if (!isAdmin) return m.preSeller?.trim() === profile?.displayName?.trim() && matchesSeller;
                         return matchesSeller;
                     })
 
