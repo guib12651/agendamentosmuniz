@@ -592,9 +592,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         </div>
                       </div>
                     ))
+                )}
 
 
                 {expandedStage === "calls" && (
+
                   <>
                     <div className="flex justify-between items-center mb-2">
                       <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
