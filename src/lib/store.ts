@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType, FunnelStage } from "./types";
+import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType, FunnelStage, Call } from "./types";
 
 export async function getMeetings(): Promise<Meeting[]> {
   const { data, error } = await supabase
@@ -25,12 +25,13 @@ export async function getMeetings(): Promise<Meeting[]> {
     restriction: row.restriction as RestrictionType,
     notes: row.notes || "",
     status: (row.status || "pending") as MeetingStatus,
-    markingType: ((row as any).marking_type || "lead_quente") as MarkingType,
-    meetingType: ((row as any).meeting_type || "presencial") as MeetingType,
-    trigger: ((row as any).trigger || "imovel") as TriggerType,
-    userId: (row as any).user_id || null,
-    createdAt: (row as any).created_at || undefined,
-    funnelStage: ((row as any).funnel_stage || "appointment") as FunnelStage,
+    markingType: (row.marking_type || "lead_quente") as MarkingType,
+    meetingType: (row.meeting_type || "presencial") as MeetingType,
+    trigger: (row.trigger || "imovel") as TriggerType,
+    city: row.city || "",
+    userId: row.user_id || null,
+    createdAt: row.created_at || undefined,
+    funnelStage: (row.funnel_stage || "appointment") as FunnelStage,
   }));
 }
 
@@ -50,9 +51,10 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     marking_type: meeting.markingType || "lead_quente",
     meeting_type: meeting.meetingType || "presencial",
     trigger: meeting.trigger || "imovel",
+    city: meeting.city || "",
     user_id: userId,
     funnel_stage: meeting.funnelStage || "appointment",
-  } as any);
+  });
   if (error) throw error;
 }
 
@@ -74,8 +76,9 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
       marking_type: meeting.markingType,
       meeting_type: meeting.meetingType,
       trigger: meeting.trigger,
+      city: meeting.city,
       funnel_stage: meeting.funnelStage,
-    } as any)
+    })
     .eq("id", meeting.id);
   if (error) throw error;
 }
@@ -101,8 +104,49 @@ export async function updateFunnelStage(id: string, stage: FunnelStage): Promise
       status: stage === 'visit' ? 'compareceu' : 
               stage === 'negotiation' ? 'em_negociacao' : 
               stage === 'sale' ? 'venda_concluida' : 'pending'
-    } as any)
+    })
     .eq("id", id);
+  if (error) throw error;
+}
+
+export async function getCalls(startDate?: string, endDate?: string): Promise<Call[]> {
+  let query = supabase
+    .from("calls")
+    .select("*, profiles:user_id(display_name)")
+    .order("call_time", { ascending: false });
+
+  if (startDate) {
+    query = query.gte("call_time", startDate);
+  }
+  if (endDate) {
+    query = query.lte("call_time", endDate);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching calls:", error);
+    return [];
+  }
+
+  return (data || []).map((row: any) => ({
+    id: row.id,
+    leadName: row.lead_name,
+    userId: row.user_id,
+    userDisplayName: row.profiles?.display_name || "Desconhecido",
+    callTime: row.call_time,
+    result: row.result,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function addCall(call: Omit<Call, "id" | "userDisplayName">): Promise<void> {
+  const { error } = await supabase.from("calls").insert({
+    lead_name: call.leadName,
+    user_id: call.userId,
+    call_time: call.callTime,
+    result: call.result,
+  });
   if (error) throw error;
 }
 
