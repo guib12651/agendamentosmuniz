@@ -290,20 +290,21 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             return true;
         }
         
-        // Para Visitas, contamos apenas quem tem status "compareceu"
+        // Para Visitas, contamos leads com status compareceu/visita_realizada OU que estão no estágio de visita
         if (stageId === "visits") {
-            return m.status === "compareceu" || m.status === "visita_realizada" as any;
+            return m.status === "compareceu" || m.status === "visita_realizada" || m.funnelStage === "visit";
         }
 
         if (stageId === "negotiations") {
-            return m.status === "em_negociacao" as any;
+            return m.status === "em_negociacao" || m.funnelStage === "negotiation";
         }
 
         if (stageId === "sales") {
-            return m.status === "venda_concluida" as any;
+            return m.status === "venda_concluida" || m.funnelStage === "sale";
         }
 
-        return m.funnelStage === targetStage || (stageId === 'visits' && (m.status === 'compareceu' || m.status === 'visita_realizada'));
+        return m.funnelStage === targetStage;
+
     }).length;
   }
 
