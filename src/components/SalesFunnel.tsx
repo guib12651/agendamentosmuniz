@@ -115,9 +115,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       ]);
       setData(result);
       setMeetings(m.filter(item => {
-        const itemDate = item.date;
+        const itemDate = item.date.trim();
         return itemDate >= range.start && itemDate <= range.end;
       }));
+
 
       setCalls(c);
       
@@ -283,10 +284,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     };
     const targetStage = stageMap[stageId];
     return meetings.filter(m => {
-        const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
+
         
         // Se não for admin, só vê os seus próprios agendamentos no contador
-        const isOwner = m.preSeller === profile?.displayName;
+        const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
+
         if (!isAdmin && !isOwner) return false;
         
         // Se for admin e tiver um filtro de pré-vendedor selecionado
@@ -300,16 +303,20 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         
         // Para Visitas, contamos leads com status compareceu/visita_realizada OU que estão no estágio de visita
         if (stageId === "visits") {
-            return m.status === "compareceu" || m.status === "visita_realizada" || m.funnelStage === "visit";
+            const status = m.status?.toLowerCase().trim();
+            return status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit";
         }
 
         if (stageId === "negotiations") {
-            return m.status === "em_negociacao" || m.funnelStage === "negotiation";
+            const status = m.status?.toLowerCase().trim();
+            return status === "em_negociacao" || m.funnelStage === "negotiation";
         }
 
         if (stageId === "sales") {
-            return m.status === "venda_concluida" || m.funnelStage === "sale";
+            const status = m.status?.toLowerCase().trim();
+            return status === "venda_concluida" || m.funnelStage === "sale";
         }
+
 
         return m.funnelStage === targetStage;
 
@@ -664,10 +671,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
                 {expandedStage === "visits" && (
                   meetings
-                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit')
+                    .filter(m => {
+                        const status = m.status?.toLowerCase().trim();
+                        return status === 'compareceu' || status === 'visita_realizada' || m.funnelStage === 'visit';
+                    })
+
                     .filter(m => {
                         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
-                        if (!isAdmin) return m.preSeller === profile?.displayName && matchesSeller;
+                        if (!isAdmin) return m.preSeller?.trim() === profile?.displayName?.trim() && matchesSeller;
                         return matchesSeller;
                     })
 

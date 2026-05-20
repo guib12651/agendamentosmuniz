@@ -27,7 +27,10 @@ const periodLabels: Record<PeriodType, string> = {
 };
 
 export function getDateRange(period: PeriodType, selectedDate: string, customStart: string, customEnd: string): { start: string; end: string } {
-  const ref = new Date(selectedDate + "T12:00:00");
+  const safeDate = selectedDate || new Date().toISOString().split('T')[0];
+  const [year, month, day] = safeDate.split("-").map(Number);
+  const ref = new Date(year, month - 1, day, 12, 0, 0);
+
 
   switch (period) {
     case "daily":
@@ -71,8 +74,12 @@ export function getDateRange(period: PeriodType, selectedDate: string, customSta
 }
 
 function fmt(d: Date) {
-  return d.toISOString().split("T")[0];
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
+
 
 export default function PeriodFilter({
   selectedDate,
