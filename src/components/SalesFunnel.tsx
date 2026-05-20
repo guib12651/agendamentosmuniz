@@ -482,7 +482,52 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                 </div>
               )}
 
-              {isAdmin ? (
+              {expandedStage !== "distribution" && !isAdmin && (
+                <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Suas métricas para hoje:</p>
+                    {(() => {
+                        const myDist = data?.distribution.find(d => d.userId === profile?.id);
+                        const fieldMap: any = {
+                            calls: "callsMade",
+                            appointments: "appointmentsMade",
+                            visits: "visitsCompleted",
+                            negotiations: "negotiationsStarted"
+                        };
+                        const getVal = () => {
+                            if (expandedStage === "calls") return myDist?.callsMade || 0;
+                            if (expandedStage === "appointments") return myDist?.appointmentsMade || 0;
+                            if (expandedStage === "visits") return myDist?.visitsCompleted || 0;
+                            if (expandedStage === "negotiations") return myDist?.negotiationsStarted || 0;
+                            return 0;
+                        };
+                        
+                        return (
+                            <div className="flex items-center justify-between gap-4">
+                                <span className="text-sm">Quantidade</span>
+                                {period === "daily" ? (
+                                    <Input 
+                                        type="number" 
+                                        className="w-20 h-9 text-right" 
+                                        defaultValue={getVal() || ''}
+                                        key={`${profile?.id}-${expandedStage}-${getVal()}-${selectedDate}`}
+                                        placeholder="0"
+                                        onBlur={(e) => handleUpdateMetric(profile?.id || '', fieldMap[expandedStage], parseInt(e.target.value) || 0)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleUpdateMetric(profile?.id || '', fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
+                                            }
+                                        }}
+                                    />
+                                ) : (
+                                    <span className="font-bold text-primary">{getVal()}</span>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </div>
+              )}
+
+              {isAdmin && (
                 preSellers.map(ps => {
                     const dist = (data?.distribution || []).find(d => d.userId === ps.id);
                     const fieldMap: any = {
@@ -506,7 +551,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                     return (
                         <div key={ps.id} className="flex items-center justify-between gap-4">
                             <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
-                            {period === "daily" || isAdmin ? (
+                            {period === "daily" ? (
                                 <Input 
                                     type="number" 
                                     className="w-20 h-8 text-right" 
@@ -526,44 +571,18 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         </div>
                     );
                 })
-              ) : (
-                <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Suas métricas para hoje:</p>
-                    {(() => {
-                        const myDist = data?.distribution.find(d => d.userId === profile?.id);
-                        const fieldMap: any = {
-                            distribution: "leadsReceived",
-                            calls: "callsMade",
-                            appointments: "appointmentsMade",
-                            visits: "visitsCompleted",
-                            negotiations: "negotiationsStarted"
-                        };
-                        const getVal = () => {
-                            if (expandedStage === "distribution") return myDist?.leadsReceived || 0;
-                            if (expandedStage === "calls") return myDist?.callsMade || 0;
-                            if (expandedStage === "appointments") return myDist?.appointmentsMade || 0;
-                            if (expandedStage === "visits") return myDist?.visitsCompleted || 0;
-                            if (expandedStage === "negotiations") return myDist?.negotiationsStarted || 0;
-                            return 0;
-                        };
-                        
-                        if (expandedStage === "distribution") return (
-                            <div className="flex items-center justify-between">
-                                <span className="text-sm">Leads Recebidos</span>
-                                <span className="font-bold text-primary">{getVal()}</span>
-                            </div>
-                        );
+              )}
 
-                        return (
-                            <div className="flex items-center justify-between gap-4">
-                                <span className="text-sm">Quantidade</span>
-                                {period === "daily" || isAdmin ? (
-                                    <Input 
-                                        type="number" 
-                                        className="w-20 h-9 text-right" 
-                                        defaultValue={getVal() || ''}
-                                        key={`${profile?.id}-${expandedStage}-${getVal()}-${selectedDate}`}
-                                        placeholder="0"
+              {/* Se for apenas pré-vendedor e estiver na aba de distribuição, mostrar apenas como leitura */}
+              {!isAdmin && expandedStage === "distribution" && (
+                <div className="flex items-center justify-between">
+                    <span className="text-sm">Leads Recebidos</span>
+                    <span className="font-bold text-primary">
+                        {(data?.distribution.find(d => d.userId === profile?.id))?.leadsReceived || 0}
+                    </span>
+                </div>
+              )}
+
                                         onBlur={(e) => handleUpdateMetric(profile?.id || "", fieldMap[expandedStage], parseInt(e.target.value) || 0)}
                                         onKeyDown={(e) => {
                                             if (e.key === 'Enter') {
