@@ -597,7 +597,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
             )}
 
           {expandedStage === "calls" && (
-            <>
+            <div className="space-y-4">
               <div className="flex justify-between items-center mb-2">
                 <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
                 {!isAddingCall && (
@@ -610,17 +610,17 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               {isAddingCall && (
                 <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
                   <div className="space-y-1.5">
+                    <Label className="text-xs">Nome do Lead</Label>
+                    <Input className="h-8 text-xs" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Resultado da Ligação</Label>
+                    <Select value={newCall.result} onValueChange={v => setNewCall({...newCall, result: v})}>
+                      <SelectTrigger className="h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
 
-                          <Label className="text-xs">Nome do Lead</Label>
-                          <Input className="h-8 text-xs" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs">Resultado da Ligação</Label>
-                          <Select value={newCall.result} onValueChange={v => setNewCall({...newCall, result: v})}>
-                            <SelectTrigger className="h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
                               <SelectItem value="Não atendeu">Não atendeu</SelectItem>
                               <SelectItem value="Sem interesse">Sem interesse</SelectItem>
                               <SelectItem value="Agendado">Agendado</SelectItem>
