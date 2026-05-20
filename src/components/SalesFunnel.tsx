@@ -475,7 +475,9 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                   className="h-10"
                 />
                 <Button onClick={async () => {
+                    const finalLeads = localLeadsCaptured !== null ? localLeadsCaptured : tempLeads;
                     await handleSaveTotalLeads();
+                    setTempLeads(finalLeads);
                     setLocalLeadsCaptured(null);
                 }}>Salvar</Button>
               </div>
