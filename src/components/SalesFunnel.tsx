@@ -245,19 +245,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   }
 
   const getMeetingsInStage = (stageId: string) => {
-    const stageMap: Record<string, FunnelStage> = { appointments: "appointment", visits: "visit", negotiations: "negotiation", sales: "sale" };
-    const targetStage = stageMap[stageId];
-    if (!targetStage && stageId !== "appointments") return [];
-    
     return meetings.filter(m => {
         let isCorrectStage = false;
         const status = m.status?.toLowerCase().trim();
         
-        if (stageId === "appointments") isCorrectStage = true;
-        else if (stageId === "visits") isCorrectStage = status === "compareceu" || status === "visita_realizada" || m.funnelStage === "visit"; 
-        else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao" || m.funnelStage === "negotiation";
-        else if (stageId === "sales") isCorrectStage = status === "venda_concluida" || m.funnelStage === "sale";
-        else isCorrectStage = m.funnelStage === targetStage;
+        if (stageId === "appointments") isCorrectStage = status === "pending";
+        else if (stageId === "visits") isCorrectStage = status === "compareceu" || status === "visita_realizada"; 
+        else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao";
+        else if (stageId === "sales") isCorrectStage = status === "venda_concluida";
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
