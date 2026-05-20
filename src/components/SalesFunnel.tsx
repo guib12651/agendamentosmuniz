@@ -339,7 +339,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         } else if (stageId === "sales") {
             isCorrectStage = m.status === "venda_concluida" as any;
         } else {
-            isCorrectStage = m.funnelStage === targetStage;
+            isCorrectStage = m.funnelStage === targetStage || (stageId === 'visits' && (m.status === 'compareceu' || m.status === 'visita_realizada'));
         }
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
