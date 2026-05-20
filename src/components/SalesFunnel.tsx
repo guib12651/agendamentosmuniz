@@ -716,6 +716,17 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                             <Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger}
                           </div>
                         </div>
+
+                        <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-border/50">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 text-[10px] px-2 bg-emerald-600 border-emerald-700 text-white hover:bg-emerald-700"
+                            onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}
+                          >
+                            Concluir Venda
+                          </Button>
+                        </div>
                       </div>
                     ))
                 )}
