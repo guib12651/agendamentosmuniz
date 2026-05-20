@@ -669,7 +669,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
                 {expandedStage === "visits" && (
                   meetings
-                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit')
+                    .filter(m => {
+                        const status = m.status?.toLowerCase().trim();
+                        return status === 'compareceu' || status === 'visita_realizada' || m.funnelStage === 'visit';
+                    })
+
                     .filter(m => {
                         const matchesSeller = selectedPreSeller === "all" || m.preSeller === selectedPreSeller;
                         if (!isAdmin) return m.preSeller === profile?.displayName && matchesSeller;
