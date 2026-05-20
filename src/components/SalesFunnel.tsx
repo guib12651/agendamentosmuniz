@@ -244,56 +244,28 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
       label: "Agendamentos", 
       color: "bg-amber-500", 
       icon: Calendar, 
-      value: ((data?.distribution || [])
-        .filter(d => {
-          if (isAdmin) {
-            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
-          }
-          return d.userId === profile?.id;
-        })
-        .reduce((acc, d) => acc + (d.appointmentsMade || 0), 0)) + getMeetingsInStageCount("appointments") 
+      value: getMeetingsInStageCount("appointments") 
     },
     { 
       id: "visits", 
       label: "Visitas", 
       color: "bg-orange-500", 
       icon: MapPin, 
-      value: ((data?.distribution || [])
-        .filter(d => {
-          if (isAdmin) {
-            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
-          }
-          return d.userId === profile?.id;
-        })
-        .reduce((acc, d) => acc + (d.visitsCompleted || 0), 0)) + getMeetingsInStageCount("visits") 
+      value: getMeetingsInStageCount("visits") 
     },
     { 
       id: "negotiations", 
       label: "Negociações", 
       color: "bg-emerald-500", 
       icon: Handshake, 
-      value: ((data?.distribution || [])
-        .filter(d => {
-          if (isAdmin) {
-            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
-          }
-          return d.userId === profile?.id;
-        })
-        .reduce((acc, d) => acc + (d.negotiationsStarted || 0), 0)) + getMeetingsInStageCount("negotiations") 
+      value: getMeetingsInStageCount("negotiations") 
     },
     { 
       id: "sales", 
       label: "Vendas", 
       color: "bg-rose-600", 
       icon: ShoppingCart, 
-      value: ((data?.distribution || [])
-        .filter(d => {
-          if (isAdmin) {
-            return selectedPreSeller === "all" || d.displayName === selectedPreSeller;
-          }
-          return d.userId === profile?.id;
-        })
-        .reduce((acc, d) => acc + (d.salesCompleted || 0), 0)) + getMeetingsInStageCount("sales") 
+      value: getMeetingsInStageCount("sales") 
     },
   ];
 
