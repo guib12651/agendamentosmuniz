@@ -820,7 +820,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                 {expandedStage !== "capture" && expandedStage !== "distribution" && 
                   ((expandedStage === "appointments" && meetings.length === 0) ||
                    (expandedStage === "calls" && calls.length === 0 && !isAddingCall) ||
-                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length === 0) ||
+                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit').length === 0) ||
                    (expandedStage === "negotiations" && meetings.filter(m => m.status === 'em_negociacao').length === 0) ||
                    (expandedStage === "sales" && meetings.filter(m => m.status === 'venda_concluida').length === 0)) && (
                   <div className="py-8 text-center">
