@@ -593,9 +593,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                       </div>
                     ))
                 )}
-
-
                 {expandedStage === "calls" && (
+
 
                   <>
                     <div className="flex justify-between items-center mb-2">
