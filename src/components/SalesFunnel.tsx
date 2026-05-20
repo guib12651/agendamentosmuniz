@@ -835,7 +835,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                 {expandedStage !== "capture" && expandedStage !== "distribution" && 
                   ((expandedStage === "appointments" && meetings.length === 0) ||
                    (expandedStage === "calls" && calls.length === 0 && !isAddingCall) ||
-                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada' || m.funnelStage === 'visit').length === 0) ||
+                   (expandedStage === "visits" && meetings.filter(m => {
+                      const status = m.status?.toLowerCase().trim();
+                      return status === 'compareceu' || status === 'visita_realizada' || m.funnelStage === 'visit';
+                   }).length === 0) ||
                    (expandedStage === "negotiations" && meetings.filter(m => m.status === 'em_negociacao').length === 0) ||
                    (expandedStage === "sales" && meetings.filter(m => m.status === 'venda_concluida').length === 0)) && (
                   <div className="py-8 text-center">
@@ -845,6 +848,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
               </div>
             </div>
           )}
+
           
           {expandedStage === "capture" && !isAdmin && (
             <p className="text-sm text-muted-foreground text-center">Apenas administradores podem ver/editar o total captado.</p>
