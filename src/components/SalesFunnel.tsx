@@ -515,171 +515,265 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
           {expandedStage !== "capture" && (
             <div className="space-y-4">
-              {/* Seção de Listagem de Leads para a etapa atual */}
-              {getMeetingsInStage(expandedStage).length > 0 && (
-                <div className="space-y-3 mb-6">
-                    <Label className="text-xs uppercase tracking-wider opacity-70">Leads nesta etapa:</Label>
-                    <div className="grid gap-2">
-                        {getMeetingsInStage(expandedStage).map(m => (
-                            <div key={m.id} className="p-3 bg-card border border-border rounded-md flex flex-col gap-2">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <p className="font-bold text-sm">{m.leadName}</p>
-                                        <p className="text-[10px] text-muted-foreground">{m.preSeller} • {m.time}</p>
-                                    </div>
-                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-bold">
-                                        {m.markingType === 'reagendamento' ? 'Reagendamento' : 'Novo'}
-                                    </span>
-                                </div>
-                                
-                                <div className="flex flex-wrap gap-1 mt-1">
-                                    {expandedStage !== "visits" && (
-                                        <Button 
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'compareceu' }).eq("id", m.id).then(() => loadData())}
-                                        >
-                                            Visita
-                                        </Button>
-                                    )}
-                                    {expandedStage !== "negotiations" && (
-                                        <Button 
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}
-                                        >
-                                            Negociação
-                                        </Button>
-                                    )}
-                                    {expandedStage !== "sales" && (
-                                        <Button 
-                                            size="sm" 
-                                            variant="outline" 
-                                            className="h-7 text-[10px] px-2 border-rose-500/30 text-rose-500 hover:bg-rose-500/10"
-                                            onClick={() => supabase.from("meetings").update({ status: 'venda_concluida' }).eq("id", m.id).then(() => loadData())}
-                                        >
-                                            Venda
-                                        </Button>
-                                    )}
-                                    <Button 
-                                        size="sm" 
-                                        variant="outline" 
-                                        className="h-7 text-[10px] px-2 border-red-500/30 text-red-500 hover:bg-red-500/10"
-                                        onClick={() => supabase.from("meetings").update({ status: 'nao_compareceu' }).eq("id", m.id).then(() => loadData())}
-                                    >
-                                        Faltou
-                                    </Button>
-                                </div>
+              {/* Detailed Real Records View */}
+              <div className="grid gap-3">
+                {expandedStage === "appointments" && (
+                  meetings
+                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
+                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .map(m => (
+                      <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2 animate-in fade-in zoom-in-95 duration-300">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-primary">{m.leadName}</h4>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                            m.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                            m.status === 'compareceu' ? 'bg-emerald-100 text-emerald-700' :
+                            m.status === 'nao_compareceu' ? 'bg-rose-100 text-rose-700' :
+                            'bg-blue-100 text-blue-700'
+                          }`}>
+                            {m.status === 'pending' ? 'Agendado' : m.status.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-2 text-xs">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar className="w-3.5 h-3.5 text-primary/60" /> {m.date.split("-").reverse().join("/")}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Clock className="w-3.5 h-3.5 text-primary/60" /> {m.time}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Users className="w-3.5 h-3.5 text-primary/60" /> {m.preSeller}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            {m.meetingType === 'presencial' ? <MapPin className="w-3.5 h-3.5 text-primary/60" /> : <div className="w-3.5 h-3.5 flex items-center justify-center text-primary/60">💻</div>} {m.meetingType === 'presencial' ? 'Presencial' : 'Online'}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                            <Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger || 'Não informado'}
+                          </div>
+                          {m.city && (
+                            <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                              <MapPin className="w-3.5 h-3.5 text-primary/60" /> {m.city}
                             </div>
-                        ))}
+                          )}
+                        </div>
+                      </div>
+                    ))
+                )}
+
+                {expandedStage === "calls" && (
+                  <>
+                    <div className="flex justify-between items-center mb-2">
+                      <Label className="text-xs uppercase tracking-wider opacity-70">Registros de Ligações:</Label>
+                      {!isAddingCall && (
+                        <Button size="sm" variant="outline" className="h-8 gap-1.5 text-xs" onClick={() => setIsAddingCall(true)}>
+                          <Plus className="w-3.5 h-3.5" /> Registrar Ligação
+                        </Button>
+                      )}
                     </div>
-                    <hr className="border-border/50 my-4" />
-                </div>
-              )}
 
-              {expandedStage !== "distribution" && !isAdmin && (
-                <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Suas métricas para hoje:</p>
-                    {(() => {
-                        const myDist = data?.distribution.find(d => d.userId === profile?.id);
-                        const fieldMap: any = {
-                            calls: "callsMade",
-                            appointments: "appointmentsMade",
-                            visits: "visitsCompleted",
-                            negotiations: "negotiationsStarted"
-                        };
-                        const getVal = () => {
-                            if (expandedStage === "calls") return myDist?.callsMade || 0;
-                            if (expandedStage === "appointments") return myDist?.appointmentsMade || 0;
-                            if (expandedStage === "visits") return myDist?.visitsCompleted || 0;
-                            if (expandedStage === "negotiations") return myDist?.negotiationsStarted || 0;
-                            return 0;
-                        };
-                        
-                        return (
-                            <div className="flex items-center justify-between gap-4">
-                                <span className="text-sm">Quantidade</span>
-                                {period === "daily" ? (
-                                    <Input 
-                                        type="number" 
-                                        className="w-20 h-9 text-right" 
-                                        defaultValue={getVal() || ''}
-                                        key={`${profile?.id}-${expandedStage}-${getVal()}-${selectedDate}`}
-                                        placeholder="0"
-                                        onBlur={(e) => handleUpdateMetric(profile?.id || '', fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                handleUpdateMetric(profile?.id || '', fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <span className="font-bold text-primary">{getVal()}</span>
-                                )}
+                    {isAddingCall && (
+                      <div className="bg-card p-4 rounded-xl border border-primary/20 shadow-md mb-4 flex flex-col gap-3 animate-in slide-in-from-top-2">
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Nome do Lead</Label>
+                          <Input size="sm" value={newCall.leadName} onChange={e => setNewCall({...newCall, leadName: e.target.value})} placeholder="Ex: Maria Silva" />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs">Resultado da Ligação</Label>
+                          <Select value={newCall.result} onValueChange={v => setNewCall({...newCall, result: v})}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Não atendeu">Não atendeu</SelectItem>
+                              <SelectItem value="Sem interesse">Sem interesse</SelectItem>
+                              <SelectItem value="Agendado">Agendado</SelectItem>
+                              <SelectItem value="Retornar depois">Retornar depois</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex gap-2 pt-1">
+                          <Button size="sm" className="flex-1 h-8" onClick={async () => {
+                            if (!newCall.leadName) return toast.error("Informe o nome do lead");
+                            await addCall({
+                              leadName: newCall.leadName,
+                              result: newCall.result,
+                              userId: profile?.id || '',
+                              callTime: new Date().toISOString()
+                            });
+                            toast.success("Ligação registrada!");
+                            setIsAddingCall(false);
+                            setNewCall({ leadName: '', result: 'Não atendeu' });
+                            loadData();
+                          }}>Salvar</Button>
+                          <Button size="sm" variant="ghost" className="h-8" onClick={() => setIsAddingCall(false)}>Cancelar</Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {calls
+                      .filter(c => selectedPreSeller === "all" || c.userDisplayName === selectedPreSeller)
+                      .filter(c => !isAdmin ? c.userId === profile?.id : true)
+                      .map(c => (
+                        <div key={c.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
+                          <div className="flex justify-between items-start">
+                            <h4 className="font-bold text-primary">{c.leadName}</h4>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-bold uppercase tracking-wider">
+                              {c.result}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-3 h-3" /> {c.userDisplayName}
                             </div>
-                        );
-                    })()}
-                </div>
-              )}
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" /> {new Date(c.callTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </>
+                )}
 
-              {isAdmin && (
-                preSellers.map(ps => {
-                    const dist = (data?.distribution || []).find(d => d.userId === ps.id);
-                    const fieldMap: any = {
-                        distribution: "leadsReceived",
-                        calls: "callsMade",
-                        appointments: "appointmentsMade",
-                        visits: "visitsCompleted",
-                        negotiations: "negotiationsStarted",
-                        sales: "salesCompleted"
-                    };
-                    const getVal = () => {
-                        if (expandedStage === "distribution") return dist?.leadsReceived || 0;
-                        if (expandedStage === "calls") return dist?.callsMade || 0;
-                        if (expandedStage === "appointments") return dist?.appointmentsMade || 0;
-                        if (expandedStage === "visits") return dist?.visitsCompleted || 0;
-                        if (expandedStage === "negotiations") return dist?.negotiationsStarted || 0;
-                        if (expandedStage === "sales") return dist?.salesCompleted || 0;
-                        return 0;
-                    };
+                {expandedStage === "visits" && (
+                  meetings
+                    .filter(m => m.status === 'compareceu' || m.status === 'visita_realizada')
+                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
+                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .map(m => (
+                      <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-primary">{m.leadName}</h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold uppercase tracking-wider">
+                            Compareceu
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-2 text-xs">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar className="w-3.5 h-3.5 text-primary/60" /> {m.date.split("-").reverse().join("/")}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Clock className="w-3.5 h-3.5 text-primary/60" /> {m.time}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                            <Users className="w-3.5 h-3.5 text-primary/60" /> Consultor: {m.consultant || 'Não informado'}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                            <Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger || 'Não informado'}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                )}
 
-                    return (
-                        <div key={ps.id} className="flex items-center justify-between gap-4">
+                {expandedStage === "negotiations" && (
+                  meetings
+                    .filter(m => m.status === 'em_negociacao')
+                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
+                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .map(m => (
+                      <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-primary">{m.leadName}</h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold uppercase tracking-wider">
+                            Negociação
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-2 text-xs">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Users className="w-3.5 h-3.5 text-primary/60" /> {m.consultant}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <TrendingUp className="w-3.5 h-3.5 text-primary/60" /> {m.downPayment || 'R$ -'}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground col-span-2">
+                            <Target className="w-3.5 h-3.5 text-primary/60" /> {m.trigger}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                )}
+
+                {expandedStage === "sales" && (
+                  meetings
+                    .filter(m => m.status === 'venda_concluida')
+                    .filter(m => selectedPreSeller === "all" || m.preSeller === selectedPreSeller)
+                    .filter(m => !isAdmin ? m.preSeller === profile?.displayName : true)
+                    .map(m => (
+                      <div key={m.id} className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col gap-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-bold text-primary">{m.leadName}</h4>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600 text-white font-bold uppercase tracking-wider">
+                            Venda
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-y-2 text-xs">
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Calendar className="w-3.5 h-3.5 text-primary/60" /> {m.date.split("-").reverse().join("/")}
+                          </div>
+                          <div className="flex items-center gap-1.5 text-muted-foreground">
+                            <Users className="w-3.5 h-3.5 text-primary/60" /> {m.consultant}
+                          </div>
+                          <div className="flex items-center gap-1.5 font-bold text-emerald-600 col-span-2">
+                            <ShoppingCart className="w-3.5 h-3.5" /> Valor: {m.downPayment || 'R$ -'}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                )}
+
+                {/* Distribution view - remains manual for ADM or display for others */}
+                {expandedStage === "distribution" && (
+                  <div className="space-y-3">
+                    {isAdmin ? (
+                      preSellers.map(ps => {
+                        const dist = (data?.distribution || []).find(d => d.userId === ps.id);
+                        const val = dist?.leadsReceived || 0;
+                        return (
+                          <div key={ps.id} className="flex items-center justify-between gap-4 p-2 bg-card rounded-lg border border-border/50">
                             <span className="text-sm font-medium truncate flex-1">{ps.displayName}</span>
                             {period === "daily" ? (
-                                <Input 
-                                    type="number" 
-                                    className="w-20 h-8 text-right" 
-                                    defaultValue={getVal() || ''}
-                                    key={`${ps.id}-${expandedStage}-${getVal()}-${selectedDate}`}
-                                    placeholder="0"
-                                    onBlur={(e) => handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt(e.target.value) || 0)}
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleUpdateMetric(ps.id, fieldMap[expandedStage], parseInt((e.target as HTMLInputElement).value) || 0);
-                                        }
-                                    }}
-                                />
+                              <Input 
+                                type="number" 
+                                className="w-20 h-8 text-right" 
+                                defaultValue={val || ''}
+                                key={`dist-${ps.id}-${val}-${selectedDate}`}
+                                placeholder="0"
+                                onBlur={(e) => handleUpdateMetric(ps.id, "leadsReceived", parseInt(e.target.value) || 0)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleUpdateMetric(ps.id, "leadsReceived", parseInt((e.target as HTMLInputElement).value) || 0);
+                                  }
+                                }}
+                              />
                             ) : (
-                                <span className="font-bold text-primary">{getVal()}</span>
+                              <span className="font-bold text-primary">{val}</span>
                             )}
-                        </div>
-                    );
-                })
-              )}
-
-              {/* Se for apenas pré-vendedor e estiver na aba de distribuição, mostrar apenas como leitura */}
-              {!isAdmin && expandedStage === "distribution" && (
-                <div className="flex items-center justify-between">
-                    <span className="text-sm">Leads Recebidos</span>
-                    <span className="font-bold text-primary">
-                        {(data?.distribution.find(d => d.userId === profile?.id))?.leadsReceived || 0}
-                    </span>
-                </div>
-              )}
-
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
+                        <span className="text-sm font-semibold">Leads Recebidos no período:</span>
+                        <span className="text-xl font-black text-primary">
+                          {(data?.distribution.find(d => d.userId === profile?.id))?.leadsReceived || 0}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Fallback empty message */}
+                {expandedStage !== "capture" && expandedStage !== "distribution" && 
+                  ((expandedStage === "appointments" && meetings.length === 0) ||
+                   (expandedStage === "calls" && calls.length === 0 && !isAddingCall) ||
+                   (expandedStage === "visits" && meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length === 0) ||
+                   (expandedStage === "negotiations" && meetings.filter(m => m.status === 'em_negociacao').length === 0) ||
+                   (expandedStage === "sales" && meetings.filter(m => m.status === 'venda_concluida').length === 0)) && (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-muted-foreground">Nenhum registro encontrado para este período.</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
           
