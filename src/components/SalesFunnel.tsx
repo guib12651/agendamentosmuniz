@@ -281,9 +281,15 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t pt-4">
-        <h2 className="font-display font-bold text-lg text-primary">Consolidado</h2>
-        <span className="text-xs text-muted-foreground">{period === 'daily' ? selectedDate.split("-").reverse().join("/") : 'Período Selecionado'}</span>
+      <div className="flex items-center justify-between border-t border-slate-100 pt-6">
+        <div className="flex flex-col">
+          <h2 className="font-display font-black text-2xl text-slate-900 tracking-tight">Fluxo Comercial</h2>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">{period === 'daily' ? selectedDate.split("-").reverse().join("/") : 'Métricas Consolidadas'}</p>
+        </div>
+        <div className="bg-primary/10 px-3 py-1.5 rounded-full flex items-center gap-2">
+           <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+           <span className="text-[10px] font-black text-primary uppercase">Ao Vivo</span>
+        </div>
       </div>
 
       <div className="flex flex-col items-center gap-1.5 py-4">
