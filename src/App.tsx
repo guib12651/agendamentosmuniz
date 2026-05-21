@@ -13,9 +13,16 @@ import MeusAgendamentos from "./pages/MeusAgendamentos.tsx";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, profile, loading, signOut } = useAuth();
+  
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!session) return <Navigate to="/login" replace />;
+  
+  if (profile?.is_blocked) {
+    signOut();
+    return <Navigate to="/login" replace />;
+  }
+
   return <>{children}</>;
 }
 
