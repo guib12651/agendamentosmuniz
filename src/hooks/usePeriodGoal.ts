@@ -54,13 +54,11 @@ export function usePeriodGoal() {
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    // Busca a meta marcada como ativa (via created_at mais recente para simplificar, ou lógica de período)
-    // Mas conforme solicitado, vamos buscar a que foi "salva por último" ou a que o ADM definir.
-    // Para garantir que "atualize automaticamente", buscamos a meta com o maior start_date ou a mais recente.
+    // Busca a meta com o updated_at mais recente para garantir que a última salva apareça
     const { data: latestGoal, error: gErr } = await supabase
       .from("period_goals")
       .select("*")
-      .order("created_at", { ascending: false })
+      .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
