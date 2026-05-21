@@ -38,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username: data.username,
         displayName: data.display_name,
         role: data.role as "admin" | "pre_seller",
+        is_blocked: !!data.is_blocked,
       });
     }
   };
