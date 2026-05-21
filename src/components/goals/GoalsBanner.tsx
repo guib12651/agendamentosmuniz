@@ -22,9 +22,8 @@ function motivationalMessage(pct: number) {
 }
 
 export default function GoalsBanner() {
-  const { start, end } = getCurrentPeriod();
   const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
-    usePeriodGoal(start, end);
+    usePeriodGoal();
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
@@ -48,7 +47,7 @@ export default function GoalsBanner() {
     <section className="space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
         <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight capitalize">
-          {formatPeriodLabel(start, end)}
+          {goal ? formatPeriodLabel(goal.start_date, goal.end_date) : "Metas"}
         </h2>
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">

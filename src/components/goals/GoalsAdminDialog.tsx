@@ -26,7 +26,7 @@ const formatBRL = (v: number) =>
 export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
   const { profile } = useAuth();
   const [dates, setDates] = useState(() => getCurrentPeriod());
-  const { goal, progress, reload } = usePeriodGoal(dates.start, dates.end);
+  const { goal, progress, reload } = usePeriodGoal();
 
   const [totalGoal, setTotalGoal] = useState<string>("");
   const [splitCount, setSplitCount] = useState<string>("");
