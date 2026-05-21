@@ -54,29 +54,28 @@ export function usePeriodGoal() {
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    // Busca a meta cujo período engloba a data atual OU a meta futura mais próxima
-    const today = new Date().toISOString().slice(0, 10);
+    // Busca a meta específica solicitada (01/05 a 31/05) ou a última meta ativa
+    const targetStart = '2026-05-01';
+    const targetEnd = '2026-05-31';
     
-    // Tenta primeiro encontrar uma meta ativa hoje
-    let { data: activeGoal, error: gErr } = await supabase
+    // Tenta buscar a meta específica de Maio
+    let { data: targetGoal, error: gErr } = await supabase
       .from("period_goals")
       .select("*")
-      .lte("start_date", today)
-      .gte("end_date", today)
-      .order("created_at", { ascending: false })
-      .limit(1)
+      .eq("start_date", targetStart)
+      .eq("end_date", targetEnd)
       .maybeSingle();
 
-    // Se não houver meta ativa hoje, busca a meta mais recente criada (futura ou passada)
-    if (!activeGoal && !gErr) {
+    // Se não encontrar a meta de Maio, busca a meta mais recente baseada na data de fim
+    if (!targetGoal && !gErr) {
       const { data: latestGoal, error: lErr } = await supabase
         .from("period_goals")
         .select("*")
-        .order("start_date", { ascending: false })
+        .order("end_date", { ascending: false })
         .limit(1)
         .maybeSingle();
       
-      activeGoal = latestGoal;
+      targetGoal = latestGoal;
       gErr = lErr;
     }
 
@@ -86,16 +85,16 @@ export function usePeriodGoal() {
       return;
     }
 
-    if (activeGoal) {
+    if (targetGoal) {
       const { data: progressData, error: pErr } = await supabase
         .from("period_goal_progress")
         .select("*")
-        .eq("start_date", activeGoal.start_date)
-        .eq("end_date", activeGoal.end_date);
+        .eq("start_date", targetGoal.start_date)
+        .eq("end_date", targetGoal.end_date);
       
       if (pErr) console.error("Error fetching progress:", pErr);
       
-      setGoal(activeGoal as any);
+      setGoal(targetGoal as any);
       setProgress((progressData as any) ?? []);
     } else {
       setGoal(null);
