@@ -202,6 +202,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          is_blocked: boolean | null
           role: Database["public"]["Enums"]["app_role"]
           username: string
         }
@@ -209,6 +210,7 @@ export type Database = {
           created_at?: string
           display_name: string
           id: string
+          is_blocked?: boolean | null
           role?: Database["public"]["Enums"]["app_role"]
           username: string
         }
@@ -216,6 +218,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          is_blocked?: boolean | null
           role?: Database["public"]["Enums"]["app_role"]
           username?: string
         }
