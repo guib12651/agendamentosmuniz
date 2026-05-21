@@ -48,7 +48,7 @@ export default function GoalsBanner() {
     <section className="space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
         <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight capitalize">
-          {formatMonthLabel(monthKey)}
+          {formatPeriodLabel(start, end)}
         </h2>
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">
