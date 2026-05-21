@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -25,8 +26,14 @@ const formatBRL = (v: number) =>
 
 export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
   const { profile } = useAuth();
-  const [dates, setDates] = useState(() => getCurrentPeriod());
+  const [dates, setDates] = useState(() => ({ start: "", end: "" }));
   const { goal, progress, reload } = usePeriodGoal();
+
+  useEffect(() => {
+    if (goal && dates.start === "" && dates.end === "") {
+      setDates({ start: goal.start_date, end: goal.end_date });
+    }
+  }, [goal]);
 
   const [totalGoal, setTotalGoal] = useState<string>("");
   const [splitCount, setSplitCount] = useState<string>("");
@@ -78,6 +85,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
             total_goal: totalNum,
             split_count: splitNum > 0 ? splitNum : null,
             created_by: profile.id,
+            updated_at: new Date().toISOString(), // Força a atualização do timestamp para ser a "mais recente"
           } as any,
           { onConflict: "start_date,end_date" }
         );
@@ -113,12 +121,29 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="capitalize">
-            Gerenciar metas — {formatPeriodLabel(dates.start, dates.end)}
-          </DialogTitle>
+          <div className="flex items-center justify-between pr-8">
+            <DialogTitle className="capitalize">
+              Gerenciar metas
+            </DialogTitle>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => {
+                setDates({ start: "", end: "" });
+                setTotalGoal("");
+                setSplitCount("");
+                setAmounts({});
+                setTargets({});
+              }}
+            >
+              <Plus className="size-4" />
+              Nova Produção
+            </Button>
+          </div>
         </DialogHeader>
 
-        <div className="space-y-5">
+        <div className="space-y-5 mt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Início do período</Label>
