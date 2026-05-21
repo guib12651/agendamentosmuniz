@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { getMonthKey, formatMonthLabel, useMonthlyGoal } from "@/hooks/useMonthlyGoal";
+import { getCurrentPeriod, formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 
 interface ProfileLite {
   id: string;
@@ -23,8 +23,8 @@ interface Props {
 
 export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Props) {
   const isRemove = mode === "remove";
-  const monthKey = getMonthKey();
-  const { progress, reload } = useMonthlyGoal(monthKey);
+  const { start, end } = getCurrentPeriod();
+  const { progress, reload } = usePeriodGoal(start, end);
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
@@ -42,7 +42,7 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
         setProfiles(list);
         if (list.length && !userId) setUserId(list[0].id);
       });
-  }, [open]);
+  }, [open, userId]);
 
   async function handleAdd() {
     const value = Number(amount);
@@ -56,10 +56,10 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
       const delta = isRemove ? -value : value;
       const newAmount = Math.max(0, current + delta);
       const { error } = await supabase
-        .from("monthly_goal_progress")
+        .from("period_goal_progress" as any)
         .upsert(
-          { month: monthKey, user_id: userId, amount: newAmount },
-          { onConflict: "month,user_id" }
+          { start_date: start, end_date: end, user_id: userId, amount: newAmount },
+          { onConflict: "start_date,end_date,user_id" }
         );
       if (error) throw error;
       const formatted = value.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -81,8 +81,8 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
           <DialogTitle>{isRemove ? "Remover venda" : "Adicionar venda"}</DialogTitle>
           <DialogDescription className="capitalize">
             {isRemove
-              ? `Subtrai do realizado de ${formatMonthLabel(monthKey)} e diminui o % da meta.`
-              : `Soma ao realizado de ${formatMonthLabel(monthKey)} e aumenta o % da meta.`}
+              ? `Subtrai do realizado de ${formatPeriodLabel(start, end)} e diminui o % da meta.`
+              : `Soma ao realizado de ${formatPeriodLabel(start, end)} e aumenta o % da meta.`}
           </DialogDescription>
         </DialogHeader>
 
@@ -119,8 +119,8 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
             />
             <p className="text-xs text-muted-foreground">
               {isRemove
-                ? "O valor será subtraído do total realizado pelo vendedor neste mês (mínimo zero)."
-                : "O valor será somado ao total já realizado pelo vendedor neste mês."}
+                ? "O valor será subtraído do total realizado pelo vendedor neste período (mínimo zero)."
+                : "O valor será somado ao total já realizado pelo vendedor neste período."}
             </p>
           </div>
         </div>
