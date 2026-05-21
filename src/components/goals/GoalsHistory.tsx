@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
+import { formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 import {
   Accordion,
   AccordionContent,
@@ -28,7 +28,7 @@ const formatBRL = (v: number) =>
 export default function GoalsHistory() {
   const [goals, setGoals] = useState<GoalRow[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
-  const current = getCurrentPeriod();
+  const { goal: activeGoal } = usePeriodGoal();
 
   useEffect(() => {
     let cancel = false;
@@ -46,7 +46,7 @@ export default function GoalsHistory() {
     };
   }, []);
 
-  const past = goals.filter((g) => g.start_date !== current.start || g.end_date !== current.end);
+  const past = goals.filter((g) => g.id !== activeGoal?.id);
   if (past.length === 0) return null;
 
   const realizedByPeriod = progress.reduce<Record<string, number>>((acc, r) => {
