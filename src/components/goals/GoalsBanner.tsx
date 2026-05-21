@@ -22,9 +22,9 @@ function motivationalMessage(pct: number) {
 }
 
 export default function GoalsBanner() {
-  const monthKey = getMonthKey();
+  const { start, end } = getCurrentPeriod();
   const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
-    useMonthlyGoal(monthKey);
+    usePeriodGoal(start, end);
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
