@@ -93,8 +93,8 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
       
       if (rows.length) {
         const { error: pErr } = await supabase
-          .from("period_goal_progress")
-          .upsert(rows, { onConflict: "start_date,end_date,user_id" });
+          .from("period_goal_progress" as any)
+          .upsert(rows as any, { onConflict: "start_date,end_date,user_id" });
         if (pErr) throw pErr;
       }
 
