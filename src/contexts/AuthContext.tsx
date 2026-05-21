@@ -7,6 +7,7 @@ interface UserProfile {
   username: string;
   displayName: string;
   role: "admin" | "pre_seller";
+  is_blocked: boolean;
 }
 
 interface AuthContextType {
