@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { getMonthKey, formatMonthLabel, useMonthlyGoal } from "@/hooks/useMonthlyGoal";
+import { getCurrentPeriod, formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 
 interface ProfileLite {
   id: string;
@@ -25,9 +25,8 @@ const formatBRL = (v: number) =>
 
 export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
   const { profile } = useAuth();
-  const [month, setMonth] = useState<string>(() => getMonthKey().slice(0, 7));
-  const monthKey = `${month}-01`;
-  const { goal, progress, reload } = useMonthlyGoal(monthKey);
+  const [dates, setDates] = useState(() => getCurrentPeriod());
+  const { goal, progress, reload } = usePeriodGoal(dates.start, dates.end);
 
   const [totalGoal, setTotalGoal] = useState<string>("");
   const [splitCount, setSplitCount] = useState<string>("");
@@ -70,15 +69,16 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
     setSaving(true);
     try {
       const { error: gErr } = await supabase
-        .from("monthly_goals")
+        .from("period_goals" as any)
         .upsert(
           {
-            month: monthKey,
+            start_date: dates.start,
+            end_date: dates.end,
             total_goal: totalNum,
             split_count: splitNum > 0 ? splitNum : null,
             created_by: profile.id,
-          },
-          { onConflict: "month" }
+          } as any,
+          { onConflict: "start_date,end_date" }
         );
       if (gErr) throw gErr;
 
@@ -87,13 +87,14 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
         .map(user_id => {
           const amount = Number(amounts[user_id]) || 0;
           const target_amount = Number(targets[user_id]) || 0;
-          return { month: monthKey, user_id, amount, target_amount };
+          return { start_date: dates.start, end_date: dates.end, user_id, amount, target_amount };
         })
         .filter(row => row.amount > 0 || row.target_amount > 0);
+      
       if (rows.length) {
         const { error: pErr } = await supabase
-          .from("monthly_goal_progress")
-          .upsert(rows, { onConflict: "month,user_id" });
+          .from("period_goal_progress" as any)
+          .upsert(rows as any, { onConflict: "start_date,end_date,user_id" });
         if (pErr) throw pErr;
       }
 
@@ -112,15 +113,27 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="capitalize">
-            Gerenciar metas — {formatMonthLabel(monthKey)}
+            Gerenciar metas — {formatPeriodLabel(dates.start, dates.end)}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Mês</Label>
-              <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} />
+              <Label>Início do período</Label>
+              <Input 
+                type="date" 
+                value={dates.start} 
+                onChange={(e) => setDates(prev => ({ ...prev, start: e.target.value }))} 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Fim do período</Label>
+              <Input 
+                type="date" 
+                value={dates.end} 
+                onChange={(e) => setDates(prev => ({ ...prev, end: e.target.value }))} 
+              />
             </div>
             <div className="space-y-1.5">
               <Label>Meta total (R$)</Label>
@@ -142,7 +155,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
                 placeholder="5"
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="col-span-1 sm:col-span-2 space-y-1.5">
               <Label>Meta por funcionário</Label>
               <div className="h-10 flex items-center px-3 rounded-md bg-muted text-foreground font-semibold">
                 {formatBRL(perPerson)}

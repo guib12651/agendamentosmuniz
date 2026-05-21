@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMonthlyGoal, formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
+import { usePeriodGoal, formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
 import { Settings2, Trophy, Sparkles, Plus, Minus, Printer } from "lucide-react";
@@ -22,9 +22,9 @@ function motivationalMessage(pct: number) {
 }
 
 export default function GoalsBanner() {
-  const monthKey = getMonthKey();
+  const { start, end } = getCurrentPeriod();
   const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
-    useMonthlyGoal(monthKey);
+    usePeriodGoal(start, end);
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
@@ -48,7 +48,7 @@ export default function GoalsBanner() {
     <section className="space-y-3">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-2">
         <h2 className="text-lg sm:text-xl font-display font-semibold tracking-tight capitalize">
-          {formatMonthLabel(monthKey)}
+          {formatPeriodLabel(start, end)}
         </h2>
         {isAdmin && (
           <div className="flex flex-wrap items-center gap-2">

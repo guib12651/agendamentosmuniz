@@ -107,63 +107,6 @@ export type Database = {
         }
         Relationships: []
       }
-      monthly_goal_progress: {
-        Row: {
-          amount: number
-          id: string
-          month: string
-          target_amount: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          amount?: number
-          id?: string
-          month: string
-          target_amount?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          amount?: number
-          id?: string
-          month?: string
-          target_amount?: number | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      monthly_goals: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          month: string
-          split_count: number | null
-          total_goal: number
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          month: string
-          split_count?: number | null
-          total_goal?: number
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          month?: string
-          split_count?: number | null
-          total_goal?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       notifications: {
         Row: {
           created_at: string
@@ -194,6 +137,75 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      period_goal_progress: {
+        Row: {
+          amount: number
+          end_date: string
+          id: string
+          month: string
+          start_date: string
+          target_amount: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          end_date: string
+          id?: string
+          month: string
+          start_date: string
+          target_amount?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          end_date?: string
+          id?: string
+          month?: string
+          start_date?: string
+          target_amount?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      period_goals: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string
+          id: string
+          month: string
+          split_count: number | null
+          start_date: string
+          total_goal: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date: string
+          id?: string
+          month: string
+          split_count?: number | null
+          start_date: string
+          total_goal?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string
+          id?: string
+          month?: string
+          split_count?: number | null
+          start_date?: string
+          total_goal?: number
+          updated_at?: string
         }
         Relationships: []
       }

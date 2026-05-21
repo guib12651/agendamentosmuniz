@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatMonthLabel, getMonthKey } from "@/hooks/useMonthlyGoal";
+import { formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
 import {
   Accordion,
   AccordionContent,
@@ -11,12 +11,14 @@ import { History } from "lucide-react";
 
 interface GoalRow {
   id: string;
-  month: string;
+  start_date: string;
+  end_date: string;
   total_goal: number;
   split_count: number | null;
 }
 interface ProgressRow {
-  month: string;
+  start_date: string;
+  end_date: string;
   amount: number;
 }
 
@@ -26,14 +28,14 @@ const formatBRL = (v: number) =>
 export default function GoalsHistory() {
   const [goals, setGoals] = useState<GoalRow[]>([]);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
-  const currentMonth = getMonthKey();
+  const current = getCurrentPeriod();
 
   useEffect(() => {
     let cancel = false;
     (async () => {
       const [g, p] = await Promise.all([
-        supabase.from("monthly_goals").select("*").order("month", { ascending: false }),
-        supabase.from("monthly_goal_progress").select("month, amount"),
+        supabase.from("period_goals" as any).select("*").order("start_date", { ascending: false }),
+        supabase.from("period_goal_progress" as any).select("start_date, end_date, amount"),
       ]);
       if (cancel) return;
       setGoals(((g.data as any) ?? []) as GoalRow[]);
@@ -44,11 +46,12 @@ export default function GoalsHistory() {
     };
   }, []);
 
-  const past = goals.filter((g) => g.month < currentMonth);
+  const past = goals.filter((g) => g.start_date !== current.start || g.end_date !== current.end);
   if (past.length === 0) return null;
 
-  const realizedByMonth = progress.reduce<Record<string, number>>((acc, r) => {
-    acc[r.month] = (acc[r.month] ?? 0) + Number(r.amount || 0);
+  const realizedByPeriod = progress.reduce<Record<string, number>>((acc, r) => {
+    const key = `${r.start_date}_${r.end_date}`;
+    acc[key] = (acc[key] ?? 0) + Number(r.amount || 0);
     return acc;
   }, {});
 
@@ -65,13 +68,14 @@ export default function GoalsHistory() {
           <AccordionContent>
             <ul className="divide-y divide-border">
               {past.map((g) => {
-                const realized = realizedByMonth[g.month] ?? 0;
+                const key = `${g.start_date}_${g.end_date}`;
+                const realized = realizedByPeriod[key] ?? 0;
                 const pct = g.total_goal > 0 ? (realized / g.total_goal) * 100 : 0;
                 return (
                   <li key={g.id} className="py-3 flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="text-sm font-medium capitalize truncate">
-                        {formatMonthLabel(g.month)}
+                        {formatPeriodLabel(g.start_date, g.end_date)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {formatBRL(realized)} de {formatBRL(g.total_goal)}
