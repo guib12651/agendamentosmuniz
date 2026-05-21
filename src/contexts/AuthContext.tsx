@@ -7,6 +7,7 @@ interface UserProfile {
   username: string;
   displayName: string;
   role: "admin" | "pre_seller";
+  is_blocked: boolean;
 }
 
 interface AuthContextType {
@@ -37,6 +38,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username: data.username,
         displayName: data.display_name,
         role: data.role as "admin" | "pre_seller",
+        is_blocked: !!data.is_blocked,
       });
     }
   };
@@ -67,8 +69,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (username: string, password: string) => {
     const email = `${username.toLowerCase().trim()}@muniz.internal`;
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
     if (error) return { error: "Usuário ou senha incorretos." };
+
+    if (data.user) {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("is_blocked")
+        .eq("id", data.user.id)
+        .single();
+
+      if (profileData?.is_blocked) {
+        await supabase.auth.signOut();
+        return { error: "Sua conta foi bloqueada. Entre em contato com o administrador." };
+      }
+    }
+
     return { error: null };
   };
 
