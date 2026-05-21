@@ -61,6 +61,7 @@ export default function Fechamentos() {
       .from("profiles")
       .select("display_name")
       .eq("role", "pre_seller")
+      .eq("is_blocked", false)
       .then(({ data }) => {
         if (data) setPreSellers(data.map((p: any) => p.display_name).sort());
       });
