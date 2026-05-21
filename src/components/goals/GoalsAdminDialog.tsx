@@ -85,6 +85,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
             total_goal: totalNum,
             split_count: splitNum > 0 ? splitNum : null,
             created_by: profile.id,
+            updated_at: new Date().toISOString(), // Força a atualização do timestamp para ser a "mais recente"
           } as any,
           { onConflict: "start_date,end_date" }
         );
