@@ -54,30 +54,48 @@ export function usePeriodGoal() {
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    // Busca a meta mais recente baseada na data de fim
-    const { data: latestGoal, error: gErr } = await supabase
+    // Busca a meta cujo período engloba a data atual OU a meta futura mais próxima
+    const today = new Date().toISOString().slice(0, 10);
+    
+    // Tenta primeiro encontrar uma meta ativa hoje
+    let { data: activeGoal, error: gErr } = await supabase
       .from("period_goals")
       .select("*")
-      .order("end_date", { ascending: false })
+      .lte("start_date", today)
+      .gte("end_date", today)
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
+    // Se não houver meta ativa hoje, busca a meta mais recente criada (futura ou passada)
+    if (!activeGoal && !gErr) {
+      const { data: latestGoal, error: lErr } = await supabase
+        .from("period_goals")
+        .select("*")
+        .order("start_date", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      activeGoal = latestGoal;
+      gErr = lErr;
+    }
+
     if (gErr) {
-      console.error("Error fetching latest goal:", gErr);
+      console.error("Error fetching goal:", gErr);
       setLoading(false);
       return;
     }
 
-    if (latestGoal) {
+    if (activeGoal) {
       const { data: progressData, error: pErr } = await supabase
         .from("period_goal_progress")
         .select("*")
-        .eq("start_date", latestGoal.start_date)
-        .eq("end_date", latestGoal.end_date);
+        .eq("start_date", activeGoal.start_date)
+        .eq("end_date", activeGoal.end_date);
       
       if (pErr) console.error("Error fetching progress:", pErr);
       
-      setGoal(latestGoal as any);
+      setGoal(activeGoal as any);
       setProgress((progressData as any) ?? []);
     } else {
       setGoal(null);
