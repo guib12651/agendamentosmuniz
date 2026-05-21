@@ -47,30 +47,44 @@ export function formatPeriodLabel(start: string, end: string) {
   return `${formatDate(start)} - ${formatDate(end)}`;
 }
 
-export function usePeriodGoal(startDate: string, endDate: string) {
+export function usePeriodGoal() {
   const { profile, isAdmin } = useAuth();
   const [goal, setGoal] = useState<PeriodGoal | null>(null);
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   const reload = useCallback(async () => {
-    const [g, p] = await Promise.all([
-      supabase
-        .from("period_goals")
-        .select("*")
-        .eq("start_date", startDate)
-        .eq("end_date", endDate)
-        .maybeSingle(),
-      supabase
+    // Busca a meta mais recente baseada na data de fim
+    const { data: latestGoal, error: gErr } = await supabase
+      .from("period_goals")
+      .select("*")
+      .order("end_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (gErr) {
+      console.error("Error fetching latest goal:", gErr);
+      setLoading(false);
+      return;
+    }
+
+    if (latestGoal) {
+      const { data: progressData, error: pErr } = await supabase
         .from("period_goal_progress")
         .select("*")
-        .eq("start_date", startDate)
-        .eq("end_date", endDate),
-    ]);
-    setGoal((g.data as any) ?? null);
-    setProgress(((p.data as any) ?? []) as ProgressRow[]);
+        .eq("start_date", latestGoal.start_date)
+        .eq("end_date", latestGoal.end_date);
+      
+      if (pErr) console.error("Error fetching progress:", pErr);
+      
+      setGoal(latestGoal as any);
+      setProgress((progressData as any) ?? []);
+    } else {
+      setGoal(null);
+      setProgress([]);
+    }
     setLoading(false);
-  }, [startDate, endDate]);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -79,14 +93,14 @@ export function usePeriodGoal(startDate: string, endDate: string) {
 
   useEffect(() => {
     const ch = supabase
-      .channel(`goals-${startDate}-${endDate}-${Math.random().toString(36).slice(2, 8)}`)
+      .channel(`goals-realtime-${Math.random().toString(36).slice(2, 8)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "period_goals" }, reload)
       .on("postgres_changes", { event: "*", schema: "public", table: "period_goal_progress" }, reload)
       .subscribe();
     return () => {
       supabase.removeChannel(ch);
     };
-  }, [startDate, endDate, reload]);
+  }, [reload]);
 
   const totalGoal = goal?.total_goal ?? 0;
   const splitCount = goal?.split_count ?? 0;

@@ -23,8 +23,9 @@ interface Props {
 
 export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Props) {
   const isRemove = mode === "remove";
-  const { start, end } = getCurrentPeriod();
-  const { progress, reload } = usePeriodGoal(start, end);
+  const { goal, progress, reload } = usePeriodGoal();
+  const start = goal?.start_date || "";
+  const end = goal?.end_date || "";
   const [profiles, setProfiles] = useState<ProfileLite[]>([]);
   const [userId, setUserId] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
