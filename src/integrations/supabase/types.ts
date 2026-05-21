@@ -145,7 +145,7 @@ export type Database = {
           amount: number
           end_date: string
           id: string
-          month: string
+          month: string | null
           start_date: string
           target_amount: number | null
           updated_at: string
@@ -155,7 +155,7 @@ export type Database = {
           amount?: number
           end_date: string
           id?: string
-          month: string
+          month?: string | null
           start_date: string
           target_amount?: number | null
           updated_at?: string
@@ -165,7 +165,7 @@ export type Database = {
           amount?: number
           end_date?: string
           id?: string
-          month?: string
+          month?: string | null
           start_date?: string
           target_amount?: number | null
           updated_at?: string
@@ -179,7 +179,7 @@ export type Database = {
           created_by: string | null
           end_date: string
           id: string
-          month: string
+          month: string | null
           split_count: number | null
           start_date: string
           total_goal: number
@@ -190,7 +190,7 @@ export type Database = {
           created_by?: string | null
           end_date: string
           id?: string
-          month: string
+          month?: string | null
           split_count?: number | null
           start_date: string
           total_goal?: number
@@ -201,7 +201,7 @@ export type Database = {
           created_by?: string | null
           end_date?: string
           id?: string
-          month?: string
+          month?: string | null
           split_count?: number | null
           start_date?: string
           total_goal?: number
