@@ -40,6 +40,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
     supabase
       .from("profiles")
       .select("id, display_name, username, role")
+      .eq("is_blocked", false)
       .order("display_name")
       .then(({ data }) => setProfiles((data as any) ?? []));
   }, [open]);

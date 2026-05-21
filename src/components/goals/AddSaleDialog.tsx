@@ -36,6 +36,7 @@ export default function AddSaleDialog({ open, onOpenChange, mode = "add" }: Prop
     supabase
       .from("profiles")
       .select("id, display_name, username, role")
+      .eq("is_blocked", false)
       .order("display_name")
       .then(({ data }) => {
         const list = (data as any) ?? [];
