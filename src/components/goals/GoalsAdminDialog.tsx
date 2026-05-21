@@ -69,7 +69,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
     setSaving(true);
     try {
       const { error: gErr } = await supabase
-        .from("period_goals")
+        .from("period_goals" as any)
         .upsert(
           {
             start_date: dates.start,
@@ -77,7 +77,7 @@ export default function GoalsAdminDialog({ open, onOpenChange }: Props) {
             total_goal: totalNum,
             split_count: splitNum > 0 ? splitNum : null,
             created_by: profile.id,
-          },
+          } as any,
           { onConflict: "start_date,end_date" }
         );
       if (gErr) throw gErr;
