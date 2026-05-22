@@ -92,9 +92,15 @@ export default function PeriodFilter({
   onCustomEndChange,
 }: PeriodFilterProps) {
   const today = new Date().toISOString().split("T")[0];
+  const currentRange = getDateRange(period, selectedDate, customStart, customEnd);
+  
+  const formatDateDisplay = (dateStr: string) => {
+    if (!dateStr) return "";
+    return dateStr.split("-").reverse().join("/");
+  };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {/* Period buttons */}
       <div className="flex flex-wrap gap-1.5">
         {(Object.keys(periodLabels) as PeriodType[]).map((p) => (
@@ -116,6 +122,14 @@ export default function PeriodFilter({
         >
           <CalendarDays className="w-3.5 h-3.5 mr-1" /> Hoje
         </Button>
+      </div>
+
+      {/* Range Display */}
+      <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 flex items-center gap-2">
+        <Calendar className="w-4 h-4 text-slate-500" />
+        <span className="text-xs font-bold text-slate-700">
+          Período: <span className="text-primary">{formatDateDisplay(currentRange.start)}</span> até <span className="text-primary">{formatDateDisplay(currentRange.end)}</span>
+        </span>
       </div>
 
       {/* Date inputs */}
