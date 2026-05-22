@@ -1,0 +1,168 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import logo from "@/assets/logo_muniz.png";
+
+interface UserProfile {
+  id: string;
+  display_name: string;
+  role: string;
+  is_blocked: boolean;
+  email?: string;
+}
+
+export default function GerenciarUsuarios() {
+  const { isAdmin, profile } = useAuth();
+  const navigate = useNavigate();
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name, role, is_blocked")
+      .order("display_name");
+
+    if (error) {
+      toast.error("Erro ao carregar usuários");
+    } else {
+      setUsers(data || []);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchUsers();
+    }
+  }, [isAdmin]);
+
+  const toggleUserStatus = async (userId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_blocked: !currentStatus })
+      .eq("id", userId);
+
+    if (error) {
+      toast.error("Erro ao atualizar status");
+    } else {
+      toast.success(currentStatus ? "Usuário desbloqueado!" : "Usuário bloqueado!");
+      setUsers(users.map(u => u.id === userId ? { ...u, is_blocked: !currentStatus } : u));
+    }
+  };
+
+  const filteredUsers = users.filter(u => 
+    u.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+    u.role?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground p-6 text-center">
+        Acesso restrito a administradores.
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen pb-8">
+      <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
+        <div className="container flex items-center justify-between py-3 px-3 sm:px-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg" />
+            <div>
+              <h1 className="text-base sm:text-lg font-display font-bold text-primary leading-tight">Gerenciar Usuários</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">{profile?.displayName} • Admin</p>
+            </div>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => navigate("/")} className="h-9 text-xs">
+            <ArrowLeft className="w-4 h-4 mr-1" /> Voltar
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mt-4 space-y-4 px-3 sm:px-6">
+        <div className="card-meeting p-4 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nome ou cargo..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Nome</TableHead>
+                  <TableHead>Cargo</TableHead>
+                  <TableHead className="text-right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      Carregando...
+                    </TableCell>
+                  </TableRow>
+                ) : filteredUsers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
+                      Nenhum usuário encontrado.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <UserCog className="w-4 h-4 text-muted-foreground" />
+                          {user.display_name}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5">
+                          {user.role === 'admin' ? (
+                            <Shield className="w-3.5 h-3.5 text-primary" />
+                          ) : (
+                            <UserCog className="w-3.5 h-3.5 text-muted-foreground" />
+                          )}
+                          <span className="capitalize">{user.role === 'pre_seller' ? 'Pré-vendedor' : user.role}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_blocked ? 'text-destructive' : 'text-success'}`}>
+                            {user.is_blocked ? 'Bloqueado' : 'Ativo'}
+                          </span>
+                          <Switch
+                            checked={!user.is_blocked}
+                            onCheckedChange={() => toggleUserStatus(user.id, user.is_blocked)}
+                            disabled={user.id === profile?.id}
+                          />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
