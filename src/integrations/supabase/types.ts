@@ -58,6 +58,7 @@ export type Database = {
           phone: string
           pre_seller: string
           restriction: string
+          sale_date: string | null
           status: string
           time: string
           trigger: string
@@ -79,6 +80,7 @@ export type Database = {
           phone: string
           pre_seller: string
           restriction?: string
+          sale_date?: string | null
           status?: string
           time: string
           trigger?: string
@@ -100,6 +102,7 @@ export type Database = {
           phone?: string
           pre_seller?: string
           restriction?: string
+          sale_date?: string | null
           status?: string
           time?: string
           trigger?: string
