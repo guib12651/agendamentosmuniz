@@ -114,10 +114,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
       setData(result);
-      setMeetings(m.filter(item => {
-        const itemDate = item.date.trim();
-        return itemDate >= range.start && itemDate <= range.end;
-      }));
+      setMeetings(m); // Carrega todas as reuniões para permitir rastreabilidade global
       setCalls(c);
       
       const { data: currentDay } = await supabase
@@ -225,7 +222,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   ];
 
   function getMeetingsInStageCount(stageId: string) {
-    const stageMap: Record<string, FunnelStage> = { appointments: "appointment", visits: "visit", negotiations: "negotiation", sales: "sale" };
+    const range = getDateRange(period, selectedDate, customStart, customEnd);
     return meetings.filter(m => {
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
@@ -234,8 +231,12 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         if (isAdmin && selectedPreSeller !== "all" && !matchesSeller) return false;
 
         const status = m.status?.toLowerCase().trim();
+        const itemDate = m.date.trim();
+        const isWithinRange = itemDate >= range.start && itemDate <= range.end;
         
-        // Operational rule: a lead is in ONLY ONE stage at a time in the counter
+        if (!isWithinRange) return false;
+
+        // Regra: Uma reunião aparece na sua respectiva etapa baseada no status atual
         if (stageId === "sales") return status === "venda_concluida";
         if (stageId === "negotiations") return status === "em_negociacao";
         if (stageId === "visits") return status === "compareceu" || status === "visita_realizada";
@@ -246,6 +247,7 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   }
 
   const getMeetingsInStage = (stageId: string) => {
+    const range = getDateRange(period, selectedDate, customStart, customEnd);
     return meetings.filter(m => {
         let isCorrectStage = false;
         const status = m.status?.toLowerCase().trim();
@@ -255,11 +257,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao";
         else if (stageId === "sales") isCorrectStage = status === "venda_concluida";
 
+        const itemDate = m.date.trim();
+        const isWithinRange = itemDate >= range.start && itemDate <= range.end;
+
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
 
-        if (!isAdmin) return isCorrectStage && isOwner;
-        return isCorrectStage && (selectedPreSeller === "all" || matchesSeller);
+        if (!isAdmin) return isCorrectStage && isOwner && isWithinRange;
+        return isCorrectStage && (selectedPreSeller === "all" || matchesSeller) && isWithinRange;
     });
   };
 
