@@ -41,6 +41,7 @@ export default function GerenciarUsuarios() {
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [form, setForm] = useState({
     display_name: "",
     username: "",
