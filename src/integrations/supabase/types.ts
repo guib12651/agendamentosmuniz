@@ -21,7 +21,7 @@ export type Database = {
           id: string
           lead_name: string
           result: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           call_time?: string | null
@@ -29,7 +29,7 @@ export type Database = {
           id?: string
           lead_name: string
           result: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           call_time?: string | null
@@ -37,7 +37,7 @@ export type Database = {
           id?: string
           lead_name?: string
           result?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
