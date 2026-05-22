@@ -89,6 +89,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
   const [selectedPreSeller, setSelectedPreSeller] = useState<string>("all");
+  const requestRef = useRef(0);
+
 
   useEffect(() => {
     if (isAdmin) {
@@ -104,17 +106,22 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   }, [isAdmin]);
 
   const loadData = async () => {
+    const requestId = ++requestRef.current;
     setLoading(true);
+    
     try {
       const range = getDateRange(period, selectedDate, customStart, customEnd);
       
       const [result, m, c] = await Promise.all([
         getFunnelDataRange(range.start, range.end),
-        getMeetings(),
+        getMeetings(range.start, range.end),
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
+      
+      if (requestId !== requestRef.current) return;
+
       setData(result);
-      setMeetings(m); // Carrega todas as reuniões para permitir rastreabilidade global
+      setMeetings(m); 
       setCalls(c);
       
       const { data: currentDay } = await supabase
@@ -123,32 +130,44 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         .eq("date", selectedDate)
         .maybeSingle();
       
+      if (requestId !== requestRef.current) return;
+
       if (currentDay) {
         setTempLeads(currentDay.total_leads_captured || 0);
       } else {
         setTempLeads(0);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error loading funnel data:", err);
     } finally {
-      setLoading(false);
+      if (requestId === requestRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     loadData();
 
+    let timeoutId: any;
+    const debouncedLoad = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(loadData, 500);
+    };
+
     const channel = supabase
       .channel("realtime-funnel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_days" }, () => loadData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_distribution" }, () => loadData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_days" }, debouncedLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_distribution" }, debouncedLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, debouncedLoad)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
+      clearTimeout(timeoutId);
     };
   }, [selectedDate, period, customStart, customEnd, selectedPreSeller]);
+
 
   const handleSaveTotalLeads = async () => {
     try {
