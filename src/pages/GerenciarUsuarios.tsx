@@ -27,6 +27,37 @@ export default function GerenciarUsuarios() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
+  const [form, setForm] = useState({
+    display_name: "",
+    username: "",
+    password: "",
+    role: "pre_seller" as UserProfile['role'],
+  });
+
+  const handleCreate = async () => {
+    const username = form.username.toLowerCase().trim().replace(/\s+/g, "");
+    if (!form.display_name.trim()) return toast.error("Informe o nome de exibição");
+    if (!/^[a-z0-9_]+$/.test(username)) return toast.error("Usuário: apenas letras minúsculas, números e _");
+    if (form.password.length < 6) return toast.error("Senha deve ter ao menos 6 caracteres");
+
+    setCreating(true);
+    const { data, error } = await supabase.functions.invoke("create-user", {
+      body: { ...form, username },
+    });
+    setCreating(false);
+
+    if (error || (data && data.error)) {
+      toast.error(data?.error || error?.message || "Erro ao criar usuário");
+      return;
+    }
+    toast.success("Usuário criado com sucesso!");
+    setCreateOpen(false);
+    setForm({ display_name: "", username: "", password: "", role: "pre_seller" });
+    fetchUsers();
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
