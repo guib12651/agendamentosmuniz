@@ -159,14 +159,19 @@ export default function GerenciarUsuarios() {
 
       <main className="container mt-4 space-y-4 px-3 sm:px-6">
         <div className="card-meeting p-4 space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por nome ou cargo..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
+          <div className="flex gap-2 items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por nome ou cargo..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Button onClick={() => setCreateOpen(true)} size="sm" className="h-10 gap-1 whitespace-nowrap">
+              <Plus className="w-4 h-4" /> Novo
+            </Button>
           </div>
 
           <div className="rounded-md border">
