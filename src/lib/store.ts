@@ -29,6 +29,7 @@ export async function getMeetings(): Promise<Meeting[]> {
     meetingType: (row.meeting_type || "presencial") as MeetingType,
     trigger: (row.trigger || "imovel") as TriggerType,
     city: row.city || "",
+    saleDate: row.sale_date || undefined,
     userId: row.user_id || null,
     createdAt: row.created_at || undefined,
     funnelStage: (row.funnel_stage || "appointment") as FunnelStage,
@@ -52,6 +53,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     meeting_type: meeting.meetingType || "presencial",
     trigger: meeting.trigger || "imovel",
     city: meeting.city || "",
+    sale_date: meeting.saleDate || null,
     user_id: userId,
     funnel_stage: meeting.funnelStage || "appointment",
   });
@@ -77,6 +79,7 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
       meeting_type: meeting.meetingType,
       trigger: meeting.trigger,
       city: meeting.city,
+      sale_date: meeting.saleDate,
       funnel_stage: meeting.funnelStage,
     })
     .eq("id", meeting.id);
@@ -103,7 +106,8 @@ export async function updateFunnelStage(id: string, stage: FunnelStage): Promise
       funnel_stage: stage,
       status: stage === 'visit' ? 'compareceu' : 
               stage === 'negotiation' ? 'em_negociacao' : 
-              stage === 'sale' ? 'venda_concluida' : 'pending'
+              stage === 'sale' ? 'venda_concluida' : 'pending',
+      sale_date: stage === 'sale' ? new Date().toISOString().split('T')[0] : null
     })
     .eq("id", id);
   if (error) throw error;

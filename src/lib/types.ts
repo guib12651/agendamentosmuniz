@@ -23,6 +23,7 @@ export interface Meeting {
   meetingType: MeetingType;
   trigger: TriggerType;
   city?: string;
+  saleDate?: string;
   userId?: string | null;
   createdAt?: string; // ISO timestamp when the meeting was registered
   funnelStage?: FunnelStage;
