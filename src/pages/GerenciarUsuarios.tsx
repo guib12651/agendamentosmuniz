@@ -255,14 +255,48 @@ export default function GerenciarUsuarios() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-3">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_blocked ? 'text-destructive' : 'text-success'}`}>
-                            {user.is_blocked ? 'Bloqueado' : 'Ativo'}
-                          </span>
-                          <Switch
-                            checked={!user.is_blocked}
-                            onCheckedChange={() => toggleUserStatus(user.id, user.is_blocked)}
-                            disabled={user.id === profile?.id}
-                          />
+                          <div className="flex flex-col items-end gap-1 mr-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_blocked ? 'text-destructive' : 'text-success'}`}>
+                              {user.is_blocked ? 'Bloqueado' : 'Ativo'}
+                            </span>
+                            <Switch
+                              checked={!user.is_blocked}
+                              onCheckedChange={() => toggleUserStatus(user.id, user.is_blocked)}
+                              disabled={user.id === profile?.id}
+                            />
+                          </div>
+
+                          {user.id !== profile?.id && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir o usuário <strong>{user.display_name}</strong>? 
+                                    Esta ação não pode ser desfeita e removerá permanentemente o acesso dele.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteUser(user.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {deleting === user.id ? "Excluindo..." : "Excluir"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
