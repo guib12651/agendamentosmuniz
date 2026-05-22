@@ -6,9 +6,11 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import logo from "@/assets/logo_muniz.png";
 
 interface UserProfile {
