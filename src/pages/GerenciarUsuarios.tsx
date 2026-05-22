@@ -282,7 +282,8 @@ export default function GerenciarUsuarios() {
                                   <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Tem certeza que deseja excluir o usuário <strong>{user.display_name}</strong>? 
-                                    Esta ação não pode ser desfeita e removerá permanentemente o acesso dele.
+                                    Esta ação não pode ser desfeita e removerá permanentemente o acesso dele. 
+                                    Os dados de agendamentos e leads serão preservados no histórico.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
