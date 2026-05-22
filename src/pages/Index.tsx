@@ -262,6 +262,8 @@ export default function Index() {
               <Plus className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
             </Button>
             
+            <NotificationBell userId={profile?.id} />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="outline" className="h-9 w-9 p-0" title="Menu">
@@ -302,8 +304,6 @@ export default function Index() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <NotificationBell userId={profile?.id} />
           </div>
         </div>
       </header>
