@@ -218,7 +218,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         const isWithinRange = itemDate >= range.start && itemDate <= range.end;
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
-        const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
+        const sellerDisplayName = profile?.displayName?.trim();
+        const isOwner = sellerDisplayName && m.preSeller?.trim() === sellerDisplayName;
 
         if (!isAdmin) return isOwner && isWithinRange;
         return (selectedPreSeller === "all" || matchesSeller) && isWithinRange;
