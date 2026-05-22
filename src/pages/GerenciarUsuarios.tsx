@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import logo from "@/assets/logo_muniz.png";
@@ -13,7 +14,7 @@ import logo from "@/assets/logo_muniz.png";
 interface UserProfile {
   id: string;
   display_name: string;
-  role: string;
+  role: 'admin' | 'pre_seller' | 'seller' | 'consultant';
   is_blocked: boolean;
   email?: string;
 }
@@ -57,6 +58,39 @@ export default function GerenciarUsuarios() {
     } else {
       toast.success(currentStatus ? "Usuário desbloqueado!" : "Usuário bloqueado!");
       setUsers(users.map(u => u.id === userId ? { ...u, is_blocked: !currentStatus } : u));
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: UserProfile['role']) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ role: newRole })
+      .eq("id", userId);
+
+    if (error) {
+      toast.error("Erro ao atualizar função");
+    } else {
+      toast.success("Função atualizada com sucesso!");
+      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    }
+  };
+
+  const getRoleIcon = (role: string) => {
+    switch (role) {
+      case 'admin': return <Shield className="w-3.5 h-3.5 text-primary" />;
+      case 'pre_seller': return <UserCog className="w-3.5 h-3.5 text-blue-500" />;
+      case 'seller': return <User className="w-3.5 h-3.5 text-emerald-500" />;
+      default: return <User className="w-3.5 h-3.5 text-muted-foreground" />;
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'admin': return 'Administrador';
+      case 'pre_seller': return 'Pré-vendedor';
+      case 'seller': return 'Vendedor';
+      case 'consultant': return 'Consultor';
+      default: return role;
     }
   };
 
@@ -134,14 +168,24 @@ export default function GerenciarUsuarios() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          {user.role === 'admin' ? (
-                            <Shield className="w-3.5 h-3.5 text-primary" />
-                          ) : (
-                            <UserCog className="w-3.5 h-3.5 text-muted-foreground" />
-                          )}
-                          <span className="capitalize">{user.role === 'pre_seller' ? 'Pré-vendedor' : user.role}</span>
-                        </div>
+                        <Select 
+                          value={user.role} 
+                          onValueChange={(value: UserProfile['role']) => updateUserRole(user.id, value)}
+                          disabled={user.id === profile?.id}
+                        >
+                          <SelectTrigger className="h-9 w-[160px] text-xs">
+                            <div className="flex items-center gap-2">
+                              {getRoleIcon(user.role)}
+                              <SelectValue />
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Administrador</SelectItem>
+                            <SelectItem value="pre_seller">Pré-vendedor</SelectItem>
+                            <SelectItem value="seller">Vendedor</SelectItem>
+                            <SelectItem value="consultant">Consultor</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-3">
