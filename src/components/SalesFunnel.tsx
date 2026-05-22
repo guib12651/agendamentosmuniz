@@ -397,6 +397,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                           Venda Concluída <CheckCircle2 className="w-4 h-4" />
                         </Button>
                       )}
+                      {m.status === 'venda_concluida' && (
+                        <Button size="sm" variant="outline" className="w-full h-10 rounded-xl font-black text-blue-600 border-blue-600 hover:bg-blue-50 flex items-center justify-center gap-2" onClick={() => supabase.from("meetings").update({ status: 'em_negociacao' }).eq("id", m.id).then(() => loadData())}>
+                          Retornar para Negociação <Handshake className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 ))}
