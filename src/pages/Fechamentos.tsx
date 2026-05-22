@@ -124,7 +124,11 @@ export default function Fechamentos() {
 
   const bySeller = useMemo(() => {
     const map = new Map<string, { total: number; ok: number; no: number; pending: number }>();
+    const namesToExclude = ["Tais", "Yulle Oliveira", "Ana Késia", "Anakesia"];
+    
     for (const m of meetings) {
+      if (namesToExclude.includes(m.pre_seller)) continue;
+      
       const s = map.get(m.pre_seller) ?? { total: 0, ok: 0, no: 0, pending: 0 };
       s.total += 1;
       if (m.status === "compareceu") s.ok += 1;
