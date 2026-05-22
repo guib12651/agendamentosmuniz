@@ -13,6 +13,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import MeetingForm from "@/components/MeetingForm";
@@ -294,13 +295,15 @@ export default function Index() {
                   <CalendarCheck className="w-4 h-4 mr-2" />
                   Por dia
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sair
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
             <NotificationBell userId={profile?.id} />
-            <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
-              <LogOut className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </header>
