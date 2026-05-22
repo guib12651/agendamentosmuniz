@@ -14,7 +14,7 @@ import logo from "@/assets/logo_muniz.png";
 interface UserProfile {
   id: string;
   display_name: string;
-  role: string;
+  role: 'admin' | 'pre_seller' | 'seller' | 'consultant';
   is_blocked: boolean;
   email?: string;
 }
@@ -61,7 +61,7 @@ export default function GerenciarUsuarios() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: string) => {
+  const updateUserRole = async (userId: string, newRole: UserProfile['role']) => {
     const { error } = await supabase
       .from("profiles")
       .update({ role: newRole })
@@ -170,7 +170,7 @@ export default function GerenciarUsuarios() {
                       <TableCell>
                         <Select 
                           value={user.role} 
-                          onValueChange={(value) => updateUserRole(user.id, value)}
+                          onValueChange={(value: UserProfile['role']) => updateUserRole(user.id, value)}
                           disabled={user.id === profile?.id}
                         >
                           <SelectTrigger className="h-9 w-[160px] text-xs">
