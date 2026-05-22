@@ -89,6 +89,8 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
 
   const [preSellers, setPreSellers] = useState<{ id: string; displayName: string }[]>([]);
   const [selectedPreSeller, setSelectedPreSeller] = useState<string>("all");
+  const requestRef = useRef(0);
+
 
   useEffect(() => {
     if (isAdmin) {
@@ -104,17 +106,22 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   }, [isAdmin]);
 
   const loadData = async () => {
+    const requestId = ++requestRef.current;
     setLoading(true);
+    
     try {
       const range = getDateRange(period, selectedDate, customStart, customEnd);
       
       const [result, m, c] = await Promise.all([
         getFunnelDataRange(range.start, range.end),
-        getMeetings(),
+        getMeetings(range.start, range.end),
         getCalls(range.start + "T00:00:00Z", range.end + "T23:59:59Z")
       ]);
+      
+      if (requestId !== requestRef.current) return;
+
       setData(result);
-      setMeetings(m); // Carrega todas as reuniões para permitir rastreabilidade global
+      setMeetings(m); 
       setCalls(c);
       
       const { data: currentDay } = await supabase
@@ -123,32 +130,44 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         .eq("date", selectedDate)
         .maybeSingle();
       
+      if (requestId !== requestRef.current) return;
+
       if (currentDay) {
         setTempLeads(currentDay.total_leads_captured || 0);
       } else {
         setTempLeads(0);
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error loading funnel data:", err);
     } finally {
-      setLoading(false);
+      if (requestId === requestRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
     loadData();
 
+    let timeoutId: any;
+    const debouncedLoad = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(loadData, 500);
+    };
+
     const channel = supabase
       .channel("realtime-funnel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_days" }, () => loadData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_distribution" }, () => loadData())
-      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_days" }, debouncedLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "sales_funnel_distribution" }, debouncedLoad)
+      .on("postgres_changes", { event: "*", schema: "public", table: "meetings" }, debouncedLoad)
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
+      clearTimeout(timeoutId);
     };
   }, [selectedDate, period, customStart, customEnd, selectedPreSeller]);
+
 
   const handleSaveTotalLeads = async () => {
     try {
@@ -204,22 +223,24 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   const getMeetingsInStage = (stageId: string) => {
     const range = getDateRange(period, selectedDate, customStart, customEnd);
     return meetings.filter(m => {
-        const status = m.status?.toLowerCase().trim();
+        const status = m.status?.toLowerCase().trim() || "";
         let isCorrectStage = false;
         
         if (stageId === "appointments") isCorrectStage = status === "pending";
         else if (stageId === "visits") isCorrectStage = status === "compareceu" || status === "visita_realizada"; 
         else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao";
         else if (stageId === "sales") isCorrectStage = status === "venda_concluida";
+
         
         if (!isCorrectStage) return false;
 
         const itemDate = (stageId === "sales" && m.saleDate) ? m.saleDate.trim() : m.date.trim();
         const isWithinRange = itemDate >= range.start && itemDate <= range.end;
 
-        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
-        const sellerDisplayName = profile?.displayName?.trim();
-        const isOwner = sellerDisplayName && m.preSeller?.trim() === sellerDisplayName;
+        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.toLowerCase().trim() === selectedPreSeller?.toLowerCase().trim();
+        const sellerDisplayName = profile?.displayName?.toLowerCase().trim();
+        const isOwner = sellerDisplayName && m.preSeller?.toLowerCase().trim() === sellerDisplayName;
+
 
         if (!isAdmin) return isOwner && isWithinRange;
         return (selectedPreSeller === "all" || matchesSeller) && isWithinRange;
@@ -232,13 +253,14 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
     { id: "capture", label: "Captação", color: "bg-slate-800", icon: Target, value: data?.totalLeadsCaptured || 0 },
     { 
       id: "distribution", label: "Distribuição", color: "bg-slate-700", icon: Users, 
-      value: (data?.distribution || []).filter(d => selectedPreSeller === "all" || d.displayName?.trim() === selectedPreSeller?.trim()).reduce((acc, d) => acc + (d.leadsReceived || 0), 0) 
+      value: (data?.distribution || []).filter(d => selectedPreSeller === "all" || d.displayName?.toLowerCase().trim() === selectedPreSeller?.toLowerCase().trim()).reduce((acc, d) => acc + (d.leadsReceived || 0), 0) 
     },
     { 
       id: "calls", label: "Ligações", color: "bg-slate-600", icon: Phone, 
       value: calls.filter(c => {
-        const matchesSeller = selectedPreSeller === "all" || c.userDisplayName?.trim() === selectedPreSeller?.trim();
+        const matchesSeller = selectedPreSeller === "all" || c.userDisplayName?.toLowerCase().trim() === selectedPreSeller?.toLowerCase().trim();
         if (!isAdmin) return c.userId === profile?.id;
+
         return matchesSeller;
       }).length
     },
