@@ -295,6 +295,7 @@ export default function Index() {
                   <CalendarCheck className="w-4 h-4 mr-2" />
                   Por dia
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />
                   Sair
