@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { Calendar, CalendarDays } from "lucide-react";
+import { Calendar, CalendarDays, ChevronDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export type PeriodType = "daily" | "weekly" | "monthly" | "quarterly" | "semiannual" | "annual" | "custom";
 
@@ -103,17 +109,52 @@ export default function PeriodFilter({
     <div className="space-y-3">
       {/* Period buttons */}
       <div className="flex flex-wrap gap-1.5">
-        {(Object.keys(periodLabels) as PeriodType[]).map((p) => (
-          <Button
-            key={p}
-            size="sm"
-            variant={period === p ? "default" : "outline"}
-            onClick={() => onPeriodChange(p)}
-            className={`h-8 text-xs px-2.5 ${period === p ? "bg-primary text-primary-foreground" : ""}`}
-          >
-            {periodLabels[p]}
-          </Button>
-        ))}
+        <Button
+          size="sm"
+          variant={period === "daily" ? "default" : "outline"}
+          onClick={() => onPeriodChange("daily")}
+          className={`h-8 text-xs px-2.5 ${period === "daily" ? "bg-primary text-primary-foreground" : ""}`}
+        >
+          {periodLabels.daily}
+        </Button>
+
+        {/* Agrupamento de filtros */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size="sm"
+              variant={["weekly", "monthly", "quarterly", "semiannual", "annual"].includes(period) ? "default" : "outline"}
+              className={`h-8 text-xs px-2.5 ${["weekly", "monthly", "quarterly", "semiannual", "annual"].includes(period) ? "bg-primary text-primary-foreground" : ""}`}
+            >
+              <Filter className="w-3.5 h-3.5 mr-1" />
+              {["weekly", "monthly", "quarterly", "semiannual", "annual"].includes(period) 
+                ? `Filtro: ${periodLabels[period]}` 
+                : "Filtro"}
+              <ChevronDown className="w-3 h-3 ml-1 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-48">
+            {(["weekly", "monthly", "quarterly", "semiannual", "annual"] as PeriodType[]).map((p) => (
+              <DropdownMenuItem 
+                key={p} 
+                onClick={() => onPeriodChange(p)}
+                className={period === p ? "bg-accent" : ""}
+              >
+                {periodLabels[p]}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <Button
+          size="sm"
+          variant={period === "custom" ? "default" : "outline"}
+          onClick={() => onPeriodChange("custom")}
+          className={`h-8 text-xs px-2.5 ${period === "custom" ? "bg-primary text-primary-foreground" : ""}`}
+        >
+          {periodLabels.custom}
+        </Button>
+
         <Button
           size="sm"
           variant="outline"
