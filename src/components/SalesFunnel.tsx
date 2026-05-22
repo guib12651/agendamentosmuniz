@@ -211,10 +211,10 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
         else if (stageId === "visits") isCorrectStage = status === "compareceu" || status === "visita_realizada"; 
         else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao";
         else if (stageId === "sales") isCorrectStage = status === "venda_concluida";
-
+        
         if (!isCorrectStage) return false;
 
-        const itemDate = m.date.trim();
+        const itemDate = (stageId === "sales" && m.saleDate) ? m.saleDate.trim() : m.date.trim();
         const isWithinRange = itemDate >= range.start && itemDate <= range.end;
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();

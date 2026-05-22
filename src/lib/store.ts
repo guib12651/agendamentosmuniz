@@ -53,6 +53,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     meeting_type: meeting.meetingType || "presencial",
     trigger: meeting.trigger || "imovel",
     city: meeting.city || "",
+    sale_date: meeting.saleDate || null,
     user_id: userId,
     funnel_stage: meeting.funnelStage || "appointment",
   });
