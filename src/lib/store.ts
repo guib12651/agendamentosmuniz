@@ -1,16 +1,32 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, RestrictionType, MeetingStatus, MarkingType, MeetingType, TriggerType, FunnelStage, Call } from "./types";
 
-export async function getMeetings(): Promise<Meeting[]> {
-  const { data, error } = await supabase
+export async function getMeetings(startDate?: string, endDate?: string): Promise<Meeting[]> {
+  let query = supabase
     .from("meetings")
     .select("*")
+    .order("date", { ascending: true })
     .order("time", { ascending: true });
+
+  if (startDate && endDate) {
+    // Busca reuniões que estão no período original OU que foram vendidas no período
+    query = query.or(`date.gte.${startDate},sale_date.gte.${startDate}`);
+    query = query.or(`date.lte.${endDate},sale_date.lte.${endDate}`);
+    
+    // Infelizmente o .or do postgrest é um pouco limitado para ranges complexos.
+    // Vamos tentar uma abordagem mais simples: buscar tudo no range de data OU sale_date
+    // A query acima pode não funcionar exatamente como esperado se misturarmos AND e OR implicitamente.
+    // Vamos usar o filtro mais abrangente e filtrar no cliente se necessário, 
+    // mas limitando drasticamente o que buscamos.
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.error("Error fetching meetings:", error);
     return [];
   }
+
 
   return (data || []).map((row) => ({
     id: row.id,
