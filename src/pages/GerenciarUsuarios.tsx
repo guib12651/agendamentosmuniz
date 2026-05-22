@@ -120,6 +120,22 @@ export default function GerenciarUsuarios() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    setDeleting(userId);
+    const { data, error } = await supabase.functions.invoke("delete-user", {
+      body: { targetUserId: userId },
+    });
+    setDeleting(null);
+
+    if (error || (data && data.error)) {
+      toast.error(data?.error || error?.message || "Erro ao excluir usuário");
+      return;
+    }
+
+    toast.success("Usuário excluído com sucesso!");
+    fetchUsers();
+  };
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Shield className="w-3.5 h-3.5 text-primary" />;
