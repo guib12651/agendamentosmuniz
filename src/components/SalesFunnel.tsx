@@ -222,49 +222,30 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
   ];
 
   function getMeetingsInStageCount(stageId: string) {
-    const range = getDateRange(period, selectedDate, customStart, customEnd);
-    return meetings.filter(m => {
-        const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
-        const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
-        
-        if (!isAdmin && !isOwner) return false;
-        if (isAdmin && selectedPreSeller !== "all" && !matchesSeller) return false;
-
-        const status = m.status?.toLowerCase().trim();
-        const itemDate = m.date.trim();
-        const isWithinRange = itemDate >= range.start && itemDate <= range.end;
-        
-        if (!isWithinRange) return false;
-
-        // Regra: Uma reunião aparece na sua respectiva etapa baseada no status atual
-        if (stageId === "sales") return status === "venda_concluida";
-        if (stageId === "negotiations") return status === "em_negociacao";
-        if (stageId === "visits") return status === "compareceu" || status === "visita_realizada";
-        if (stageId === "appointments") return status === "pending";
-
-        return false;
-    }).length;
+    return getMeetingsInStage(stageId).length;
   }
 
   const getMeetingsInStage = (stageId: string) => {
     const range = getDateRange(period, selectedDate, customStart, customEnd);
     return meetings.filter(m => {
-        let isCorrectStage = false;
         const status = m.status?.toLowerCase().trim();
+        let isCorrectStage = false;
         
         if (stageId === "appointments") isCorrectStage = status === "pending";
         else if (stageId === "visits") isCorrectStage = status === "compareceu" || status === "visita_realizada"; 
         else if (stageId === "negotiations") isCorrectStage = status === "em_negociacao";
         else if (stageId === "sales") isCorrectStage = status === "venda_concluida";
 
+        if (!isCorrectStage) return false;
+
         const itemDate = m.date.trim();
         const isWithinRange = itemDate >= range.start && itemDate <= range.end;
 
         const matchesSeller = selectedPreSeller === "all" || m.preSeller?.trim() === selectedPreSeller?.trim();
         const isOwner = m.preSeller?.trim() === profile?.displayName?.trim();
 
-        if (!isAdmin) return isCorrectStage && isOwner && isWithinRange;
-        return isCorrectStage && (selectedPreSeller === "all" || matchesSeller) && isWithinRange;
+        if (!isAdmin) return isOwner && isWithinRange;
+        return (selectedPreSeller === "all" || matchesSeller) && isWithinRange;
     });
   };
 
