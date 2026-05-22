@@ -3,12 +3,18 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import MeetingForm from "@/components/MeetingForm";
 import MeetingSuccessModal from "@/components/MeetingSuccessModal";
 import BlockForm from "@/components/BlockForm";
@@ -250,26 +256,41 @@ export default function Index() {
               </p>
             </div>
           </div>
-          <div className="flex gap-1 sm:gap-2 shrink-0">
+          <div className="flex gap-1 sm:gap-2 shrink-0 items-center">
             <Button size="sm" onClick={() => { setEditingMeeting(null); setShowMeetingForm(true); }} className="h-9 text-xs sm:text-sm px-2 sm:px-3">
               <Plus className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Reunião</span>
             </Button>
-            {isAdmin && (
-              <Button size="sm" variant="outline" onClick={() => { setEditingBlock(null); setShowBlockForm(true); }} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Bloquear horário">
-                <Ban className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Bloquear</span>
-              </Button>
-            )}
-            {isAdmin && (
-              <Button size="sm" variant="outline" onClick={() => navigate("/fechamentos")} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Fechamentos">
-                <BarChart3 className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Fechamentos</span>
-              </Button>
-            )}
-            <Button size="sm" variant="outline" onClick={() => setShowFunnel(true)} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Funil de Vendas">
-              <Filter className="w-4 h-4 sm:mr-1 rotate-180" /><span className="hidden sm:inline">Funil</span>
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => navigate("/meus-agendamentos")} className="h-9 w-9 sm:w-auto p-0 sm:px-3 text-xs sm:text-sm" title="Meus agendamentos">
-              <CalendarCheck className="w-4 h-4 sm:mr-1" /><span className="hidden sm:inline">Por dia</span>
-            </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm" variant="outline" className="h-9 w-9 p-0" title="Menu">
+                  <Menu className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => { setEditingBlock(null); setShowBlockForm(true); }}>
+                    <Ban className="w-4 h-4 mr-2" />
+                    Bloquear
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Fechamentos
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => setShowFunnel(true)}>
+                  <Filter className="w-4 h-4 mr-2 rotate-180" />
+                  Funil
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
+                  <CalendarCheck className="w-4 h-4 mr-2" />
+                  Por dia
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <NotificationBell userId={profile?.id} />
             <Button size="sm" variant="ghost" onClick={signOut} className="h-9 w-9 p-0" title="Sair">
               <LogOut className="w-4 h-4" />
