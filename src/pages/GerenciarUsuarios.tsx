@@ -6,11 +6,22 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle, 
+  AlertDialogTrigger 
+} from "@/components/ui/alert-dialog";
 import logo from "@/assets/logo_muniz.png";
 
 interface UserProfile {
@@ -30,6 +41,7 @@ export default function GerenciarUsuarios() {
   const [createOpen, setCreateOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [form, setForm] = useState({
     display_name: "",
     username: "",
@@ -108,6 +120,22 @@ export default function GerenciarUsuarios() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    setDeleting(userId);
+    const { data, error } = await supabase.functions.invoke("delete-user", {
+      body: { targetUserId: userId },
+    });
+    setDeleting(null);
+
+    if (error || (data && data.error)) {
+      toast.error(data?.error || error?.message || "Erro ao excluir usuário");
+      return;
+    }
+
+    toast.success("Usuário excluído com sucesso!");
+    fetchUsers();
+  };
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Shield className="w-3.5 h-3.5 text-primary" />;
@@ -180,7 +208,7 @@ export default function GerenciarUsuarios() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Cargo</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -227,14 +255,48 @@ export default function GerenciarUsuarios() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-3">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_blocked ? 'text-destructive' : 'text-success'}`}>
-                            {user.is_blocked ? 'Bloqueado' : 'Ativo'}
-                          </span>
-                          <Switch
-                            checked={!user.is_blocked}
-                            onCheckedChange={() => toggleUserStatus(user.id, user.is_blocked)}
-                            disabled={user.id === profile?.id}
-                          />
+                          <div className="flex flex-col items-end gap-1 mr-2">
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${user.is_blocked ? 'text-destructive' : 'text-success'}`}>
+                              {user.is_blocked ? 'Bloqueado' : 'Ativo'}
+                            </span>
+                            <Switch
+                              checked={!user.is_blocked}
+                              onCheckedChange={() => toggleUserStatus(user.id, user.is_blocked)}
+                              disabled={user.id === profile?.id}
+                            />
+                          </div>
+
+                          {user.id !== profile?.id && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir o usuário <strong>{user.display_name}</strong>? 
+                                    Esta ação não pode ser desfeita e removerá permanentemente o acesso dele.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteUser(user.id)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    {deleting === user.id ? "Excluindo..." : "Excluir"}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
