@@ -61,12 +61,12 @@ import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
 
 const statusConfig = {
-  pending: { label: "Agendado", color: "bg-amber-100 text-amber-700", icon: Clock },
-  compareceu: { label: "Compareceu", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
-  nao_compareceu: { label: "Não Compareceu", color: "bg-rose-100 text-rose-700", icon: XCircle },
-  em_negociacao: { label: "Negociação", color: "bg-purple-100 text-purple-700", icon: Handshake },
-  venda_concluida: { label: "Vendido", color: "bg-yellow-100 text-yellow-700", icon: ShoppingCart },
-  visita_realizada: { label: "Compareceu", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle2 },
+  pending: { label: "Agendado", color: "bg-muted text-muted-foreground", icon: Clock },
+  compareceu: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  nao_compareceu: { label: "Não Compareceu", color: "bg-destructive/20 text-destructive", icon: XCircle },
+  em_negociacao: { label: "Negociação", color: "bg-emerald-500/20 text-emerald-500", icon: Handshake },
+  venda_concluida: { label: "Vendido", color: "bg-rose-500/20 text-rose-500", icon: ShoppingCart },
+  visita_realizada: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
 };
 
 export default function CentralOperacional() {
@@ -238,14 +238,14 @@ export default function CentralOperacional() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 pb-12">
-      <header className="border-b bg-white/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="container flex items-center justify-between py-4 px-4 sm:px-6">
+    <div className="min-h-screen pb-12">
+      <header className="border-b border-border sticky top-0 z-40 bg-background/95 backdrop-blur">
+        <div className="container flex items-center justify-between py-3 px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl shadow-sm" />
+            <img src={logo} alt="Logo" className="w-10 h-10 rounded-lg shadow-sm" />
             <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight">Central Operacional</h1>
-              <p className="text-xs text-slate-500 font-medium uppercase tracking-wider">Visão em tempo real</p>
+              <h1 className="text-sm sm:text-lg font-display font-bold text-primary leading-tight">Central Operacional</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate uppercase tracking-wider">Visão em tempo real</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -282,7 +282,7 @@ export default function CentralOperacional() {
 
       <main className="container px-4 sm:px-6 py-6 space-y-8">
         {/* 1. TOP FILTERS */}
-        <section className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+        <section className="bg-card p-4 rounded-lg border border-border shadow-sm">
           <div className="flex flex-wrap gap-2 mb-4">
             <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
             <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
@@ -305,7 +305,7 @@ export default function CentralOperacional() {
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center gap-2 text-slate-500">
+            <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <span className="text-xs font-bold uppercase tracking-wider">
                 {dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}
@@ -392,7 +392,7 @@ export default function CentralOperacional() {
         </section>
 
         {/* 3. CONVERSION LINE */}
-        <section className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+        <section className="bg-card p-8 rounded-lg border border-border shadow-sm overflow-x-auto">
           <div className="flex items-center justify-between min-w-[800px] px-4">
             <ConversionStep label="Captados" value={stats.captured} />
             <ConversionArrow percentage={calculateConversion(stats.captured, stats.distributed)} />
@@ -413,24 +413,24 @@ export default function CentralOperacional() {
         {/* 4. DYNAMIC LIST */}
         <section className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
               Lista Operacional 
               {selectedStage && <Badge variant="secondary" className="capitalize">{selectedStage}</Badge>}
             </h3>
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
                 placeholder="Pesquisar leads..." 
-                className="pl-10 h-10"
+                className="pl-10 h-10 bg-card border-border"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
             <Table>
-              <TableHeader className="bg-slate-50">
+              <TableHeader className="bg-muted/50">
                 <TableRow>
                   <TableHead className="font-bold">Nome</TableHead>
                   <TableHead className="font-bold">Telefone</TableHead>
@@ -444,32 +444,32 @@ export default function CentralOperacional() {
                 {filteredLeads.map((lead) => (
                   <TableRow 
                     key={lead.id} 
-                    className="cursor-pointer hover:bg-slate-50 transition-colors"
+                    className="cursor-pointer hover:bg-muted/30 transition-colors border-border"
                     onClick={() => handleLeadClick(lead)}
                   >
-                    <TableCell className="font-medium">{lead.leadName}</TableCell>
-                    <TableCell className="text-slate-500">{lead.phone}</TableCell>
+                    <TableCell className="font-medium text-foreground">{lead.leadName}</TableCell>
+                    <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                     <TableCell>{lead.city || "-"}</TableCell>
                     <TableCell>
                       <StatusBadge status={lead.status} />
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-700">{lead.preSeller}</span>
-                        <span className="text-[10px] text-slate-400 uppercase">Consultor: {lead.consultant || "-"}</span>
+                        <span className="text-xs font-bold text-foreground">{lead.preSeller}</span>
+                        <span className="text-[10px] text-muted-foreground uppercase">Consultor: {lead.consultant || "-"}</span>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col">
-                        <span className="text-xs">{lead.date.split('-').reverse().join('/')}</span>
-                        <span className="text-[10px] text-slate-400">{lead.time}</span>
+                        <span className="text-xs text-foreground">{lead.date.split('-').reverse().join('/')}</span>
+                        <span className="text-[10px] text-muted-foreground">{lead.time}</span>
                       </div>
                     </TableCell>
                   </TableRow>
                 ))}
                 {filteredLeads.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-slate-400">
+                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                       Nenhum lead encontrado para este filtro.
                     </TableCell>
                   </TableRow>
@@ -485,12 +485,12 @@ export default function CentralOperacional() {
         <SheetContent className="sm:max-w-md w-full">
           <SheetHeader className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <UsersIcon className="w-6 h-6 text-slate-600" />
+              <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+                <UsersIcon className="w-6 h-6 text-muted-foreground" />
               </div>
               <div className="text-left">
-                <SheetTitle className="text-xl font-black">{selectedLead?.leadName}</SheetTitle>
-                <p className="text-sm text-slate-500 font-medium">{selectedLead?.phone}</p>
+                <SheetTitle className="text-xl font-black text-foreground">{selectedLead?.leadName}</SheetTitle>
+                <p className="text-sm text-muted-foreground font-medium">{selectedLead?.phone}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
@@ -502,16 +502,16 @@ export default function CentralOperacional() {
           <ScrollArea className="h-[calc(100vh-200px)] pr-4">
             <div className="space-y-8">
               <div className="relative">
-                <div className="absolute left-6 top-2 bottom-0 w-px bg-slate-200" />
+                <div className="absolute left-6 top-2 bottom-0 w-px bg-border" />
                 <div className="space-y-8 relative">
                   {leadHistory.map((item, idx) => (
                     <div key={idx} className="flex gap-4 group">
-                      <div className="relative z-10 w-12 h-12 rounded-xl bg-white border-2 border-slate-100 flex items-center justify-center shadow-sm group-hover:border-primary transition-colors">
-                        <item.icon className="w-5 h-5 text-slate-600 group-hover:text-primary" />
+                      <div className="relative z-10 w-12 h-12 rounded-lg bg-card border border-border flex items-center justify-center shadow-sm group-hover:border-primary transition-colors">
+                        <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
                       </div>
                       <div className="flex-1 pt-1">
-                        <p className="text-sm font-bold text-slate-900">{item.event}</p>
-                        <p className="text-[11px] text-slate-400 font-medium uppercase">
+                        <p className="text-sm font-bold text-foreground">{item.event}</p>
+                        <p className="text-[11px] text-muted-foreground font-medium uppercase">
                           {new Date(item.date).toLocaleString('pt-BR', { 
                             day: '2-digit', 
                             month: '2-digit', 
@@ -526,8 +526,8 @@ export default function CentralOperacional() {
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-2xl space-y-3">
-                <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest">Informações Adicionais</h4>
+              <div className="bg-muted/50 p-4 rounded-lg border border-border space-y-3">
+                <h4 className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Informações Adicionais</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <InfoItem label="Origem" value={selectedLead?.markingType || "-"} />
                   <InfoItem label="Interesse" value={selectedLead?.trigger || "-"} />
@@ -537,9 +537,9 @@ export default function CentralOperacional() {
                   <InfoItem label="Pré-vendedor" value={selectedLead?.preSeller || "-"} />
                 </div>
                 {selectedLead?.notes && (
-                  <div className="pt-2 border-t border-slate-200">
-                    <p className="text-[11px] font-bold text-slate-400 uppercase mb-1">Observações</p>
-                    <p className="text-xs text-slate-600 italic leading-relaxed">{selectedLead.notes}</p>
+                  <div className="pt-2 border-t border-border">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Observações</p>
+                    <p className="text-xs text-muted-foreground italic leading-relaxed">{selectedLead.notes}</p>
                   </div>
                 )}
               </div>
@@ -577,12 +577,12 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
       onClick={onClick}
     >
       <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
-        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm", color)}>
+        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 shadow-sm", color)}>
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
         </div>
@@ -594,8 +594,8 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
 function ConversionStep({ label, value }: { label: string, value: number }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-black text-slate-900">{value}</span>
-      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+      <span className="text-2xl font-black text-primary drop-shadow-sm">{value}</span>
+      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
     </div>
   );
 }
@@ -603,11 +603,11 @@ function ConversionStep({ label, value }: { label: string, value: number }) {
 function ConversionArrow({ percentage }: { percentage: number }) {
   return (
     <div className="flex flex-col items-center gap-1 px-2">
-      <div className="flex items-center text-emerald-500 font-bold text-xs bg-emerald-50 px-2 py-0.5 rounded-full">
+      <div className="flex items-center text-success font-bold text-[10px] bg-success/15 px-2 py-0.5 rounded-full border border-success/20">
         <ArrowRight className="w-3 h-3 mr-0.5" />
         {percentage}%
       </div>
-      <div className="h-px w-8 sm:w-16 bg-slate-200" />
+      <div className="h-px w-8 sm:w-16 bg-border" />
     </div>
   );
 }
@@ -625,8 +625,8 @@ function StatusBadge({ status }: { status: any }) {
 function InfoItem({ label, value }: { label: string, value: string }) {
   return (
     <div>
-      <p className="text-[10px] font-bold text-slate-400 uppercase">{label}</p>
-      <p className="text-sm font-bold text-slate-700 truncate">{value}</p>
+      <p className="text-[10px] font-bold text-muted-foreground uppercase">{label}</p>
+      <p className="text-sm font-bold text-foreground truncate">{value}</p>
     </div>
   );
 }
