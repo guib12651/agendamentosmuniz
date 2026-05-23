@@ -1103,13 +1103,40 @@ export default function CentralOperacional() {
                 <TableBody>
                   {capturedLeadsList.map((item, idx) => (
                     <TableRow key={idx} className="border-border hover:bg-muted/30">
-                      <TableCell className="font-black text-lg text-primary">{item.amount}</TableCell>
+                      <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-bold">{item.source}</Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{item.date.split('-').reverse().join('/')}</TableCell>
                       <TableCell className="font-medium">{item.profiles?.display_name || "N/A"}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground italic max-w-xs truncate">{item.observations || "-"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground italic max-w-[150px] truncate">{item.observations || "-"}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                            onClick={() => {
+                              setEditingCapturedLead(item);
+                              setLeadAmount(item.amount.toString());
+                              setLeadSource(item.source);
+                              setLeadDate(item.date);
+                              setLeadObs(item.observations || "");
+                              setIsRegisterLeadsOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteCapturedLead(item.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                   {capturedLeadsList.length === 0 && (
