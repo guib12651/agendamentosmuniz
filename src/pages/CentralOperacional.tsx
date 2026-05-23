@@ -54,11 +54,40 @@ import {
 } from "@/components/ui/sheet";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+
+const leadSources = [
+  "Instagram",
+  "Meta Ads",
+  "Lista fria",
+  "Indicação",
+  "Orgânico",
+  "Google",
+  "WhatsApp",
+  "Evento",
+  "Outro"
+];
 
 const statusConfig = {
   pending: { label: "Agendado", color: "bg-muted text-muted-foreground", icon: Clock },
@@ -87,6 +116,29 @@ export default function CentralOperacional() {
   const [selectedLead, setSelectedLead] = useState<Meeting | null>(null);
   const [leadHistory, setLeadHistory] = useState<any[]>([]);
 
+  // Modal States
+  const [isRegisterLeadsOpen, setIsRegisterLeadsOpen] = useState(false);
+  const [isDistributeLeadsOpen, setIsDistributeLeadsOpen] = useState(false);
+  const [preSellers, setPreSellers] = useState<any[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Form States - Register Leads
+  const [leadAmount, setLeadAmount] = useState<string>("0");
+  const [leadSource, setLeadSource] = useState<string>("");
+  const [leadDate, setLeadDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [leadObs, setLeadObs] = useState<string>("");
+
+  // Form States - Distribute Leads
+  const [distAmount, setDistAmount] = useState<string>("0");
+  const [distEmployee, setDistEmployee] = useState<string>("");
+  const [distSource, setDistSource] = useState<string>("");
+  const [distDate, setDistDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [distObs, setDistObs] = useState<string>("");
+
+  // Captured leads list for the card click
+  const [isLeadsListOpen, setIsLeadsListOpen] = useState(false);
+  const [capturedLeadsList, setCapturedLeadsList] = useState<any[]>([]);
+
   const dateRange = useMemo(() => {
     if (period === "today") {
       const today = new Date().toISOString().split("T")[0];
@@ -113,19 +165,74 @@ export default function CentralOperacional() {
     return getDateRange(period as any, filterDate, customStart, customEnd);
   }, [period, filterDate, customStart, customEnd]);
 
+  const fetchPreSellers = async () => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, display_name")
+      .eq("role", "pre_seller");
+    if (!error && data) setPreSellers(data);
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [m, c, f] = await Promise.all([
+      // Fetch meetings and calls
+      const [m, c] = await Promise.all([
         getMeetings(dateRange.start, dateRange.end),
         getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z"),
-        getFunnelDataRange(dateRange.start, dateRange.end)
       ]);
       setMeetings(m);
       setCalls(c);
-      setFunnelData(f);
+
+      // Fetch captured leads sum
+      const { data: leadsData, error: leadsError } = await supabase
+        .from("operational_leads")
+        .select("amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+      
+      if (leadsError) throw leadsError;
+      const totalCaptured = (leadsData as any[]).reduce((acc, l) => acc + l.amount, 0);
+      setCapturedLeadsList(leadsData);
+
+      // Fetch distributions
+      const { data: distData, error: distError } = await supabase
+        .from("leads_distribution")
+        .select("amount, user_id, profiles!leads_distribution_user_id_fkey(display_name)")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+
+      if (distError) throw distError;
+      const totalDistributed = distData.reduce((acc, d) => acc + d.amount, 0);
+
+      // Map distributions to team members for the detailed metrics
+      const userMap = new Map<string, any>();
+      distData.forEach(d => {
+        const userId = d.user_id;
+        const name = d.profiles?.display_name || "Desconhecido";
+        const existing = userMap.get(userId) || {
+          userId,
+          displayName: name,
+          leadsReceived: 0,
+          callsMade: 0,
+          appointmentsMade: 0,
+          visitsCompleted: 0,
+          negotiationsStarted: 0,
+          salesCompleted: 0,
+        };
+        userMap.set(userId, { ...existing, leadsReceived: existing.leadsReceived + d.amount });
+      });
+
+      // Integrate with existing meetings/calls for other funnel steps
+      // This part simplifies the getFunnelDataRange logic to use our new tables
+      setFunnelData({
+        totalLeadsCaptured: totalCaptured,
+        distribution: Array.from(userMap.values())
+      });
+
     } catch (err) {
       console.error("Error loading operational data:", err);
+      toast.error("Erro ao carregar dados operacionais");
     } finally {
       setLoading(false);
     }
@@ -133,13 +240,87 @@ export default function CentralOperacional() {
 
   useEffect(() => {
     loadData();
+    if (isAdmin) fetchPreSellers();
+    
     const channel = supabase
       .channel('central-operacional-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, loadData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, loadData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, loadData)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [dateRange]);
+
+  const handleRegisterLeads = async () => {
+    if (!leadAmount || parseInt(leadAmount) <= 0 || !leadSource) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("operational_leads").insert({
+        amount: parseInt(leadAmount),
+        source: leadSource,
+        date: leadDate,
+        observations: leadObs,
+        created_by: profile?.id
+      });
+
+      if (error) throw error;
+
+      toast.success("Leads registrados com sucesso!");
+      setIsRegisterLeadsOpen(false);
+      // Reset form
+      setLeadAmount("0");
+      setLeadSource("");
+      setLeadObs("");
+      setLeadDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao registrar leads");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDistributeLeads = async () => {
+    if (!distAmount || parseInt(distAmount) <= 0 || !distEmployee) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("leads_distribution").insert({
+        amount: parseInt(distAmount),
+        user_id: distEmployee,
+        source: distSource || null,
+        date: distDate,
+        observations: distObs,
+        created_by: profile?.id
+      });
+
+      if (error) throw error;
+
+      toast.success("Leads distribuídos com sucesso!");
+      setIsDistributeLeadsOpen(false);
+      // Reset form
+      setDistAmount("0");
+      setDistEmployee("");
+      setDistSource("");
+      setDistObs("");
+      setDistDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao distribuir leads");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const stats = useMemo(() => {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
@@ -282,26 +463,45 @@ export default function CentralOperacional() {
 
       <main className="container px-4 sm:px-6 py-6 space-y-8">
         {/* 1. TOP FILTERS */}
-        <section className="bg-card p-4 rounded-lg border border-border shadow-sm">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
-            <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
-            <FilterButton label="Últimos 7 dias" active={period === "last7"} onClick={() => setPeriod("last7")} />
-            <FilterButton label="Últimos 30 dias" active={period === "last30"} onClick={() => setPeriod("last30")} />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant={["monthly", "quarterly", "semiannual", "annual"].includes(period as string) ? "default" : "outline"} size="sm" className="h-9 rounded-xl font-bold">
-                  Mais Períodos <ChevronDown className="ml-1 w-4 h-4" />
+        <section className="bg-card p-4 rounded-lg border border-border shadow-sm space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-wrap gap-2">
+              <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
+              <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
+              <FilterButton label="Últimos 7 dias" active={period === "last7"} onClick={() => setPeriod("last7")} />
+              <FilterButton label="Últimos 30 dias" active={period === "last30"} onClick={() => setPeriod("last30")} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant={["monthly", "quarterly", "semiannual", "annual"].includes(period as string) ? "default" : "outline"} size="sm" className="h-9 rounded-xl font-bold">
+                    Mais Períodos <ChevronDown className="ml-1 w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => setPeriod("monthly")}>Mensal</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPeriod("quarterly")}>Trimestral</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPeriod("semiannual")}>Semestral</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPeriod("annual")}>Anual</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setPeriod("custom")}>Personalizado</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={() => setIsRegisterLeadsOpen(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
+                >
+                  <Plus className="w-4 h-4 mr-2" /> Registrar Leads
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setPeriod("monthly")}>Mensal</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPeriod("quarterly")}>Trimestral</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPeriod("semiannual")}>Semestral</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPeriod("annual")}>Anual</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setPeriod("custom")}>Personalizado</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                <Button 
+                  onClick={() => setIsDistributeLeadsOpen(true)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold h-9 rounded-xl shadow-lg shadow-purple-900/20 transition-all hover:scale-105"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" /> Distribuir Leads
+                </Button>
+              </div>
+            )}
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -331,7 +531,7 @@ export default function CentralOperacional() {
             icon={Target} 
             color="bg-blue-500" 
             active={selectedStage === 'captados'}
-            onClick={() => setSelectedStage(selectedStage === 'captados' ? null : 'captados')}
+            onClick={() => setIsLeadsListOpen(true)}
           />
           <StatCard 
             title="Distribuição" 
@@ -543,6 +743,191 @@ export default function CentralOperacional() {
                   </div>
                 )}
               </div>
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      {/* 6. MODALS FOR ADMIN ACTIONS */}
+      <Dialog open={isRegisterLeadsOpen} onOpenChange={setIsRegisterLeadsOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">➕ Registrar Leads</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="amount" className="font-bold">Quantidade de Leads</Label>
+              <Input
+                id="amount"
+                type="number"
+                value={leadAmount}
+                onChange={(e) => setLeadAmount(e.target.value)}
+                placeholder="Ex: 50"
+                className="bg-muted border-border"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="source" className="font-bold">Origem dos Leads</Label>
+              <Select value={leadSource} onValueChange={setLeadSource}>
+                <SelectTrigger className="bg-muted border-border">
+                  <SelectValue placeholder="Selecione a origem" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadSources.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="date" className="font-bold">Data</Label>
+              <Input
+                id="date"
+                type="date"
+                value={leadDate}
+                onChange={(e) => setLeadDate(e.target.value)}
+                className="bg-muted border-border"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="obs" className="font-bold">Observações (Opcional)</Label>
+              <Textarea
+                id="obs"
+                value={leadObs}
+                onChange={(e) => setLeadObs(e.target.value)}
+                placeholder="Ex: Campanha de tráfego..."
+                className="bg-muted border-border resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={handleRegisterLeads} 
+              disabled={submitting}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold"
+            >
+              {submitting ? "Salvando..." : "Confirmar Registro"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDistributeLeadsOpen} onOpenChange={setIsDistributeLeadsOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">🟪 Distribuir Leads</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="dist-amount" className="font-bold">Quantidade de Leads</Label>
+              <Input
+                id="dist-amount"
+                type="number"
+                value={distAmount}
+                onChange={(e) => setDistAmount(e.target.value)}
+                placeholder="Ex: 20"
+                className="bg-muted border-border"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="employee" className="font-bold">Membro da Equipe (Pré-venda)</Label>
+              <Select value={distEmployee} onValueChange={setDistEmployee}>
+                <SelectTrigger className="bg-muted border-border">
+                  <SelectValue placeholder="Selecione o funcionário" />
+                </SelectTrigger>
+                <SelectContent>
+                  {preSellers.map((u) => (
+                    <SelectItem key={u.id} value={u.id}>{u.display_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="dist-source" className="font-bold">Origem (Opcional)</Label>
+              <Select value={distSource} onValueChange={setDistSource}>
+                <SelectTrigger className="bg-muted border-border">
+                  <SelectValue placeholder="Selecione a origem" />
+                </SelectTrigger>
+                <SelectContent>
+                  {leadSources.map((s) => (
+                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="dist-date" className="font-bold">Data</Label>
+              <Input
+                id="dist-date"
+                type="date"
+                value={distDate}
+                onChange={(e) => setDistDate(e.target.value)}
+                className="bg-muted border-border"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="dist-obs" className="font-bold">Observações (Opcional)</Label>
+              <Textarea
+                id="dist-obs"
+                value={distObs}
+                onChange={(e) => setDistObs(e.target.value)}
+                placeholder="Notas sobre a entrega..."
+                className="bg-muted border-border resize-none"
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={handleDistributeLeads} 
+              disabled={submitting}
+              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold"
+            >
+              {submitting ? "Salvando..." : "Confirmar Distribuição"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 7. CAPTURED LEADS LIST SHEET */}
+      <Sheet open={isLeadsListOpen} onOpenChange={setIsLeadsListOpen}>
+        <SheetContent side="bottom" className="h-[70vh] bg-card border-border rounded-t-3xl p-0 overflow-hidden">
+          <div className="p-6 border-b border-border bg-muted/20">
+            <h3 className="text-xl font-black text-foreground">Detalhamento de Leads Captados</h3>
+            <p className="text-sm text-muted-foreground">{dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}</p>
+          </div>
+          <ScrollArea className="h-full">
+            <div className="p-6">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="font-bold">Quantidade</TableHead>
+                    <TableHead className="font-bold">Origem</TableHead>
+                    <TableHead className="font-bold">Data</TableHead>
+                    <TableHead className="font-bold">Responsável</TableHead>
+                    <TableHead className="font-bold">Observações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {capturedLeadsList.map((item, idx) => (
+                    <TableRow key={idx} className="border-border hover:bg-muted/30">
+                      <TableCell className="font-black text-lg text-primary">{item.amount}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="font-bold">{item.source}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{item.date.split('-').reverse().join('/')}</TableCell>
+                      <TableCell className="font-medium">{item.profiles?.display_name || "N/A"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground italic max-w-xs truncate">{item.observations || "-"}</TableCell>
+                    </TableRow>
+                  ))}
+                  {capturedLeadsList.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">Nenhum registro encontrado.</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
             </div>
           </ScrollArea>
         </SheetContent>

@@ -41,6 +41,60 @@ export type Database = {
         }
         Relationships: []
       }
+      leads_distribution: {
+        Row: {
+          amount: number
+          company_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          observations: string | null
+          source: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_distribution_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_distribution_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meetings: {
         Row: {
           city: string | null
@@ -142,6 +196,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      operational_leads: {
+        Row: {
+          amount: number
+          company_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          observations: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_leads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       period_goal_progress: {
         Row: {
