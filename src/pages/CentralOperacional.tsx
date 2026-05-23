@@ -88,37 +88,6 @@ const leadSources = [
   "Evento",
   "Outro"
 ];
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
-  SheetTitle 
-} from "@/components/ui/sheet";
-import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import PeriodFilter, { PeriodType, getDateRange } from "@/components/PeriodFilter";
-import { useAuth } from "@/contexts/AuthContext";
-import { NotificationBell } from "@/components/NotificationBell";
-import logo from "@/assets/logo_muniz.png";
-import { cn } from "@/lib/utils";
 
 const statusConfig = {
   pending: { label: "Agendado", color: "bg-muted text-muted-foreground", icon: Clock },
