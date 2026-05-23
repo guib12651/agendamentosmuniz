@@ -289,9 +289,9 @@ export default function Index() {
                     Usuários
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => setShowFunnel(true)}>
+                <DropdownMenuItem onClick={() => navigate("/central-operacional")}>
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
-                  Funil
+                  Central Operacional
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
