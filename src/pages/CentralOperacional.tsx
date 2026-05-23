@@ -360,7 +360,9 @@ export default function CentralOperacional() {
     list = list.filter(m => showArchived ? m.archived === true : m.archived === false);
 
     if (selectedStage) {
-      if (selectedStage === 'agendamentos') list = list.filter(m => m.status === 'pending');
+      if (selectedStage === 'agendamentos') {
+        // Show all active meetings as they are all considered "appointments" in stats
+      }
       else if (selectedStage === 'compareceram') list = list.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada');
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
       else if (selectedStage === 'negociacoes') list = list.filter(m => m.status === 'em_negociacao');
