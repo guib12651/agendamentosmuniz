@@ -424,24 +424,24 @@ export default function CentralOperacional() {
     fetchLeadHistory(lead);
   };
 
-  const handleArchiveLead = async () => {
+  const handleDeleteLead = async () => {
     if (!leadToArchive) return;
     
     try {
       const { error } = await supabase
         .from("meetings")
-        .update({ archived: true })
+        .delete()
         .eq("id", leadToArchive.id);
 
       if (error) throw error;
       
-      toast.success("Lead arquivado com sucesso");
+      toast.success("Lead excluído com sucesso");
       setIsArchiveModalOpen(false);
       setLeadToArchive(null);
       loadData();
     } catch (error) {
       console.error(error);
-      toast.error("Erro ao arquivar lead");
+      toast.error("Erro ao excluir lead");
     }
   };
 
@@ -751,7 +751,7 @@ export default function CentralOperacional() {
                                 setLeadToArchive(lead);
                                 setIsArchiveModalOpen(true);
                               }}
-                              title="Arquivar lead vendido"
+                              title="Excluir lead vendido"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -995,15 +995,15 @@ export default function CentralOperacional() {
         </DialogContent>
       </Dialog>
 
-      {/* Archive Confirmation Modal */}
+      {/* Delete Confirmation Modal */}
       <Dialog open={isArchiveModalOpen} onOpenChange={setIsArchiveModalOpen}>
         <DialogContent className="sm:max-w-[400px] bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-foreground">Arquivar Lead Vendido</DialogTitle>
+            <DialogTitle className="text-xl font-black text-foreground">Excluir Lead Vendido</DialogTitle>
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Esse lead será removido das listas operacionais ativas, mas continuará salvo no histórico do sistema.
+              Deseja realmente excluir este lead permanentemente? Esta ação não poderá ser desfeita.
             </p>
           </div>
           <DialogFooter className="flex flex-col sm:flex-row gap-2">
@@ -1015,10 +1015,10 @@ export default function CentralOperacional() {
               Cancelar
             </Button>
             <Button 
-              onClick={handleArchiveLead}
+              onClick={handleDeleteLead}
               className="flex-1 bg-destructive hover:bg-destructive/90 text-white font-bold"
             >
-              Arquivar Lead
+              Excluir Lead
             </Button>
           </DialogFooter>
         </DialogContent>
