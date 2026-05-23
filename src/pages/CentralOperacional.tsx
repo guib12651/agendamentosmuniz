@@ -905,10 +905,15 @@ export default function CentralOperacional() {
       </Sheet>
 
       {/* 6. MODALS FOR ADMIN ACTIONS */}
-      <Dialog open={isRegisterLeadsOpen} onOpenChange={setIsRegisterLeadsOpen}>
+      <Dialog open={isRegisterLeadsOpen} onOpenChange={(open) => {
+        setIsRegisterLeadsOpen(open);
+        if (!open) setEditingCapturedLead(null);
+      }}>
         <DialogContent className="sm:max-w-[425px] bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-foreground">➕ Registrar Leads</DialogTitle>
+            <DialogTitle className="text-xl font-black text-foreground">
+              {editingCapturedLead ? "📝 Editar Leads" : "➕ Registrar Leads"}
+            </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -959,11 +964,11 @@ export default function CentralOperacional() {
           </div>
           <DialogFooter>
             <Button 
-              onClick={handleRegisterLeads} 
+              onClick={editingCapturedLead ? handleEditCapturedLead : handleRegisterLeads} 
               disabled={submitting}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
-              {submitting ? "Salvando..." : "Confirmar Registro"}
+              {submitting ? "Salvando..." : editingCapturedLead ? "Salvar Alterações" : "Confirmar Registro"}
             </Button>
           </DialogFooter>
         </DialogContent>
