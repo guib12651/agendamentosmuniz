@@ -1092,11 +1092,12 @@ export default function CentralOperacional() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="font-bold">Quantidade</TableHead>
+                    <TableHead className="font-bold text-center">Quantidade</TableHead>
                     <TableHead className="font-bold">Origem</TableHead>
                     <TableHead className="font-bold">Data</TableHead>
                     <TableHead className="font-bold">Responsável</TableHead>
                     <TableHead className="font-bold">Observações</TableHead>
+                    <TableHead className="font-bold text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
