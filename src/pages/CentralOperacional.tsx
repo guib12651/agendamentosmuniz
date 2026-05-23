@@ -558,8 +558,8 @@ function FilterButton({ label, active, onClick }: { label: string, active: boole
       size="sm" 
       onClick={onClick}
       className={cn(
-        "h-9 rounded-xl font-bold transition-all",
-        active ? "bg-slate-900 text-white shadow-md" : "hover:bg-slate-100"
+        "h-9 rounded-lg font-bold transition-all",
+        active ? "bg-primary text-primary-foreground shadow-md hover:bg-primary/90" : "bg-card border-border hover:bg-muted"
       )}
     >
       {label}
@@ -571,8 +571,8 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
   return (
     <Card 
       className={cn(
-        "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border-none shadow-sm",
-        active ? "ring-2 ring-primary bg-white shadow-md" : "bg-white"
+        "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-border shadow-sm",
+        active ? "ring-2 ring-primary bg-card shadow-md" : "bg-card"
       )}
       onClick={onClick}
     >
