@@ -561,10 +561,10 @@ export default function CentralOperacional() {
         </div>
       </header>
 
-      <main className="container px-4 sm:px-6 py-6 space-y-8">
+      <main className="container-fluid max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-8">
         {/* 1. TOP FILTERS */}
         <section className="bg-card p-4 rounded-lg border border-border shadow-sm space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
             <div className="flex flex-wrap gap-2">
               <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
               <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
@@ -624,7 +624,7 @@ export default function CentralOperacional() {
         </section>
 
         {/* 2. OPERATIONAL CARDS */}
-        <section className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8 gap-4">
           <StatCard 
             title="Leads Captados" 
             value={stats.captured} 
@@ -692,8 +692,8 @@ export default function CentralOperacional() {
         </section>
 
         {/* 3. CONVERSION LINE */}
-        <section className="bg-card p-8 rounded-lg border border-border shadow-sm overflow-x-auto">
-          <div className="flex items-center justify-between min-w-[800px] px-4">
+        <section className="bg-card p-4 sm:p-8 rounded-lg border border-border shadow-sm overflow-x-auto scrollbar-thin">
+          <div className="flex items-center justify-between min-w-[900px] lg:min-w-0 px-4">
             <ConversionStep label="Captados" value={stats.captured} />
             <ConversionArrow percentage={calculateConversion(stats.captured, stats.distributed)} />
             <ConversionStep label="Distribuídos" value={stats.distributed} />
@@ -744,94 +744,96 @@ export default function CentralOperacional() {
             </div>
           </div>
 
-          <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-            <Table>
-              <TableHeader className="bg-muted/50">
-                <TableRow>
-                  <TableHead className="font-bold">Nome</TableHead>
-                  <TableHead className="font-bold">Telefone</TableHead>
-                  <TableHead className="font-bold">Cidade</TableHead>
-                  <TableHead className="font-bold">Status</TableHead>
-                  <TableHead className="font-bold">Responsável</TableHead>
-                  <TableHead className="font-bold">Data/Hora</TableHead>
-                  <TableHead className="font-bold text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLeads.map((lead) => (
-                  <TableRow 
-                    key={lead.id} 
-                    className={cn(
-                      "cursor-pointer hover:bg-muted/30 transition-colors border-border",
-                      lead.archived && "opacity-75"
-                    )}
-                    onClick={() => handleLeadClick(lead)}
-                  >
-                    <TableCell className="font-medium text-foreground">
-                      <div className="flex items-center gap-2">
-                        {lead.leadName}
-                        {lead.archived && <Archive className="w-3 h-3 text-muted-foreground" />}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
-                    <TableCell>{lead.city || "-"}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={lead.status} />
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-foreground">{lead.preSeller}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase">Consultor: {lead.consultant || "-"}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col">
-                        <span className="text-xs text-foreground">{lead.date.split('-').reverse().join('/')}</span>
-                        <span className="text-[10px] text-muted-foreground">{lead.time}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                      {isAdmin && (
-                        <div className="flex items-center justify-end gap-2">
-                          {lead.status === 'venda_concluida' && !lead.archived && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                              onClick={() => {
-                                setLeadToArchive(lead);
-                                setIsArchiveModalOpen(true);
-                              }}
-                              title="Excluir lead vendido"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                          {lead.archived && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                              onClick={() => handleRestoreLead(lead)}
-                              title="Restaurar lead"
-                            >
-                              <RefreshCcw className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filteredLeads.length === 0 && (
+          <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden overflow-x-auto">
+            <div className="min-w-[1000px]">
+              <Table>
+                <TableHeader className="bg-muted/50">
                   <TableRow>
-                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
-                      {showArchived ? "Nenhum lead arquivado encontrado." : "Nenhum lead encontrado para este filtro."}
-                    </TableCell>
+                    <TableHead className="font-bold">Nome</TableHead>
+                    <TableHead className="font-bold">Telefone</TableHead>
+                    <TableHead className="font-bold">Cidade</TableHead>
+                    <TableHead className="font-bold">Status</TableHead>
+                    <TableHead className="font-bold">Responsável</TableHead>
+                    <TableHead className="font-bold">Data/Hora</TableHead>
+                    <TableHead className="font-bold text-right">Ações</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredLeads.map((lead) => (
+                    <TableRow 
+                      key={lead.id} 
+                      className={cn(
+                        "cursor-pointer hover:bg-muted/30 transition-colors border-border",
+                        lead.archived && "opacity-75"
+                      )}
+                      onClick={() => handleLeadClick(lead)}
+                    >
+                      <TableCell className="font-medium text-foreground">
+                        <div className="flex items-center gap-2">
+                          {lead.leadName}
+                          {lead.archived && <Archive className="w-3 h-3 text-muted-foreground" />}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
+                      <TableCell>{lead.city || "-"}</TableCell>
+                      <TableCell>
+                        <StatusBadge status={lead.status} />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-foreground">{lead.preSeller}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase">Consultor: {lead.consultant || "-"}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-foreground">{lead.date.split('-').reverse().join('/')}</span>
+                          <span className="text-[10px] text-muted-foreground">{lead.time}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                        {isAdmin && (
+                          <div className="flex items-center justify-end gap-2">
+                            {lead.status === 'venda_concluida' && !lead.archived && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => {
+                                  setLeadToArchive(lead);
+                                  setIsArchiveModalOpen(true);
+                                }}
+                                title="Excluir lead vendido"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                            {lead.archived && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() => handleRestoreLead(lead)}
+                                title="Restaurar lead"
+                              >
+                                <RefreshCcw className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {filteredLeads.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                        {showArchived ? "Nenhum lead arquivado encontrado." : "Nenhum lead encontrado para este filtro."}
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </section>
       </main>
