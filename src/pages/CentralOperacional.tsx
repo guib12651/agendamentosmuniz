@@ -147,6 +147,7 @@ export default function CentralOperacional() {
   // Captured leads list for the card click
   const [isLeadsListOpen, setIsLeadsListOpen] = useState(false);
   const [capturedLeadsList, setCapturedLeadsList] = useState<any[]>([]);
+  const [editingCapturedLead, setEditingCapturedLead] = useState<any | null>(null);
 
   const dateRange = useMemo(() => {
     if (period === "today") {
