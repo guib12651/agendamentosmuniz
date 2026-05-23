@@ -521,14 +521,6 @@ export default function Index() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showFunnel} onOpenChange={setShowFunnel}>
-        <DialogContent className="max-w-2xl mx-2 sm:mx-auto max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Funil de Vendas</DialogTitle>
-          </DialogHeader>
-          <SalesFunnel date={filterDate} />
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={showBlockForm} onOpenChange={setShowBlockForm}>
         <DialogContent className="max-w-md mx-2 sm:mx-auto">
