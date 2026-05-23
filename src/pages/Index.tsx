@@ -29,7 +29,6 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
-import SalesFunnel from "@/components/SalesFunnel";
 
 
 
@@ -52,7 +51,6 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
-  const [showFunnel, setShowFunnel] = useState(false);
   
 
 
