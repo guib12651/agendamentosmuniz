@@ -332,6 +332,52 @@ export default function CentralOperacional() {
     }
   };
 
+  const handleDeleteCapturedLead = async (id: string) => {
+    try {
+      const { error } = await supabase.from("operational_leads").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Registro excluído!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao excluir registro");
+    }
+  };
+
+  const handleEditCapturedLead = async () => {
+    if (!editingCapturedLead || !leadAmount || parseInt(leadAmount) <= 0 || !leadSource) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("operational_leads").update({
+        amount: parseInt(leadAmount),
+        source: leadSource,
+        date: leadDate,
+        observations: leadObs,
+      }).eq("id", editingCapturedLead.id);
+
+      if (error) throw error;
+
+      toast.success("Lead atualizado com sucesso!");
+      setEditingCapturedLead(null);
+      setIsRegisterLeadsOpen(false);
+      // Reset form
+      setLeadAmount("0");
+      setLeadSource("");
+      setLeadObs("");
+      setLeadDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar lead");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const stats = useMemo(() => {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
     const distributed = funnelData?.distribution.reduce((acc, d) => acc + (d.leadsReceived || 0), 0) || 0;
