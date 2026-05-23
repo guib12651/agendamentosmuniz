@@ -73,6 +73,7 @@ export async function addMeeting(meeting: Omit<Meeting, "id">, userId: string): 
     sale_date: meeting.saleDate || null,
     user_id: userId,
     funnel_stage: meeting.funnelStage || "appointment",
+    archived: meeting.archived || false,
   });
   if (error) throw error;
 }

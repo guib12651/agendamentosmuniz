@@ -703,16 +703,25 @@ export default function CentralOperacional() {
                   <TableHead className="font-bold">Status</TableHead>
                   <TableHead className="font-bold">Responsável</TableHead>
                   <TableHead className="font-bold">Data/Hora</TableHead>
+                  <TableHead className="font-bold text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLeads.map((lead) => (
                   <TableRow 
                     key={lead.id} 
-                    className="cursor-pointer hover:bg-muted/30 transition-colors border-border"
+                    className={cn(
+                      "cursor-pointer hover:bg-muted/30 transition-colors border-border",
+                      lead.archived && "opacity-75"
+                    )}
                     onClick={() => handleLeadClick(lead)}
                   >
-                    <TableCell className="font-medium text-foreground">{lead.leadName}</TableCell>
+                    <TableCell className="font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        {lead.leadName}
+                        {lead.archived && <Archive className="w-3 h-3 text-muted-foreground" />}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                     <TableCell>{lead.city || "-"}</TableCell>
                     <TableCell>
@@ -730,12 +739,43 @@ export default function CentralOperacional() {
                         <span className="text-[10px] text-muted-foreground">{lead.time}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                      {isAdmin && (
+                        <div className="flex items-center justify-end gap-2">
+                          {lead.status === 'venda_concluida' && !lead.archived && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                setLeadToArchive(lead);
+                                setIsArchiveModalOpen(true);
+                              }}
+                              title="Arquivar lead vendido"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {lead.archived && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                              onClick={() => handleRestoreLead(lead)}
+                              title="Restaurar lead"
+                            >
+                              <RefreshCcw className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {filteredLeads.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                      Nenhum lead encontrado para este filtro.
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                      {showArchived ? "Nenhum lead arquivado encontrado." : "Nenhum lead encontrado para este filtro."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -950,6 +990,35 @@ export default function CentralOperacional() {
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold"
             >
               {submitting ? "Salvando..." : "Confirmar Distribuição"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Archive Confirmation Modal */}
+      <Dialog open={isArchiveModalOpen} onOpenChange={setIsArchiveModalOpen}>
+        <DialogContent className="sm:max-w-[400px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">Arquivar Lead Vendido</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Esse lead será removido das listas operacionais ativas, mas continuará salvo no histórico do sistema.
+            </p>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsArchiveModalOpen(false)}
+              className="flex-1 font-bold"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleArchiveLead}
+              className="flex-1 bg-destructive hover:bg-destructive/90 text-white font-bold"
+            >
+              Arquivar Lead
             </Button>
           </DialogFooter>
         </DialogContent>
