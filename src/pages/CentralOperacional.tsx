@@ -197,7 +197,7 @@ export default function CentralOperacional() {
       // Fetch captured leads sum
       const { data: leadsData, error: leadsError } = await supabase
         .from("operational_leads")
-        .select("amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
+        .select("id, amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
         .gte("date", dateRange.start)
         .lte("date", dateRange.end);
       
