@@ -284,13 +284,13 @@ export default function CentralOperacional() {
         {/* 1. TOP FILTERS */}
         <section className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
           <div className="flex flex-wrap gap-2 mb-4">
-            <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today" as any)} />
-            <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday" as any)} />
-            <FilterButton label="Últimos 7 dias" active={period === "last7"} onClick={() => setPeriod("last7" as any)} />
-            <FilterButton label="Últimos 30 dias" active={period === "last30"} onClick={() => setPeriod("last30" as any)} />
+            <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
+            <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
+            <FilterButton label="Últimos 7 dias" active={period === "last7"} onClick={() => setPeriod("last7")} />
+            <FilterButton label="Últimos 30 dias" active={period === "last30"} onClick={() => setPeriod("last30")} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant={["monthly", "quarterly", "semiannual", "annual"].includes(period) ? "default" : "outline"} size="sm" className="h-9 rounded-xl font-bold">
+                <Button variant={["monthly", "quarterly", "semiannual", "annual"].includes(period as string) ? "default" : "outline"} size="sm" className="h-9 rounded-xl font-bold">
                   Mais Períodos <ChevronDown className="ml-1 w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -317,7 +317,7 @@ export default function CentralOperacional() {
                 <Input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} className="h-9 text-xs" />
               </div>
             )}
-            {!["today", "yesterday", "last7", "last30", "custom"].includes(period) && (
+            {!["today", "yesterday", "last7", "last30", "custom"].includes(period as string) && (
               <Input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="h-9 text-xs w-40" />
             )}
           </div>
