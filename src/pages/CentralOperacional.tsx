@@ -333,12 +333,13 @@ export default function CentralOperacional() {
   const stats = useMemo(() => {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
     const distributed = funnelData?.distribution.reduce((acc, d) => acc + (d.leadsReceived || 0), 0) || 0;
+    const activeMeetings = meetings.filter(m => !m.archived);
     const callsMade = calls.length;
-    const appointments = meetings.length;
-    const attended = meetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length;
-    const noShow = meetings.filter(m => m.status === 'nao_compareceu').length;
-    const negotiations = meetings.filter(m => m.status === 'em_negociacao').length;
-    const sales = meetings.filter(m => m.status === 'venda_concluida').length;
+    const appointments = activeMeetings.length;
+    const attended = activeMeetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length;
+    const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
+    const negotiations = activeMeetings.filter(m => m.status === 'em_negociacao').length;
+    const sales = activeMeetings.filter(m => m.status === 'venda_concluida').length;
 
     return {
       captured: totalLeads,
