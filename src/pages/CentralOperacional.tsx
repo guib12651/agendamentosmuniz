@@ -564,7 +564,7 @@ export default function CentralOperacional() {
       <main className="container-fluid max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-8">
         {/* 1. TOP FILTERS */}
         <section className="bg-card p-4 rounded-lg border border-border shadow-sm space-y-4">
-          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
             <div className="flex flex-wrap gap-2">
               <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today")} />
               <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday")} />
@@ -587,16 +587,16 @@ export default function CentralOperacional() {
             </div>
 
             {isAdmin && (
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-1 sm:flex sm:items-center gap-3 w-full xl:w-auto">
                 <Button 
                   onClick={() => setIsRegisterLeadsOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-9 rounded-xl shadow-lg shadow-blue-900/20 transition-all hover:scale-105"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold h-11 sm:h-9 rounded-xl shadow-lg shadow-blue-900/20 transition-all active:scale-95 w-full sm:w-auto"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Registrar Leads
                 </Button>
                 <Button 
                   onClick={() => setIsDistributeLeadsOpen(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold h-9 rounded-xl shadow-lg shadow-purple-900/20 transition-all hover:scale-105"
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold h-11 sm:h-9 rounded-xl shadow-lg shadow-purple-900/20 transition-all active:scale-95 w-full sm:w-auto"
                 >
                   <UserPlus className="w-4 h-4 mr-2" /> Distribuir Leads
                 </Button>
@@ -1084,70 +1084,74 @@ export default function CentralOperacional() {
 
       {/* 7. CAPTURED LEADS LIST SHEET */}
       <Sheet open={isLeadsListOpen} onOpenChange={setIsLeadsListOpen}>
-        <SheetContent side="bottom" className="h-[70vh] bg-card border-border rounded-t-3xl p-0 overflow-hidden">
-          <div className="p-6 border-b border-border bg-muted/20">
-            <h3 className="text-xl font-black text-foreground">Detalhamento de Leads Captados</h3>
-            <p className="text-sm text-muted-foreground">{dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}</p>
+        <SheetContent side="bottom" className="h-[85vh] sm:h-[70vh] bg-card border-border rounded-t-3xl p-0 overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-border bg-muted/20">
+            <h3 className="text-lg sm:text-xl font-black text-foreground">Detalhamento de Leads Captados</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">{dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}</p>
           </div>
           <ScrollArea className="h-full">
-            <div className="p-6">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="font-bold text-center">Quantidade</TableHead>
-                    <TableHead className="font-bold">Origem</TableHead>
-                    <TableHead className="font-bold">Data</TableHead>
-                    <TableHead className="font-bold">Responsável</TableHead>
-                    <TableHead className="font-bold">Observações</TableHead>
-                    <TableHead className="font-bold text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {capturedLeadsList.map((item, idx) => (
-                    <TableRow key={idx} className="border-border hover:bg-muted/30">
-                      <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="font-bold">{item.source}</Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">{item.date.split('-').reverse().join('/')}</TableCell>
-                      <TableCell className="font-medium">{item.profiles?.display_name || "N/A"}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground italic max-w-[150px] truncate">{item.observations || "-"}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                            onClick={() => {
-                              setEditingCapturedLead(item);
-                              setLeadAmount(item.amount.toString());
-                              setLeadSource(item.source);
-                              setLeadDate(item.date);
-                              setLeadObs(item.observations || "");
-                              setIsRegisterLeadsOpen(true);
-                            }}
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => handleDeleteCapturedLead(item.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {capturedLeadsList.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">Nenhum registro encontrado.</TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+            <div className="p-4 sm:p-6 pb-24 sm:pb-12">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="min-w-[600px] px-4 sm:px-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="font-bold text-center w-[80px]">Qtde</TableHead>
+                        <TableHead className="font-bold">Origem</TableHead>
+                        <TableHead className="font-bold">Data</TableHead>
+                        <TableHead className="font-bold">Responsável</TableHead>
+                        <TableHead className="font-bold">Observações</TableHead>
+                        <TableHead className="font-bold text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {capturedLeadsList.map((item, idx) => (
+                        <TableRow key={idx} className="border-border hover:bg-muted/30">
+                          <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className="font-bold">{item.source}</Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
+                          <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground italic max-w-[150px] truncate">{item.observations || "-"}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() => {
+                                  setEditingCapturedLead(item);
+                                  setLeadAmount(item.amount.toString());
+                                  setLeadSource(item.source);
+                                  setLeadDate(item.date);
+                                  setLeadObs(item.observations || "");
+                                  setIsRegisterLeadsOpen(true);
+                                }}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeleteCapturedLead(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {capturedLeadsList.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">Nenhum registro encontrado.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </ScrollArea>
         </SheetContent>
