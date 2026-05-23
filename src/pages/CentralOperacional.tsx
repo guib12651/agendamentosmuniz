@@ -187,18 +187,18 @@ export default function CentralOperacional() {
       // Fetch captured leads sum
       const { data: leadsData, error: leadsError } = await supabase
         .from("operational_leads")
-        .select("amount, source, date, observations, created_by, profiles:created_by(display_name)")
+        .select("amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
         .gte("date", dateRange.start)
         .lte("date", dateRange.end);
       
       if (leadsError) throw leadsError;
-      const totalCaptured = leadsData.reduce((acc, l) => acc + l.amount, 0);
+      const totalCaptured = (leadsData as any[]).reduce((acc, l) => acc + l.amount, 0);
       setCapturedLeadsList(leadsData);
 
       // Fetch distributions
       const { data: distData, error: distError } = await supabase
         .from("leads_distribution")
-        .select("amount, user_id, profiles:user_id(display_name)")
+        .select("amount, user_id, profiles!leads_distribution_user_id_fkey(display_name)")
         .gte("date", dateRange.start)
         .lte("date", dateRange.end);
 
