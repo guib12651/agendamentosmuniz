@@ -29,7 +29,8 @@ import {
   ChevronDown,
   Archive,
   RefreshCcw,
-  Trash2
+  Trash2,
+  Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -146,6 +147,7 @@ export default function CentralOperacional() {
   // Captured leads list for the card click
   const [isLeadsListOpen, setIsLeadsListOpen] = useState(false);
   const [capturedLeadsList, setCapturedLeadsList] = useState<any[]>([]);
+  const [editingCapturedLead, setEditingCapturedLead] = useState<any | null>(null);
 
   const dateRange = useMemo(() => {
     if (period === "today") {
@@ -195,7 +197,7 @@ export default function CentralOperacional() {
       // Fetch captured leads sum
       const { data: leadsData, error: leadsError } = await supabase
         .from("operational_leads")
-        .select("amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
+        .select("id, amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
         .gte("date", dateRange.start)
         .lte("date", dateRange.end);
       
@@ -325,6 +327,52 @@ export default function CentralOperacional() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao distribuir leads");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteCapturedLead = async (id: string) => {
+    try {
+      const { error } = await supabase.from("operational_leads").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Registro excluído!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao excluir registro");
+    }
+  };
+
+  const handleEditCapturedLead = async () => {
+    if (!editingCapturedLead || !leadAmount || parseInt(leadAmount) <= 0 || !leadSource) {
+      toast.error("Preencha todos os campos obrigatórios");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("operational_leads").update({
+        amount: parseInt(leadAmount),
+        source: leadSource,
+        date: leadDate,
+        observations: leadObs,
+      }).eq("id", editingCapturedLead.id);
+
+      if (error) throw error;
+
+      toast.success("Lead atualizado com sucesso!");
+      setEditingCapturedLead(null);
+      setIsRegisterLeadsOpen(false);
+      // Reset form
+      setLeadAmount("0");
+      setLeadSource("");
+      setLeadObs("");
+      setLeadDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar lead");
     } finally {
       setSubmitting(false);
     }
@@ -857,10 +905,15 @@ export default function CentralOperacional() {
       </Sheet>
 
       {/* 6. MODALS FOR ADMIN ACTIONS */}
-      <Dialog open={isRegisterLeadsOpen} onOpenChange={setIsRegisterLeadsOpen}>
+      <Dialog open={isRegisterLeadsOpen} onOpenChange={(open) => {
+        setIsRegisterLeadsOpen(open);
+        if (!open) setEditingCapturedLead(null);
+      }}>
         <DialogContent className="sm:max-w-[425px] bg-card border-border">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black text-foreground">➕ Registrar Leads</DialogTitle>
+            <DialogTitle className="text-xl font-black text-foreground">
+              {editingCapturedLead ? "📝 Editar Leads" : "➕ Registrar Leads"}
+            </DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
@@ -911,11 +964,11 @@ export default function CentralOperacional() {
           </div>
           <DialogFooter>
             <Button 
-              onClick={handleRegisterLeads} 
+              onClick={editingCapturedLead ? handleEditCapturedLead : handleRegisterLeads} 
               disabled={submitting}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold"
             >
-              {submitting ? "Salvando..." : "Confirmar Registro"}
+              {submitting ? "Salvando..." : editingCapturedLead ? "Salvar Alterações" : "Confirmar Registro"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1039,23 +1092,51 @@ export default function CentralOperacional() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border hover:bg-transparent">
-                    <TableHead className="font-bold">Quantidade</TableHead>
+                    <TableHead className="font-bold text-center">Quantidade</TableHead>
                     <TableHead className="font-bold">Origem</TableHead>
                     <TableHead className="font-bold">Data</TableHead>
                     <TableHead className="font-bold">Responsável</TableHead>
                     <TableHead className="font-bold">Observações</TableHead>
+                    <TableHead className="font-bold text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {capturedLeadsList.map((item, idx) => (
                     <TableRow key={idx} className="border-border hover:bg-muted/30">
-                      <TableCell className="font-black text-lg text-primary">{item.amount}</TableCell>
+                      <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-bold">{item.source}</Badge>
                       </TableCell>
                       <TableCell className="text-muted-foreground">{item.date.split('-').reverse().join('/')}</TableCell>
                       <TableCell className="font-medium">{item.profiles?.display_name || "N/A"}</TableCell>
-                      <TableCell className="text-xs text-muted-foreground italic max-w-xs truncate">{item.observations || "-"}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground italic max-w-[150px] truncate">{item.observations || "-"}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                            onClick={() => {
+                              setEditingCapturedLead(item);
+                              setLeadAmount(item.amount.toString());
+                              setLeadSource(item.source);
+                              setLeadDate(item.date);
+                              setLeadObs(item.observations || "");
+                              setIsRegisterLeadsOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteCapturedLead(item.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                   {capturedLeadsList.length === 0 && (
