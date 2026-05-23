@@ -97,6 +97,7 @@ export type Database = {
       }
       meetings: {
         Row: {
+          archived: boolean
           city: string | null
           consultant: string
           created_at: string
@@ -119,6 +120,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          archived?: boolean
           city?: string | null
           consultant: string
           created_at?: string
@@ -141,6 +143,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          archived?: boolean
           city?: string | null
           consultant?: string
           created_at?: string

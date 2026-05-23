@@ -26,7 +26,10 @@ import {
   XCircle,
   TrendingUp,
   UserPlus,
-  ChevronDown
+  ChevronDown,
+  Archive,
+  RefreshCcw,
+  Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -115,6 +118,11 @@ export default function CentralOperacional() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLead, setSelectedLead] = useState<Meeting | null>(null);
   const [leadHistory, setLeadHistory] = useState<any[]>([]);
+  const [showArchived, setShowArchived] = useState(false);
+
+  // Archive Modal State
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [leadToArchive, setLeadToArchive] = useState<Meeting | null>(null);
 
   // Modal States
   const [isRegisterLeadsOpen, setIsRegisterLeadsOpen] = useState(false);
@@ -347,6 +355,9 @@ export default function CentralOperacional() {
   const filteredLeads = useMemo(() => {
     let list = meetings;
     
+    // Filter by archived status
+    list = list.filter(m => showArchived ? m.archived === true : m.archived === false);
+
     if (selectedStage) {
       if (selectedStage === 'agendamentos') list = list.filter(m => m.status === 'pending');
       else if (selectedStage === 'compareceram') list = list.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada');
@@ -365,7 +376,7 @@ export default function CentralOperacional() {
     }
 
     return list.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
-  }, [meetings, selectedStage, searchTerm]);
+  }, [meetings, selectedStage, searchTerm, showArchived]);
 
   const fetchLeadHistory = async (lead: Meeting) => {
     // In a real app, this would be a dedicated history table
@@ -411,6 +422,44 @@ export default function CentralOperacional() {
   const handleLeadClick = (lead: Meeting) => {
     setSelectedLead(lead);
     fetchLeadHistory(lead);
+  };
+
+  const handleArchiveLead = async () => {
+    if (!leadToArchive) return;
+    
+    try {
+      const { error } = await supabase
+        .from("meetings")
+        .update({ archived: true })
+        .eq("id", leadToArchive.id);
+
+      if (error) throw error;
+      
+      toast.success("Lead arquivado com sucesso");
+      setIsArchiveModalOpen(false);
+      setLeadToArchive(null);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao arquivar lead");
+    }
+  };
+
+  const handleRestoreLead = async (lead: Meeting) => {
+    try {
+      const { error } = await supabase
+        .from("meetings")
+        .update({ archived: false })
+        .eq("id", lead.id);
+
+      if (error) throw error;
+      
+      toast.success("Lead restaurado com sucesso");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao restaurar lead");
+    }
   };
 
   const calculateConversion = (val1: number, val2: number) => {
@@ -613,10 +662,26 @@ export default function CentralOperacional() {
         {/* 4. DYNAMIC LIST */}
         <section className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-              Lista Operacional 
-              {selectedStage && <Badge variant="secondary" className="capitalize">{selectedStage}</Badge>}
-            </h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
+                {showArchived ? "Leads Arquivados" : "Lista Operacional"}
+                {selectedStage && <Badge variant="secondary" className="capitalize">{selectedStage}</Badge>}
+              </h3>
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowArchived(!showArchived)}
+                  className={cn(
+                    "h-8 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all",
+                    showArchived ? "bg-primary/10 border-primary text-primary" : "text-muted-foreground"
+                  )}
+                >
+                  <Archive className="w-3 h-3 mr-1" />
+                  {showArchived ? "Ver Ativos" : "Ver Arquivados"}
+                </Button>
+              )}
+            </div>
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
@@ -638,16 +703,25 @@ export default function CentralOperacional() {
                   <TableHead className="font-bold">Status</TableHead>
                   <TableHead className="font-bold">Responsável</TableHead>
                   <TableHead className="font-bold">Data/Hora</TableHead>
+                  <TableHead className="font-bold text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredLeads.map((lead) => (
                   <TableRow 
                     key={lead.id} 
-                    className="cursor-pointer hover:bg-muted/30 transition-colors border-border"
+                    className={cn(
+                      "cursor-pointer hover:bg-muted/30 transition-colors border-border",
+                      lead.archived && "opacity-75"
+                    )}
                     onClick={() => handleLeadClick(lead)}
                   >
-                    <TableCell className="font-medium text-foreground">{lead.leadName}</TableCell>
+                    <TableCell className="font-medium text-foreground">
+                      <div className="flex items-center gap-2">
+                        {lead.leadName}
+                        {lead.archived && <Archive className="w-3 h-3 text-muted-foreground" />}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                     <TableCell>{lead.city || "-"}</TableCell>
                     <TableCell>
@@ -665,12 +739,43 @@ export default function CentralOperacional() {
                         <span className="text-[10px] text-muted-foreground">{lead.time}</span>
                       </div>
                     </TableCell>
+                    <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
+                      {isAdmin && (
+                        <div className="flex items-center justify-end gap-2">
+                          {lead.status === 'venda_concluida' && !lead.archived && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                setLeadToArchive(lead);
+                                setIsArchiveModalOpen(true);
+                              }}
+                              title="Arquivar lead vendido"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
+                          {lead.archived && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                              onClick={() => handleRestoreLead(lead)}
+                              title="Restaurar lead"
+                            >
+                              <RefreshCcw className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
                 {filteredLeads.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
-                      Nenhum lead encontrado para este filtro.
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
+                      {showArchived ? "Nenhum lead arquivado encontrado." : "Nenhum lead encontrado para este filtro."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -885,6 +990,35 @@ export default function CentralOperacional() {
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold"
             >
               {submitting ? "Salvando..." : "Confirmar Distribuição"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Archive Confirmation Modal */}
+      <Dialog open={isArchiveModalOpen} onOpenChange={setIsArchiveModalOpen}>
+        <DialogContent className="sm:max-w-[400px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">Arquivar Lead Vendido</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Esse lead será removido das listas operacionais ativas, mas continuará salvo no histórico do sistema.
+            </p>
+          </div>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsArchiveModalOpen(false)}
+              className="flex-1 font-bold"
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleArchiveLead}
+              className="flex-1 bg-destructive hover:bg-destructive/90 text-white font-bold"
+            >
+              Arquivar Lead
             </Button>
           </DialogFooter>
         </DialogContent>

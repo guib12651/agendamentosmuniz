@@ -27,6 +27,7 @@ export interface Meeting {
   userId?: string | null;
   createdAt?: string; // ISO timestamp when the meeting was registered
   funnelStage?: FunnelStage;
+  archived?: boolean;
 }
 
 export interface Call {
