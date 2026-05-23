@@ -49,6 +49,7 @@ export async function getMeetings(startDate?: string, endDate?: string): Promise
     userId: row.user_id || null,
     createdAt: row.created_at || undefined,
     funnelStage: (row.funnel_stage || "appointment") as FunnelStage,
+    archived: row.archived || false,
   }));
 }
 
@@ -97,6 +98,7 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
       city: meeting.city,
       sale_date: meeting.saleDate,
       funnel_stage: meeting.funnelStage,
+      archived: meeting.archived,
     })
     .eq("id", meeting.id);
   if (error) throw error;
