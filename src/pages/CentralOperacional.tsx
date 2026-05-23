@@ -86,10 +86,31 @@ export default function CentralOperacional() {
   const [selectedLead, setSelectedLead] = useState<Meeting | null>(null);
   const [leadHistory, setLeadHistory] = useState<any[]>([]);
 
-  const dateRange = useMemo(() => 
-    getDateRange(period, filterDate, customStart, customEnd), 
-    [period, filterDate, customStart, customEnd]
-  );
+  const dateRange = useMemo(() => {
+    if (period === "today") {
+      const today = new Date().toISOString().split("T")[0];
+      return { start: today, end: today };
+    }
+    if (period === "yesterday") {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yStr = yesterday.toISOString().split("T")[0];
+      return { start: yStr, end: yStr };
+    }
+    if (period === "last7") {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - 7);
+      return { start: start.toISOString().split("T")[0], end: end.toISOString().split("T")[0] };
+    }
+    if (period === "last30") {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - 30);
+      return { start: start.toISOString().split("T")[0], end: end.toISOString().split("T")[0] };
+    }
+    return getDateRange(period as any, filterDate, customStart, customEnd);
+  }, [period, filterDate, customStart, customEnd]);
 
   const loadData = async () => {
     setLoading(true);
@@ -261,16 +282,44 @@ export default function CentralOperacional() {
       <main className="container px-4 sm:px-6 py-6 space-y-8">
         {/* 1. TOP FILTERS */}
         <section className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-          <PeriodFilter
-            selectedDate={filterDate}
-            onDateChange={setFilterDate}
-            period={period}
-            onPeriodChange={setPeriod}
-            customStart={customStart}
-            customEnd={customEnd}
-            onCustomStartChange={setCustomStart}
-            onCustomEndChange={setCustomEnd}
-          />
+          <div className="flex flex-wrap gap-2 mb-4">
+            <FilterButton label="Hoje" active={period === "today"} onClick={() => setPeriod("today" as any)} />
+            <FilterButton label="Ontem" active={period === "yesterday"} onClick={() => setPeriod("yesterday" as any)} />
+            <FilterButton label="Últimos 7 dias" active={period === "last7"} onClick={() => setPeriod("last7" as any)} />
+            <FilterButton label="Últimos 30 dias" active={period === "last30"} onClick={() => setPeriod("last30" as any)} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant={["monthly", "quarterly", "semiannual", "annual"].includes(period) ? "default" : "outline"} size="sm" className="h-9 rounded-xl font-bold">
+                  Mais Períodos <ChevronDown className="ml-1 w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setPeriod("monthly")}>Mensal</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPeriod("quarterly")}>Trimestral</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPeriod("semiannual")}>Semestral</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPeriod("annual")}>Anual</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setPeriod("custom")}>Personalizado</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-2 text-slate-500">
+              <Calendar className="w-4 h-4" />
+              <span className="text-xs font-bold uppercase tracking-wider">
+                {dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}
+              </span>
+            </div>
+            {period === "custom" && (
+              <div className="flex gap-2">
+                <Input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} className="h-9 text-xs" />
+                <Input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} className="h-9 text-xs" />
+              </div>
+            )}
+            {!["today", "yesterday", "last7", "last30", "custom"].includes(period) && (
+              <Input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="h-9 text-xs w-40" />
+            )}
+          </div>
         </section>
 
         {/* 2. OPERATIONAL CARDS */}
@@ -498,6 +547,22 @@ export default function CentralOperacional() {
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+function FilterButton({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) {
+  return (
+    <Button 
+      variant={active ? "default" : "outline"} 
+      size="sm" 
+      onClick={onClick}
+      className={cn(
+        "h-9 rounded-xl font-bold transition-all",
+        active ? "bg-slate-900 text-white shadow-md" : "hover:bg-slate-100"
+      )}
+    >
+      {label}
+    </Button>
   );
 }
 
