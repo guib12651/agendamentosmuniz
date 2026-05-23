@@ -25,7 +25,8 @@ import {
   CheckCircle2,
   XCircle,
   TrendingUp,
-  UserPlus
+  UserPlus,
+  ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +72,7 @@ const statusConfig = {
 export default function CentralOperacional() {
   const { profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
-  const [period, setPeriod] = useState<PeriodType>("daily");
+  const [period, setPeriod] = useState<PeriodType | "today" | "yesterday" | "last7" | "last30">("today");
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [customStart, setCustomStart] = useState(new Date().toISOString().split("T")[0]);
   const [customEnd, setCustomEnd] = useState(new Date().toISOString().split("T")[0]);
