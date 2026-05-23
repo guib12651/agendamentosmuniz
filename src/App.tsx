@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound.tsx";
 import Fechamentos from "./pages/Fechamentos.tsx";
 import MeusAgendamentos from "./pages/MeusAgendamentos.tsx";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios.tsx";
+import CentralOperacional from "./pages/CentralOperacional.tsx";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/fechamentos" element={<ProtectedRoute><Fechamentos /></ProtectedRoute>} />
+            <Route path="/central-operacional" element={<ProtectedRoute><CentralOperacional /></ProtectedRoute>} />
             <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><GerenciarUsuarios /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />

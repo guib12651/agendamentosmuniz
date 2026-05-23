@@ -29,7 +29,6 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
-import SalesFunnel from "@/components/SalesFunnel";
 
 
 
@@ -52,7 +51,6 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
-  const [showFunnel, setShowFunnel] = useState(false);
   
 
 
@@ -289,9 +287,9 @@ export default function Index() {
                     Usuários
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => setShowFunnel(true)}>
+                <DropdownMenuItem onClick={() => navigate("/central-operacional")}>
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
-                  Funil
+                  Central Operacional
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
@@ -523,14 +521,6 @@ export default function Index() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showFunnel} onOpenChange={setShowFunnel}>
-        <DialogContent className="max-w-2xl mx-2 sm:mx-auto max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Funil de Vendas</DialogTitle>
-          </DialogHeader>
-          <SalesFunnel date={filterDate} />
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={showBlockForm} onOpenChange={setShowBlockForm}>
         <DialogContent className="max-w-md mx-2 sm:mx-auto">
