@@ -41,6 +41,45 @@ export type Database = {
         }
         Relationships: []
       }
+      leads_distribution: {
+        Row: {
+          amount: number
+          company_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          observations: string | null
+          source: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           city: string | null
@@ -140,6 +179,42 @@ export type Database = {
           title?: string
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      operational_leads: {
+        Row: {
+          amount: number
+          company_id: string | null
+          created_at: string
+          created_by: string
+          date: string
+          id: string
+          observations: string | null
+          source: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          company_id?: string | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          source?: string
+          updated_at?: string
         }
         Relationships: []
       }
