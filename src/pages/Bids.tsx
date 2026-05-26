@@ -106,6 +106,7 @@ export default function Bids() {
       setBids((bidsData || []).map(b => ({
         id: b.id,
         companyId: b.company_id,
+        companyName: b.company_name,
         quotaId: b.quota_id,
         clientName: b.client_name,
         bidType: b.bid_type as BidType,
@@ -119,6 +120,7 @@ export default function Bids() {
       setQuotas((quotasData || []).map(q => ({
         id: q.id,
         companyId: q.company_id,
+        companyName: q.company_name,
         clientName: q.client_name,
         groupNumber: q.group_number,
         quotaNumber: q.quota_number,
@@ -162,6 +164,7 @@ export default function Bids() {
       const bidData = {
         quota_id: quotaId,
         company_id: selectedQuota.companyId,
+        company_name: selectedQuota.companyName,
         client_name: selectedQuota.clientName,
         bid_type: bidType,
         bid_value: parseFloat(bidValue),
@@ -325,7 +328,6 @@ export default function Bids() {
         <div className="space-y-4">
           {filteredBids.map(bid => {
             const quota = quotas.find(q => q.id === bid.quotaId);
-            const company = companies.find(c => c.id === bid.companyId);
             const status = bidStatusConfig[bid.status];
             const type = bidTypeConfig[bid.bidType];
             const StatusIcon = status.icon;
@@ -343,7 +345,7 @@ export default function Bids() {
                           <div>
                             <h3 className="font-black text-foreground tracking-tight">{bid.clientName}</h3>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                              {company?.name || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
+                              {bid.companyName || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
                             </p>
                           </div>
                         </div>

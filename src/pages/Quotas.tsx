@@ -26,7 +26,8 @@ import {
   XCircle,
   Archive,
   ArrowUpRight,
-  History
+  History,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,7 +95,7 @@ export default function Quotas() {
   // Form states
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
-  const [companyId, setCompanyId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
   const [quotaNumber, setQuotaNumber] = useState("");
   const [creditValue, setCreditValue] = useState("");
@@ -115,6 +116,7 @@ export default function Quotas() {
       setQuotas((quotasData || []).map(q => ({
         id: q.id,
         companyId: q.company_id,
+        companyName: q.company_name,
         clientName: q.client_name,
         phone: q.phone,
         groupNumber: q.group_number,
@@ -163,7 +165,7 @@ export default function Quotas() {
   }), [quotas]);
 
   const handleSaveQuota = async () => {
-    if (!clientName || !companyId || !groupNumber || !quotaNumber) {
+    if (!clientName || !companyName || !groupNumber || !quotaNumber) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
@@ -173,7 +175,7 @@ export default function Quotas() {
       const quotaData = {
         client_name: clientName,
         phone,
-        company_id: companyId,
+        company_name: companyName,
         group_number: groupNumber,
         quota_number: quotaNumber,
         credit_value: parseFloat(creditValue) || 0,
@@ -239,7 +241,7 @@ export default function Quotas() {
     setEditingQuota(null);
     setClientName("");
     setPhone("");
-    setCompanyId("");
+    setCompanyName("");
     setGroupNumber("");
     setQuotaNumber("");
     setCreditValue("");
@@ -348,7 +350,7 @@ export default function Quotas() {
                 setEditingQuota(quota);
                 setClientName(quota.clientName);
                 setPhone(quota.phone || "");
-                setCompanyId(quota.companyId);
+                setCompanyName(quota.companyName || "");
                 setGroupNumber(quota.groupNumber);
                 setQuotaNumber(quota.quotaNumber);
                 setCreditValue(quota.creditValue.toString());
@@ -361,7 +363,7 @@ export default function Quotas() {
               onShowTimeline={() => handleShowTimeline(quota)}
               onUpdateStatus={handleUpdateStatus}
               formatCurrency={formatCurrency}
-              companyName={companies.find(c => c.id === quota.companyId)?.name || "N/A"}
+              companyName={quota.companyName || "N/A"}
             />
           ))}
           {loading && <div className="col-span-full text-center py-20 text-slate-400 font-medium">Carregando cotas...</div>}
@@ -402,17 +404,10 @@ export default function Quotas() {
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
-                <Select value={companyId} onValueChange={setCompanyId}>
-                  <SelectTrigger className="bg-background border-border rounded-xl">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {companies.map(c => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                    {companies.length === 0 && <SelectItem value="none" disabled>Nenhuma cadastrada</SelectItem>}
-                  </SelectContent>
-                </Select>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Ex: Porto Seguro" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>

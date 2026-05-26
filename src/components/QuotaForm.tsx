@@ -24,7 +24,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
   
   const [clientName, setClientName] = useState(preFill?.leadName || "");
   const [phone, setPhone] = useState(preFill?.phone || "");
-  const [companyId, setCompanyId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
   const [quotaNumber, setQuotaNumber] = useState("");
   const [creditValue, setCreditValue] = useState(preFill?.downPayment?.replace(/\D/g, "") || ""); // Just a guess for prefill
@@ -47,7 +47,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
   }, [preFill]);
 
   const handleSubmit = async () => {
-    if (!clientName || !companyId || !groupNumber || !quotaNumber) {
+    if (!clientName || !companyName || !groupNumber || !quotaNumber) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
@@ -57,7 +57,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
       const quotaData = {
         client_name: clientName,
         phone,
-        company_id: companyId,
+        company_name: companyName,
         group_number: groupNumber,
         quota_number: quotaNumber,
         credit_value: parseFloat(creditValue) || 0,
@@ -107,16 +107,10 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
-              <Select value={companyId} onValueChange={setCompanyId}>
-                <SelectTrigger className="bg-background border-border rounded-xl">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent>
-                  {companies.map(c => (
-                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Ex: Porto Seguro" className="pl-10 bg-background border-border rounded-xl" />
+              </div>
             </div>
             <div className="space-y-2">
               <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>

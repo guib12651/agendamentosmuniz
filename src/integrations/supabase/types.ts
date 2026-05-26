@@ -21,6 +21,7 @@ export type Database = {
           bid_value: number | null
           client_name: string
           company_id: string | null
+          company_name: string | null
           created_at: string | null
           id: string
           observations: string | null
@@ -34,6 +35,7 @@ export type Database = {
           bid_value?: number | null
           client_name: string
           company_id?: string | null
+          company_name?: string | null
           created_at?: string | null
           id?: string
           observations?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           bid_value?: number | null
           client_name?: string
           company_id?: string | null
+          company_name?: string | null
           created_at?: string | null
           id?: string
           observations?: string | null
@@ -487,6 +490,7 @@ export type Database = {
         Row: {
           client_name: string
           company_id: string | null
+          company_name: string | null
           created_at: string | null
           credit_value: number | null
           group_number: string | null
@@ -503,6 +507,7 @@ export type Database = {
         Insert: {
           client_name: string
           company_id?: string | null
+          company_name?: string | null
           created_at?: string | null
           credit_value?: number | null
           group_number?: string | null
@@ -519,6 +524,7 @@ export type Database = {
         Update: {
           client_name?: string
           company_id?: string | null
+          company_name?: string | null
           created_at?: string | null
           credit_value?: number | null
           group_number?: string | null
