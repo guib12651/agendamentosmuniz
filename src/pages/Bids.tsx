@@ -87,6 +87,7 @@ export default function Bids() {
   const [percentage, setPercentage] = useState("");
   const [assemblyDate, setAssemblyDate] = useState("");
   const [status, setStatus] = useState<BidStatus>("pending");
+  const [observations, setObservations] = useState("");
 
   const loadData = async () => {
     setLoading(true);
