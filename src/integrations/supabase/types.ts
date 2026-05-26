@@ -23,6 +23,7 @@ export type Database = {
           company_id: string | null
           created_at: string | null
           id: string
+          observations: string | null
           percentage: number | null
           quota_id: string | null
           status: string
@@ -35,6 +36,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           id?: string
+          observations?: string | null
           percentage?: number | null
           quota_id?: string | null
           status?: string
@@ -47,6 +49,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string | null
           id?: string
+          observations?: string | null
           percentage?: number | null
           quota_id?: string | null
           status?: string
