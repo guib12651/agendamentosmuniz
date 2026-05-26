@@ -358,6 +358,8 @@ export default function Quotas() {
               }}
               onDelete={() => handleDeleteQuota(quota.id)}
               onAddBid={() => navigate(`/lances?quota=${quota.id}`)}
+              onShowTimeline={() => handleShowTimeline(quota)}
+              onUpdateStatus={handleUpdateStatus}
               formatCurrency={formatCurrency}
               companyName={companies.find(c => c.id === quota.companyId)?.name || "N/A"}
             />
