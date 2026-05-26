@@ -86,6 +86,8 @@ export default function Quotas() {
   
   // Modal states
   const [isQuotaModalOpen, setIsQuotaModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [quotaToDelete, setQuotaToDelete] = useState<string | null>(null);
   const [editingQuota, setEditingQuota] = useState<Quota | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
@@ -225,15 +227,26 @@ export default function Quotas() {
   };
 
   const handleDeleteQuota = async (id: string) => {
-    if (!confirm("Deseja realmente excluir esta cota?")) return;
+    setQuotaToDelete(id);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteQuota = async () => {
+    if (!quotaToDelete) return;
+    
+    setSubmitting(true);
     try {
-      const { error } = await supabase.from("quotas").delete().eq("id", id);
+      const { error } = await supabase.from("quotas").delete().eq("id", quotaToDelete);
       if (error) throw error;
       toast.success("Cota excluída!");
       loadData();
     } catch (error) {
       console.error(error);
       toast.error("Erro ao excluir cota");
+    } finally {
+      setSubmitting(false);
+      setIsDeleteConfirmOpen(false);
+      setQuotaToDelete(null);
     }
   };
 
@@ -463,6 +476,24 @@ export default function Quotas() {
         leadId={selectedTimelineLeadId} 
         phone={selectedTimelinePhone}
       />
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black">Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-muted-foreground font-medium">
+            Tem certeza que deseja excluir esta cota? Esta ação não pode ser desfeita.
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)} className="rounded-xl font-bold">
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteQuota} disabled={submitting} className="rounded-xl font-bold bg-rose-500 hover:bg-rose-600">
+              {submitting ? "Excluindo..." : "Sim, Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -574,3 +605,4 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, onShowTimeline, onUpdate
     </div>
   );
 }
+

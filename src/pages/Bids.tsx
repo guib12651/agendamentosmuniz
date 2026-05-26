@@ -80,6 +80,8 @@ export default function Bids() {
   
   // Modal states
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [bidToDelete, setBidToDelete] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [selectedTimelineLeadId, setSelectedTimelineLeadId] = useState<string | undefined>(undefined);
@@ -200,15 +202,26 @@ export default function Bids() {
   };
 
   const handleDeleteBid = async (id: string) => {
-    if (!confirm("Excluir este lance?")) return;
+    setBidToDelete(id);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteBid = async () => {
+    if (!bidToDelete) return;
+
+    setSubmitting(true);
     try {
-      const { error } = await supabase.from("bids").delete().eq("id", id);
+      const { error } = await supabase.from("bids").delete().eq("id", bidToDelete);
       if (error) throw error;
       toast.success("Lance removido");
       loadData();
     } catch (error) {
       console.error(error);
       toast.error("Erro ao remover lance");
+    } finally {
+      setSubmitting(false);
+      setIsDeleteConfirmOpen(false);
+      setBidToDelete(null);
     }
   };
 
@@ -541,6 +554,24 @@ export default function Bids() {
         leadId={selectedTimelineLeadId} 
         phone={selectedTimelinePhone}
       />
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-3xl p-6 bg-card border border-border shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-muted-foreground font-medium">
+            Tem certeza que deseja excluir este lance? Esta ação não pode ser desfeita.
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)} className="rounded-xl font-bold">
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteBid} disabled={submitting} className="rounded-xl font-bold bg-rose-500 hover:bg-rose-600">
+              {submitting ? "Excluindo..." : "Sim, Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
