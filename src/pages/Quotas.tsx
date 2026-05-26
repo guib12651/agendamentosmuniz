@@ -460,6 +460,12 @@ export default function Quotas() {
           </div>
         </DialogContent>
       </Dialog>
+      <TimelineSheet 
+        isOpen={isTimelineOpen} 
+        onClose={() => setIsTimelineOpen(false)} 
+        leadId={selectedTimelineLeadId} 
+        phone={selectedTimelinePhone}
+      />
     </div>
   );
 }
