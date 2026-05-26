@@ -514,6 +514,53 @@ export default function CentralOperacional() {
     return list.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
   }, [meetings, selectedStage, searchTerm, showArchived]);
 
+  const leadHistory = useMemo(() => {
+    if (!selectedLead) return [];
+    
+    const history = [];
+    
+    // Appointment event
+    history.push({
+      event: "Agendamento realizado",
+      date: selectedLead.createdAt || selectedLead.date,
+      icon: Calendar,
+      isMain: true
+    });
+
+    // Visit event
+    if (selectedLead.status === 'compareceu' || selectedLead.status === 'visita_realizada' || selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+      history.push({
+        event: "Visita realizada",
+        date: selectedLead.date,
+        icon: CheckCircle2,
+        isMain: true
+      });
+    }
+
+    // Negotiation event
+    if (selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+      history.push({
+        event: "Início da negociação",
+        date: selectedLead.date, // We don't have a specific date for negotiation start, using lead date
+        icon: Handshake,
+        isMain: true
+      });
+    }
+
+    // Sale event
+    if (selectedLead.status === 'venda_concluida') {
+      history.push({
+        event: "Venda realizada",
+        date: selectedLead.saleDate || selectedLead.date,
+        icon: ShoppingCart,
+        isGoal: true,
+        isMain: true
+      });
+    }
+
+    return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [selectedLead]);
+
   const handleLeadClick = (lead: Meeting) => {
     setSelectedLead(lead);
     setIsTimelineOpen(true);
