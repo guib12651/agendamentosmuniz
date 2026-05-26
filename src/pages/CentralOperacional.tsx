@@ -526,14 +526,47 @@ export default function CentralOperacional() {
       });
     }
 
-    // 2. Venda realizada (Date when the sale happened)
+    // 2. Fetch related Quotas and Bids
+    const { data: leadQuotas } = await supabase.from("quotas").select("*").eq("sale_id", lead.id);
+    if (leadQuotas && leadQuotas.length > 0) {
+      for (const q of leadQuotas) {
+        history.push({
+          date: q.created_at,
+          event: "Cota criada",
+          icon: FileText,
+          isMain: true
+        });
+
+        const { data: leadBids } = await supabase.from("bids").select("*").eq("quota_id", q.id);
+        if (leadBids) {
+          leadBids.forEach(b => {
+            history.push({
+              date: b.created_at,
+              event: `Lance registrado (${b.bid_type === 'free' ? 'Livre' : b.bid_type === 'fixed' ? 'Fixo' : 'Embutido'})`,
+              icon: Gavel
+            });
+            if (b.status === 'contemplated') {
+              history.push({
+                date: b.created_at,
+                event: "Lance contemplado! 🏆",
+                icon: TrendingUp,
+                isMain: true,
+                isGoal: true
+              });
+            }
+          });
+        }
+      }
+    }
+
+    // 3. Venda realizada (Date when the sale happened)
     if (lead.saleDate) {
       history.push({ 
         date: lead.saleDate, 
         event: "Venda realizada", 
         icon: ShoppingCart,
         isMain: true,
-        isGoal: true
+        isGoal: !leadQuotas?.length // Only main goal if no contemplation yet
       });
     }
 
