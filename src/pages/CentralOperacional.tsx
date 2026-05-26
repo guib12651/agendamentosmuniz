@@ -149,6 +149,15 @@ export default function CentralOperacional() {
   const [capturedLeadsList, setCapturedLeadsList] = useState<any[]>([]);
   const [editingCapturedLead, setEditingCapturedLead] = useState<any | null>(null);
 
+  // Daily Calls state
+  const [isRegisterCallsOpen, setIsRegisterCallsOpen] = useState(false);
+  const [isCallsListOpen, setIsCallsListOpen] = useState(false);
+  const [dailyCallsList, setDailyCallsList] = useState<any[]>([]);
+  const [editingDailyCall, setEditingDailyCall] = useState<any | null>(null);
+  const [callAmount, setCallAmount] = useState<string>("0");
+  const [callDate, setCallDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [callObs, setCallObs] = useState<string>("");
+
   const dateRange = useMemo(() => {
     if (period === "today") {
       const today = new Date().toISOString().split("T")[0];
