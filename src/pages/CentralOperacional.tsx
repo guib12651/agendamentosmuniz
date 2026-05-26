@@ -214,6 +214,16 @@ export default function CentralOperacional() {
       const totalCaptured = (leadsData as any[]).reduce((acc, l) => acc + l.amount, 0);
       setCapturedLeadsList(leadsData);
 
+      // Fetch daily calls registration
+      const { data: dailyCallsData, error: dailyCallsError } = await supabase
+        .from("daily_calls")
+        .select("id, amount, date, observations, user_id, profiles!daily_calls_user_id_fkey(display_name)")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+      
+      if (dailyCallsError) throw dailyCallsError;
+      setDailyCallsList(dailyCallsData);
+
       // Fetch distributions
       const { data: distData, error: distError } = await supabase
         .from("leads_distribution")
