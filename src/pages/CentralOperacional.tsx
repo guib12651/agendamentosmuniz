@@ -507,49 +507,20 @@ export default function CentralOperacional() {
   const fetchLeadHistory = async (lead: Meeting) => {
     const history = [];
     
-    // 1. Captured Date (Entry into system)
-    const entryDate = lead.createdAt || lead.date;
-    history.push({ 
-      date: entryDate, 
-      event: "Lead entrou no sistema", 
-      icon: Target,
-      isMain: true 
-    });
-    
-    // 2. Distributed (simulation)
-    if (lead.preSeller) {
-      history.push({ date: entryDate, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
-    }
-
-    // 3. Calls
-    const leadCalls = calls.filter(c => c.leadName === lead.leadName);
-    leadCalls.forEach(c => {
-      history.push({ date: c.callTime, event: `Ligação realizada: ${c.result}`, icon: Phone });
-    });
-
-    // 4. Meeting Scheduled (Appointment)
-    history.push({ 
-      date: `${lead.date}T${lead.time}`, 
-      event: "Agendamento realizado", 
-      icon: Calendar,
-      isMain: true
-    });
-
-    // 5. Outcome
-    if (lead.status === 'compareceu' || lead.status === 'visita_realizada') {
-      history.push({ date: lead.date, event: "Compareceu", icon: CheckCircle2 });
-    } else if (lead.status === 'nao_compareceu') {
-      history.push({ date: lead.date, event: "Não Compareceu", icon: XCircle });
-    }
-
-    if (lead.status === 'em_negociacao') {
-      history.push({ date: lead.date, event: "Negociação iniciada", icon: Handshake });
-    }
-
-    // 6. Sale (Final Goal)
-    if (lead.status === 'venda_concluida' || lead.saleDate) {
+    // 1. Agendamento realizado (Date when it was registered)
+    if (lead.createdAt) {
       history.push({ 
-        date: lead.saleDate || lead.date, 
+        date: lead.createdAt, 
+        event: "Agendamento realizado", 
+        icon: Calendar,
+        isMain: true
+      });
+    }
+
+    // 2. Venda realizada (Date when the sale happened)
+    if (lead.saleDate) {
+      history.push({ 
+        date: lead.saleDate, 
         event: "Venda realizada", 
         icon: ShoppingCart,
         isMain: true,
@@ -990,11 +961,19 @@ export default function CentralOperacional() {
                       </div>
                     </div>
                   ))}
-                  {leadHistory.length > 1 && leadHistory.some(h => h.isGoal) && (
+                  {leadHistory.length > 1 && leadHistory.some(h => h.event === "Venda realizada") && (
                     <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 shadow-inner">
                       <p className="text-xs font-black text-yellow-700 dark:text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
                         <TrendingUp className="w-4 h-4" />
-                        Jornada: {Math.ceil((new Date(leadHistory[leadHistory.length-1].date).getTime() - new Date(leadHistory[0].date).getTime()) / (1000 * 60 * 60 * 24))} dias da entrada à venda
+                        {(() => {
+                          const sale = leadHistory.find(h => h.event === "Venda realizada")?.date;
+                          const appt = leadHistory.find(h => h.event === "Agendamento realizado")?.date;
+                          if (sale && appt) {
+                            const days = Math.ceil((new Date(sale).getTime() - new Date(appt).getTime()) / (1000 * 60 * 60 * 24));
+                            return `Jornada: ${days} ${days === 1 ? 'dia' : 'dias'} do agendamento à venda`;
+                          }
+                          return "Jornada em andamento";
+                        })()}
                       </p>
                     </div>
                   )}
