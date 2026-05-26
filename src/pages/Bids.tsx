@@ -81,6 +81,9 @@ export default function Bids() {
   // Modal states
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+  const [selectedTimelineLeadId, setSelectedTimelineLeadId] = useState<string | undefined>(undefined);
+  const [selectedTimelinePhone, setSelectedTimelinePhone] = useState<string | undefined>(undefined);
 
   // Form states
   const [quotaId, setQuotaId] = useState(searchParams.get("quota") || "");
