@@ -336,7 +336,7 @@ export default function Bids() {
       </main>
 
       <Dialog open={isBidModalOpen} onOpenChange={setIsBidModalOpen}>
-        <DialogContent className="sm:max-w-md rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="sm:max-w-md rounded-3xl p-0 overflow-hidden border border-border shadow-2xl bg-card">
           <div className="bg-slate-900 p-6 text-white">
             <DialogTitle className="text-xl font-black">Registrar Novo Lance</DialogTitle>
             <p className="text-slate-400 text-sm">Informe os detalhes para a próxima assembleia</p>
@@ -345,7 +345,7 @@ export default function Bids() {
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase text-slate-500">Selecionar Cota</Label>
               <Select value={quotaId} onValueChange={setQuotaId}>
-                <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                <SelectTrigger className="bg-background border-border rounded-xl">
                   <SelectValue placeholder="Escolha o cliente/cota" />
                 </SelectTrigger>
                 <SelectContent>
@@ -359,7 +359,7 @@ export default function Bids() {
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Tipo de Lance</Label>
                 <Select value={bidType} onValueChange={v => setBidType(v as BidType)}>
-                  <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                  <SelectTrigger className="bg-background border-border rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -373,22 +373,22 @@ export default function Bids() {
                 <Label className="text-[10px] font-black uppercase text-slate-500">Valor do Lance</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                  <Input type="number" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0.00" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input type="number" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Percentual (%)</Label>
-                <Input type="number" value={percentage} onChange={e => setPercentage(e.target.value)} placeholder="0.00" className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input type="number" value={percentage} onChange={e => setPercentage(e.target.value)} placeholder="0.00" className="bg-background border-border rounded-xl text-foreground" />
               </div>
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Data da Assembleia</Label>
-                <Input type="date" value={assemblyDate} onChange={e => setAssemblyDate(e.target.value)} className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input type="date" value={assemblyDate} onChange={e => setAssemblyDate(e.target.value)} className="bg-background border-border rounded-xl text-foreground" />
               </div>
             </div>
             <div className="space-y-2">
               <Label className="text-[10px] font-black uppercase text-slate-500">Status</Label>
               <Select value={status} onValueChange={v => setStatus(v as BidStatus)}>
-                <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                <SelectTrigger className="bg-background border-border rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

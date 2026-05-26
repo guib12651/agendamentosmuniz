@@ -354,7 +354,7 @@ export default function Quotas() {
 
       {/* Quota Modal */}
       <Dialog open={isQuotaModalOpen} onOpenChange={setIsQuotaModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-white rounded-3xl border-none shadow-2xl overflow-hidden p-0">
+        <DialogContent className="sm:max-w-lg bg-card rounded-3xl border border-border shadow-2xl overflow-hidden p-0">
           <div className="bg-slate-900 p-6 text-white">
             <DialogTitle className="text-xl font-black">{editingQuota ? "Editar Cota" : "Nova Cota de Consórcio"}</DialogTitle>
             <p className="text-slate-400 text-sm font-medium">Preencha os dados operacionais da cota</p>
@@ -365,20 +365,20 @@ export default function Quotas() {
                 <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Telefone</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
                 <Select value={companyId} onValueChange={setCompanyId}>
-                  <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                  <SelectTrigger className="bg-background border-border rounded-xl">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -391,17 +391,17 @@ export default function Quotas() {
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>
-                <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-background border-border rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Cota</Label>
-                <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-background border-border rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                  <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
