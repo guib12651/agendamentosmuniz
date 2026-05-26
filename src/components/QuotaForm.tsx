@@ -24,7 +24,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
   
   const [clientName, setClientName] = useState(preFill?.leadName || "");
   const [phone, setPhone] = useState(preFill?.phone || "");
-  const [companyId, setCompanyId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
   const [quotaNumber, setQuotaNumber] = useState("");
   const [creditValue, setCreditValue] = useState(preFill?.downPayment?.replace(/\D/g, "") || ""); // Just a guess for prefill
