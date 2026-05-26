@@ -94,7 +94,7 @@ export default function Quotas() {
   // Form states
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
-  const [companyId, setCompanyId] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [groupNumber, setGroupNumber] = useState("");
   const [quotaNumber, setQuotaNumber] = useState("");
   const [creditValue, setCreditValue] = useState("");
