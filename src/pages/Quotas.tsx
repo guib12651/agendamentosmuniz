@@ -428,7 +428,7 @@ export default function Quotas() {
                 <Label className="text-xs font-black uppercase text-slate-500">Valor da Parcela</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                  <Input type="number" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0.00" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input type="number" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="col-span-2 space-y-2">
