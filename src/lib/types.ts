@@ -57,3 +57,44 @@ export interface TimeBlock {
   endTime: string;
   reason: string;
 }
+
+export type QuotaStatus = "active" | "contemplated" | "cancelled" | "pending";
+
+export interface Quota {
+  id: string;
+  companyId: string;
+  clientName: string;
+  phone?: string;
+  groupNumber: string;
+  quotaNumber: string;
+  creditValue: number;
+  installmentValue: number;
+  sellerId: string;
+  sellerName: string;
+  saleId?: string;
+  status: QuotaStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type BidType = "free" | "fixed" | "embedded";
+export type BidStatus = "pending" | "contemplated" | "not_contemplated";
+
+export interface Bid {
+  id: string;
+  companyId: string;
+  quotaId: string;
+  clientName: string;
+  bidType: BidType;
+  bidValue: number;
+  percentage: number;
+  assemblyDate: string;
+  status: BidStatus;
+  createdAt: string;
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  createdAt: string;
+}

@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      bids: {
+        Row: {
+          assembly_date: string | null
+          bid_type: string
+          bid_value: number | null
+          client_name: string
+          company_id: string | null
+          created_at: string | null
+          id: string
+          percentage: number | null
+          quota_id: string | null
+          status: string
+        }
+        Insert: {
+          assembly_date?: string | null
+          bid_type: string
+          bid_value?: number | null
+          client_name: string
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          percentage?: number | null
+          quota_id?: string | null
+          status?: string
+        }
+        Update: {
+          assembly_date?: string | null
+          bid_type?: string
+          bid_value?: number | null
+          client_name?: string
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          percentage?: number | null
+          quota_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bids_quota_id_fkey"
+            columns: ["quota_id"]
+            isOneToOne: false
+            referencedRelation: "quotas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calls: {
         Row: {
           call_time: string | null
@@ -38,6 +92,27 @@ export type Database = {
           lead_name?: string
           result?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      companies: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -404,6 +479,79 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quotas: {
+        Row: {
+          client_name: string
+          company_id: string | null
+          created_at: string | null
+          credit_value: number | null
+          group_number: string | null
+          id: string
+          installment_value: number | null
+          phone: string | null
+          quota_number: string | null
+          sale_id: string | null
+          seller_id: string | null
+          seller_name: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_name: string
+          company_id?: string | null
+          created_at?: string | null
+          credit_value?: number | null
+          group_number?: string | null
+          id?: string
+          installment_value?: number | null
+          phone?: string | null
+          quota_number?: string | null
+          sale_id?: string | null
+          seller_id?: string | null
+          seller_name?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_name?: string
+          company_id?: string | null
+          created_at?: string | null
+          credit_value?: number | null
+          group_number?: string | null
+          id?: string
+          installment_value?: number | null
+          phone?: string | null
+          quota_number?: string | null
+          sale_id?: string | null
+          seller_id?: string | null
+          seller_name?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotas_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotas_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quotas_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_funnel_days: {
         Row: {

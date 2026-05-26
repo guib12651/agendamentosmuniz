@@ -30,7 +30,9 @@ import {
   Archive,
   RefreshCcw,
   Trash2,
-  Pencil
+  Pencil,
+  FileText,
+  Gavel
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +82,8 @@ import { NotificationBell } from "@/components/NotificationBell";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
+import SaleToQuotaModal from "@/components/SaleToQuotaModal";
+import QuotaForm from "@/components/QuotaForm";
 
 const leadSources = [
   "Instagram",
@@ -157,6 +161,11 @@ export default function CentralOperacional() {
   const [callAmount, setCallAmount] = useState<string>("0");
   const [callDate, setCallDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [callObs, setCallObs] = useState<string>("");
+
+  // Sale to Quota states
+  const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
+  const [showQuotaForm, setShowQuotaForm] = useState(false);
+  const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
 
   const dateRange = useMemo(() => {
     if (period === "today") {
@@ -517,14 +526,47 @@ export default function CentralOperacional() {
       });
     }
 
-    // 2. Venda realizada (Date when the sale happened)
+    // 2. Fetch related Quotas and Bids
+    const { data: leadQuotas } = await supabase.from("quotas").select("*").eq("sale_id", lead.id);
+    if (leadQuotas && leadQuotas.length > 0) {
+      for (const q of leadQuotas) {
+        history.push({
+          date: q.created_at,
+          event: "Cota criada",
+          icon: FileText,
+          isMain: true
+        });
+
+        const { data: leadBids } = await supabase.from("bids").select("*").eq("quota_id", q.id);
+        if (leadBids) {
+          leadBids.forEach(b => {
+            history.push({
+              date: b.created_at,
+              event: `Lance registrado (${b.bid_type === 'free' ? 'Livre' : b.bid_type === 'fixed' ? 'Fixo' : 'Embutido'})`,
+              icon: Gavel
+            });
+            if (b.status === 'contemplated') {
+              history.push({
+                date: b.created_at,
+                event: "Lance contemplado! 🏆",
+                icon: TrendingUp,
+                isMain: true,
+                isGoal: true
+              });
+            }
+          });
+        }
+      }
+    }
+
+    // 3. Venda realizada (Date when the sale happened)
     if (lead.saleDate) {
       history.push({ 
         date: lead.saleDate, 
         event: "Venda realizada", 
         icon: ShoppingCart,
         isMain: true,
-        isGoal: true
+        isGoal: !leadQuotas?.length // Only main goal if no contemplation yet
       });
     }
 
@@ -579,6 +621,31 @@ export default function CentralOperacional() {
     return Math.round((val2 / val1) * 100);
   };
 
+  const handleUpdateLeadStatus = async (id: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from("meetings")
+        .update({ status })
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      toast.success("Status atualizado!");
+      loadData();
+      
+      if (status === "venda_concluida") {
+        const lead = meetings.find(m => m.id === id);
+        if (lead) {
+          setLastSoldMeeting(lead);
+          setShowSaleToQuotaModal(true);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar status");
+    }
+  };
+
   return (
     <div className="min-h-screen pb-12">
       <header className="border-b border-border sticky top-0 z-40 bg-background/95 backdrop-blur">
@@ -604,12 +671,18 @@ export default function CentralOperacional() {
                 </DropdownMenuItem>
                 {isAdmin && (
                   <>
-                    <DropdownMenuItem onClick={() => navigate("/usuarios")}>
-                      <UsersIcon className="w-4 h-4 mr-2" /> Usuários
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
-                      <TrendingUp className="w-4 h-4 mr-2" /> Fechamentos
-                    </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/usuarios")}>
+                  <UsersIcon className="w-4 h-4 mr-2" /> Usuários
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
+                  <TrendingUp className="w-4 h-4 mr-2" /> Fechamentos
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/quotas")}>
+                  <FileText className="w-4 h-4 mr-2" /> Cotas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/lances")}>
+                  <Gavel className="w-4 h-4 mr-2" /> Lances
+                </DropdownMenuItem>
                   </>
                 )}
                 <DropdownMenuSeparator />
@@ -996,6 +1069,17 @@ export default function CentralOperacional() {
                     <p className="text-xs text-muted-foreground italic leading-relaxed">{selectedLead.notes}</p>
                   </div>
                 )}
+                {isAdmin && (
+                  <div className="pt-2 border-t border-border space-y-2">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Alterar Status</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-rose-500 border-rose-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-destructive" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>Falta</Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </ScrollArea>
@@ -1379,6 +1463,28 @@ export default function CentralOperacional() {
           </ScrollArea>
         </SheetContent>
       </Sheet>
+
+      <SaleToQuotaModal 
+        isOpen={showSaleToQuotaModal} 
+        onClose={() => setShowSaleToQuotaModal(false)}
+        onCreateQuota={() => {
+          setShowSaleToQuotaModal(false);
+          setShowQuotaForm(true);
+        }}
+        clientName={lastSoldMeeting?.leadName || ""}
+      />
+
+      <QuotaForm 
+        isOpen={showQuotaForm}
+        onClose={() => setShowQuotaForm(false)}
+        onSuccess={() => {
+          setShowQuotaForm(false);
+          toast.success("Cota vinculada com sucesso!");
+        }}
+        preFill={lastSoldMeeting || undefined}
+        userId={profile?.id}
+        userName={profile?.displayName}
+      />
     </div>
   );
 }
@@ -1428,6 +1534,7 @@ function ConversionStep({ label, value }: { label: string, value: number }) {
     <div className="flex flex-col items-center gap-1">
       <span className="text-2xl font-black text-primary drop-shadow-sm">{value}</span>
       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
+
     </div>
   );
 }

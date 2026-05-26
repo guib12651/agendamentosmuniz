@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -29,6 +29,8 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
+import SaleToQuotaModal from "@/components/SaleToQuotaModal";
+import QuotaForm from "@/components/QuotaForm";
 
 
 
@@ -51,6 +53,9 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
+  const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
+  const [showQuotaForm, setShowQuotaForm] = useState(false);
+  const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
   
 
 
@@ -228,6 +233,14 @@ export default function Index() {
     await updateMeetingStatus(id, status);
     await reload();
     toast.success("Status atualizado!");
+    
+    if (status === "venda_concluida") {
+      const meeting = meetings.find(m => m.id === id);
+      if (meeting) {
+        setLastSoldMeeting(meeting);
+        setShowSaleToQuotaModal(true);
+      }
+    }
   };
 
   type TimelineItem =
@@ -290,6 +303,14 @@ export default function Index() {
                 <DropdownMenuItem onClick={() => navigate("/central-operacional")}>
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
                   Central Operacional
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/quotas")}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Cotas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/lances")}>
+                  <Gavel className="w-4 h-4 mr-2" />
+                  Lances
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
@@ -573,7 +594,27 @@ export default function Index() {
         <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
       )}
 
-      <hr className="border-transparent" />
+      <SaleToQuotaModal 
+        isOpen={showSaleToQuotaModal} 
+        onClose={() => setShowSaleToQuotaModal(false)}
+        onCreateQuota={() => {
+          setShowSaleToQuotaModal(false);
+          setShowQuotaForm(true);
+        }}
+        clientName={lastSoldMeeting?.leadName || ""}
+      />
+
+      <QuotaForm 
+        isOpen={showQuotaForm}
+        onClose={() => setShowQuotaForm(false)}
+        onSuccess={() => {
+          setShowQuotaForm(false);
+          toast.success("Cota vinculada com sucesso!");
+        }}
+        preFill={lastSoldMeeting || undefined}
+        userId={profile?.id}
+        userName={profile?.displayName}
+      />
     </div>
   );
 }
