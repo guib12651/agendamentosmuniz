@@ -434,7 +434,7 @@ export default function Quotas() {
               <div className="col-span-2 space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Status da Cota</Label>
                 <Select value={status} onValueChange={v => setStatus(v as QuotaStatus)}>
-                  <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                  <SelectTrigger className="bg-background border-border rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
