@@ -423,7 +423,7 @@ export default function Bids() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Tipo de Lance</Label>
                 <Select value={bidType} onValueChange={v => setBidType(v as BidType)}>

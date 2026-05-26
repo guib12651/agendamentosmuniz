@@ -387,7 +387,7 @@ export default function Quotas() {
             <p className="text-slate-400 text-sm font-medium">Preencha os dados operacionais da cota</p>
           </div>
           <div className="p-6 space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="col-span-2 space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
                 <div className="relative">
@@ -532,7 +532,7 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, onShowTimeline, onUpdate
           </DropdownMenu>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 p-5 rounded-3xl bg-background border border-border shadow-inner">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-3xl bg-background border border-border shadow-inner">
           <div>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Crédito</p>
             <p className="text-base font-black text-primary tracking-tight">{formatCurrency(quota.creditValue)}</p>
