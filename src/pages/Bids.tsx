@@ -477,6 +477,12 @@ export default function Bids() {
           </div>
         </DialogContent>
       </Dialog>
+      <TimelineSheet 
+        isOpen={isTimelineOpen} 
+        onClose={() => setIsTimelineOpen(false)} 
+        leadId={selectedTimelineLeadId} 
+        phone={selectedTimelinePhone}
+      />
     </div>
   );
 }
