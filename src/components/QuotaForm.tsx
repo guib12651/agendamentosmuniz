@@ -90,7 +90,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
           <p className="text-slate-400 text-sm font-medium">Complete os dados operacionais da cota</p>
         </div>
         <div className="p-6 space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2 space-y-2">
               <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
               <div className="relative">

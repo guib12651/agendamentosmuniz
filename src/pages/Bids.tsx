@@ -262,7 +262,7 @@ export default function Bids() {
           <div className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl shadow-sm border border-border/50" />
             <div>
-              <h1 className="text-lg font-black text-foreground tracking-tight">Central de Lances</h1>
+              <h1 className="text-lg font-black text-foreground tracking-tight line-clamp-1">Central de Lances</h1>
               <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Acompanhamento de Assembleias</p>
             </div>
           </div>
@@ -335,7 +335,7 @@ export default function Bids() {
             return (
               <Card key={bid.id} className="border border-border/60 shadow-sm rounded-[2rem] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-card">
                 <CardContent className="p-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center">
+                  <div className="flex flex-col md:flex-row md:items-center">
                     <div className="p-5 flex-1 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -343,7 +343,7 @@ export default function Bids() {
                             <User className="w-5 h-5 text-muted-foreground" />
                           </div>
                           <div>
-                            <h3 className="font-black text-foreground tracking-tight">{bid.clientName}</h3>
+                            <h3 className="font-black text-foreground tracking-tight line-clamp-1">{bid.clientName}</h3>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                               {bid.companyName || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
                             </p>
@@ -378,7 +378,7 @@ export default function Bids() {
                         <BidDetail label="Assembleia" value={new Date(bid.assemblyDate).toLocaleDateString('pt-BR')} icon={Calendar} />
                       </div>
                     </div>
-                    <div className="bg-background/50 p-4 sm:p-5 flex sm:flex-col justify-end gap-2 border-t sm:border-t-0 sm:border-l border-border/50">
+                    <div className="bg-background/50 p-4 sm:p-5 flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-border/50">
                       <Button variant="ghost" size="icon" onClick={() => handleShowTimeline(bid)} className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl">
                         <History className="w-4 h-4" />
                       </Button>
@@ -423,7 +423,7 @@ export default function Bids() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black uppercase text-slate-500">Tipo de Lance</Label>
                 <Select value={bidType} onValueChange={v => setBidType(v as BidType)}>
@@ -495,12 +495,12 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
       className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-card"
       onClick={onClick}
     >
-      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
+      <CardContent className="p-3 sm:p-5 flex flex-col items-center text-center">
         <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm", color)}>
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-lg sm:text-2xl font-black text-foreground tracking-tight line-clamp-1">{value}</p>
           <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
