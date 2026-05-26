@@ -1479,6 +1479,27 @@ function ConversionStep({ label, value }: { label: string, value: number }) {
     <div className="flex flex-col items-center gap-1">
       <span className="text-2xl font-black text-primary drop-shadow-sm">{value}</span>
       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
+      <SaleToQuotaModal 
+        isOpen={showSaleToQuotaModal} 
+        onClose={() => setShowSaleToQuotaModal(false)}
+        onCreateQuota={() => {
+          setShowSaleToQuotaModal(false);
+          setShowQuotaForm(true);
+        }}
+        clientName={lastSoldMeeting?.leadName || ""}
+      />
+
+      <QuotaForm 
+        isOpen={showQuotaForm}
+        onClose={() => setShowQuotaForm(false)}
+        onSuccess={() => {
+          setShowQuotaForm(false);
+          toast.success("Cota vinculada com sucesso!");
+        }}
+        preFill={lastSoldMeeting || undefined}
+        userId={profile?.id}
+        userName={profile?.displayName}
+      />
     </div>
   );
 }
