@@ -47,7 +47,7 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
   }, [preFill]);
 
   const handleSubmit = async () => {
-    if (!clientName || !companyId || !groupNumber || !quotaNumber) {
+    if (!clientName || !companyName || !groupNumber || !quotaNumber) {
       toast.error("Preencha os campos obrigatórios");
       return;
     }
