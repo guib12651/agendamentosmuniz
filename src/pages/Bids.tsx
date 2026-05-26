@@ -207,6 +207,13 @@ export default function Bids() {
     }
   };
 
+  const handleShowTimeline = (bid: Bid) => {
+    const quota = quotas.find(q => q.id === bid.quotaId);
+    setSelectedTimelineLeadId(quota?.saleId);
+    setSelectedTimelinePhone(quota?.phone);
+    setIsTimelineOpen(true);
+  };
+
   const handleUpdateStatus = async (id: string, newStatus: BidStatus) => {
     try {
       const { error } = await supabase.from("bids").update({ status: newStatus }).eq("id", id);
