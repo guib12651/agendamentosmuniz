@@ -19,7 +19,9 @@ import {
   Clock,
   XCircle,
   Percent,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
+  Users as UsersIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -204,13 +206,13 @@ export default function Bids() {
   }, [bids, searchTerm]);
 
   return (
-    <div className="min-h-screen pb-12 bg-slate-50">
-      <header className="border-b border-slate-200 sticky top-0 z-40 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen pb-12 bg-[#F8FAFC]">
+      <header className="border-b border-border sticky top-0 z-40 bg-white/80 backdrop-blur-md">
         <div className="container flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl" />
+            <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl shadow-sm border border-border/50" />
             <div>
-              <h1 className="text-lg font-black text-slate-900">Central de Lances</h1>
+              <h1 className="text-lg font-black text-slate-900 tracking-tight">Central de Lances</h1>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acompanhamento de Assembleias</p>
             </div>
           </div>
@@ -218,19 +220,30 @@ export default function Bids() {
             <NotificationBell userId={profile?.id} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100 transition-colors">
                   <Menu className="w-5 h-5 text-slate-600" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl">
-                <DropdownMenuItem onClick={() => navigate("/")} className="gap-2">
+              <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl border-border/50 shadow-xl">
+                <DropdownMenuItem onClick={() => navigate("/")} className="rounded-lg gap-2">
                   <LayoutDashboard className="w-4 h-4" /> Dashboard
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/quotas")} className="gap-2">
-                  <FileText className="w-4 h-4" /> Cotas
+                <DropdownMenuItem onClick={() => navigate("/quotas")} className="rounded-lg gap-2">
+                  <FileText className="w-4 h-4" /> Cotas de Consórcio
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/central-operacional")} className="rounded-lg gap-2">
+                  <TrendingUp className="w-4 h-4" /> Central Operacional
+                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/usuarios")} className="rounded-lg gap-2">
+                      <UsersIcon className="w-4 h-4" /> Usuários
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={signOut} className="gap-2 text-rose-500">
+                <DropdownMenuItem onClick={signOut} className="rounded-lg gap-2 text-rose-500 focus:text-rose-500">
                   <LogOut className="w-4 h-4" /> Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -239,19 +252,26 @@ export default function Bids() {
         </div>
       </header>
 
-      <main className="container px-4 sm:px-6 py-6 space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+      <main className="container max-w-[1600px] mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard title="Total Lances" value={bids.length} icon={Gavel} color="bg-slate-500" />
+          <StatCard title="Contemplados" value={bids.filter(b => b.status === "contemplated").length} icon={CheckCircle2} color="bg-emerald-500" />
+          <StatCard title="Pendentes" value={bids.filter(b => b.status === "pending").length} icon={Clock} color="bg-amber-500" />
+          <StatCard title="Não Contemplados" value={bids.filter(b => b.status === "not_contemplated").length} icon={XCircle} color="bg-rose-500" />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm backdrop-blur-sm">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input 
               placeholder="Buscar por cliente..." 
-              className="pl-10 bg-white border-slate-200 rounded-xl"
+              className="pl-11 h-12 bg-slate-50/50 border-slate-200 rounded-2xl focus:ring-primary/20 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={() => setIsBidModalOpen(true)} className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl gap-2 font-bold w-full sm:w-auto">
-            <Plus className="w-4 h-4" /> Novo Lance
+          <Button onClick={() => setIsBidModalOpen(true)} className="h-12 bg-primary hover:bg-primary/90 text-white rounded-2xl px-6 gap-2 font-black shadow-lg shadow-primary/25 transition-all active:scale-95">
+            <Plus className="w-5 h-5" /> Novo Lance
           </Button>
         </div>
 
@@ -264,7 +284,7 @@ export default function Bids() {
             const StatusIcon = status.icon;
 
             return (
-              <Card key={bid.id} className="border-none shadow-sm rounded-2xl overflow-hidden group hover:shadow-md transition-all">
+              <Card key={bid.id} className="border border-slate-200/60 shadow-sm rounded-[2rem] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-white">
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row sm:items-center">
                     <div className="p-5 flex-1 space-y-3">
@@ -388,6 +408,27 @@ export default function Bids() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+function StatCard({ title, value, icon: Icon, color, onClick }: any) {
+  return (
+    <Card 
+      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-white"
+      onClick={onClick}
+    >
+      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
+        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm", color)}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+        </div>
+        <div className="space-y-0.5">
+          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+            {title}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
