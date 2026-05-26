@@ -491,7 +491,7 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
   );
 }
 
-function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyName }: any) {
+function QuotaCard({ quota, onEdit, onDelete, onAddBid, onShowTimeline, onUpdateStatus, formatCurrency, companyName }: any) {
   const config = statusConfig[quota.status as QuotaStatus] || statusConfig.pending;
   const StatusIcon = config.icon;
 
@@ -499,12 +499,12 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
     <div className="group bg-card rounded-[2.5rem] border border-border/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-start">
-          <div>
+          <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="text-lg font-black text-foreground tracking-tight leading-tight">{quota.clientName}</h3>
-              <ArrowUpRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowUpRight className="w-4 h-4 text-primary/40 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold uppercase tracking-wider">
+            <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground font-bold uppercase tracking-wider">
               <span className="bg-background px-1.5 py-0.5 rounded text-[10px]">{companyName}</span>
               <span>•</span>
               <span>G: {quota.groupNumber}</span>
@@ -512,42 +512,64 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
               <span>C: {quota.quotaNumber}</span>
             </div>
           </div>
-          <div className={cn("px-3 py-1.5 rounded-xl border text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm", config.color)}>
-            <StatusIcon className="w-3 h-3" />
-            {config.label}
-          </div>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className={cn("px-3 py-1.5 h-auto rounded-xl border text-[10px] font-black uppercase flex items-center gap-1.5 shadow-sm transition-all hover:scale-105", config.color)}>
+                <StatusIcon className="w-3 h-3" />
+                {config.label}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl border-border bg-card">
+              <DropdownMenuItem onClick={() => onUpdateStatus(quota.id, "pending")} className="gap-2">
+                <Clock className="w-4 h-4 text-amber-500" /> Pendente
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUpdateStatus(quota.id, "active")} className="gap-2">
+                <CheckCircle2 className="w-4 h-4 text-blue-500" /> Ativa
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUpdateStatus(quota.id, "contemplated")} className="gap-2">
+                <TrendingUp className="w-4 h-4 text-emerald-500" /> Contemplada
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onUpdateStatus(quota.id, "cancelled")} className="gap-2">
+                <XCircle className="w-4 h-4 text-rose-500" /> Cancelada
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-background border border-border shadow-inner">
+        <div className="grid grid-cols-2 gap-4 p-5 rounded-3xl bg-background border border-border shadow-inner">
           <div>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Crédito</p>
-            <p className="text-sm font-black text-primary tracking-tight">{formatCurrency(quota.creditValue)}</p>
+            <p className="text-base font-black text-primary tracking-tight">{formatCurrency(quota.creditValue)}</p>
           </div>
           <div>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Parcela</p>
-            <p className="text-sm font-black text-foreground tracking-tight">{formatCurrency(quota.installmentValue)}</p>
+            <p className="text-base font-black text-foreground tracking-tight">{formatCurrency(quota.installmentValue)}</p>
           </div>
         </div>
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex flex-col">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsável</span>
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Responsável</span>
             <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
                 <User className="w-3 h-3 text-muted-foreground" />
               </div>
               <span className="text-xs font-bold text-foreground">{quota.sellerName}</span>
             </div>
           </div>
-          <div className="flex gap-1">
-            <Button size="icon" variant="ghost" onClick={onAddBid} className="h-9 w-9 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 rounded-xl" title="Adicionar Lance">
-              <Gavel className="w-4 h-4" />
+          <div className="flex gap-2">
+            <Button size="icon" variant="ghost" onClick={onShowTimeline} className="h-10 w-10 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl" title="Timeline">
+              <History className="w-5 h-5" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={onEdit} className="h-9 w-9 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl" title="Editar">
-              <Pencil className="w-4 h-4" />
+            <Button size="icon" variant="ghost" onClick={onAddBid} className="h-10 w-10 text-muted-foreground hover:text-emerald-500 hover:bg-emerald-50/10 rounded-xl" title="Adicionar Lance">
+              <Gavel className="w-5 h-5" />
             </Button>
-            <Button size="icon" variant="ghost" onClick={onDelete} className="h-9 w-9 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl" title="Excluir">
-              <Trash2 className="w-4 h-4" />
+            <Button size="icon" variant="ghost" onClick={onEdit} className="h-10 w-10 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl" title="Editar">
+              <Pencil className="w-5 h-5" />
+            </Button>
+            <Button size="icon" variant="ghost" onClick={onDelete} className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl" title="Excluir">
+              <Trash2 className="w-5 h-5" />
             </Button>
           </div>
         </div>
