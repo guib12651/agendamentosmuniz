@@ -266,7 +266,7 @@ export default function Bids() {
       quota.clientName.toLowerCase().includes(q) || 
       quota.quotaNumber.includes(q) || 
       quota.groupNumber.includes(q)
-    ).slice(0, 5);
+    ).slice(0, 10);
   }, [quotas, quotaSearch]);
 
   const selectedQuotaDisplay = useMemo(() => {
