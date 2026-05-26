@@ -202,6 +202,30 @@ export default function Bids() {
     }
   };
 
+  const handleUpdateStatus = async (id: string, newStatus: BidStatus) => {
+    try {
+      const { error } = await supabase.from("bids").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+      
+      // Automation: If bid is contemplated, update quota status
+      if (newStatus === "contemplated") {
+        const bid = bids.find(b => b.id === id);
+        if (bid) {
+          await supabase
+            .from("quotas")
+            .update({ status: "contemplated" })
+            .eq("id", bid.quotaId);
+        }
+      }
+      
+      toast.success("Status do lance atualizado!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar status do lance");
+    }
+  };
+
   const resetForm = () => {
     setQuotaId("");
     setBidType("free");
@@ -209,6 +233,7 @@ export default function Bids() {
     setPercentage("");
     setAssemblyDate("");
     setStatus("pending");
+    setObservations("");
   };
 
   const filteredBids = useMemo(() => {
