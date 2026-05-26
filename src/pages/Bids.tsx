@@ -206,22 +206,22 @@ export default function Bids() {
   }, [bids, searchTerm]);
 
   return (
-    <div className="min-h-screen pb-12 bg-[#F8FAFC]">
-      <header className="border-b border-border sticky top-0 z-40 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen pb-12">
+      <header className="border-b border-border sticky top-0 z-40 bg-background/80 backdrop-blur-md">
         <div className="container flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl shadow-sm border border-border/50" />
             <div>
-              <h1 className="text-lg font-black text-slate-900 tracking-tight">Central de Lances</h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Acompanhamento de Assembleias</p>
+              <h1 className="text-lg font-black text-foreground tracking-tight">Central de Lances</h1>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Acompanhamento de Assembleias</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={profile?.id} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100 transition-colors">
-                  <Menu className="w-5 h-5 text-slate-600" />
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-card transition-colors">
+                  <Menu className="w-5 h-5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl border-border/50 shadow-xl">
@@ -260,17 +260,17 @@ export default function Bids() {
           <StatCard title="Não Contemplados" value={bids.filter(b => b.status === "not_contemplated").length} icon={XCircle} color="bg-rose-500" />
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-6 rounded-3xl border border-border/60 shadow-sm backdrop-blur-sm">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Buscar por cliente..." 
-              className="pl-11 h-12 bg-slate-50/50 border-slate-200 rounded-2xl focus:ring-primary/20 transition-all"
+              className="pl-11 h-12 bg-background border-border rounded-2xl focus:ring-primary/20 transition-all text-foreground"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button onClick={() => setIsBidModalOpen(true)} className="h-12 bg-primary hover:bg-primary/90 text-white rounded-2xl px-6 gap-2 font-black shadow-lg shadow-primary/25 transition-all active:scale-95">
+          <Button onClick={() => setIsBidModalOpen(true)} className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl px-6 gap-2 font-black shadow-lg shadow-primary/25 transition-all active:scale-95">
             <Plus className="w-5 h-5" /> Novo Lance
           </Button>
         </div>
@@ -284,18 +284,18 @@ export default function Bids() {
             const StatusIcon = status.icon;
 
             return (
-              <Card key={bid.id} className="border border-slate-200/60 shadow-sm rounded-[2rem] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-white">
+              <Card key={bid.id} className="border border-border/60 shadow-sm rounded-[2rem] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-card">
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row sm:items-center">
                     <div className="p-5 flex-1 space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center">
-                            <User className="w-5 h-5 text-slate-400" />
+                          <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center">
+                            <User className="w-5 h-5 text-muted-foreground" />
                           </div>
                           <div>
-                            <h3 className="font-black text-slate-900 tracking-tight">{bid.clientName}</h3>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <h3 className="font-black text-foreground tracking-tight">{bid.clientName}</h3>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                               {company?.name || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
                             </p>
                           </div>
@@ -313,11 +313,11 @@ export default function Bids() {
                         <BidDetail label="Assembleia" value={new Date(bid.assemblyDate).toLocaleDateString('pt-BR')} icon={Calendar} />
                       </div>
                     </div>
-                    <div className="bg-slate-50 p-4 sm:p-5 flex sm:flex-col justify-end gap-2 border-t sm:border-t-0 sm:border-l border-slate-100">
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteBid(bid.id)} className="text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl">
+                    <div className="bg-background/50 p-4 sm:p-5 flex sm:flex-col justify-end gap-2 border-t sm:border-t-0 sm:border-l border-border/50">
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteBid(bid.id)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl">
                         <Trash2 className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => navigate(`/quotas?id=${bid.quotaId}`)} className="text-slate-400 hover:text-primary hover:bg-primary/5 rounded-xl">
+                      <Button variant="ghost" size="icon" onClick={() => navigate(`/quotas?id=${bid.quotaId}`)} className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl">
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     </div>
@@ -327,9 +327,9 @@ export default function Bids() {
             );
           })}
           {filteredBids.length === 0 && !loading && (
-            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
-              <Gavel className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-              <p className="text-slate-400 font-medium tracking-tight">Nenhum lance registrado</p>
+            <div className="text-center py-20 bg-card rounded-3xl border border-dashed border-border">
+              <Gavel className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-muted-foreground font-medium tracking-tight">Nenhum lance registrado</p>
             </div>
           )}
         </div>
@@ -439,7 +439,7 @@ function BidDetail({ label, value, icon: Icon, valueClass }: any) {
         {Icon && <Icon className="w-3 h-3" />}
         {label}
       </p>
-      <p className={cn("text-xs font-bold tracking-tight", valueClass || "text-slate-900")}>{value}</p>
+      <p className={cn("text-xs font-bold tracking-tight", valueClass || "text-foreground")}>{value}</p>
     </div>
   );
 }
