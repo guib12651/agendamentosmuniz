@@ -89,70 +89,72 @@ export default function QuotaForm({ isOpen, onClose, onSuccess, preFill, userId,
           <DialogTitle className="text-xl font-black">Transformar em Cota</DialogTitle>
           <p className="text-slate-400 text-sm font-medium">Complete os dados operacionais da cota</p>
         </div>
-        <div className="p-6 space-y-5">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="col-span-2 space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-background border-border rounded-xl" />
+        <div className="p-0 overflow-y-auto max-h-[70vh]">
+          <div className="p-6 space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="col-span-1 sm:col-span-2 space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Telefone</Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
+                <div className="relative">
+                  <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Ex: Porto Seguro" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>
+                <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-background border-border rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Cota</Label>
+                <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-background border-border rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
+                  <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Valor da Parcela</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
+                  <Input type="number" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
+                </div>
+              </div>
+              <div className="col-span-1 sm:col-span-2 space-y-2">
+                <Label className="text-xs font-black uppercase text-slate-500">Status</Label>
+                <Select value={status} onValueChange={v => setStatus(v as QuotaStatus)}>
+                  <SelectTrigger className="bg-background border-border rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pendente</SelectItem>
+                    <SelectItem value="active">Ativa</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Telefone</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-background border-border rounded-xl" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
-              <div className="relative">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input value={companyName} onChange={e => setCompanyName(e.target.value)} placeholder="Ex: Porto Seguro" className="pl-10 bg-background border-border rounded-xl" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>
-              <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-background border-border rounded-xl" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Cota</Label>
-              <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-background border-border rounded-xl" />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Valor da Parcela</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                <Input type="number" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
-              </div>
-            </div>
-            <div className="col-span-2 space-y-2">
-              <Label className="text-xs font-black uppercase text-slate-500">Status</Label>
-              <Select value={status} onValueChange={v => setStatus(v as QuotaStatus)}>
-                <SelectTrigger className="bg-background border-border rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pendente</SelectItem>
-                  <SelectItem value="active">Ativa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <DialogFooter className="pt-4 pb-2">
+              <Button variant="ghost" onClick={onClose} className="rounded-xl font-bold">Depois</Button>
+              <Button onClick={handleSubmit} disabled={loading} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
+                {loading ? "Criando..." : "Criar Cota"}
+              </Button>
+            </DialogFooter>
           </div>
-          <DialogFooter className="pt-4">
-            <Button variant="ghost" onClick={onClose} className="rounded-xl font-bold">Depois</Button>
-            <Button onClick={handleSubmit} disabled={loading} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
-              {loading ? "Criando..." : "Criar Cota"}
-            </Button>
-          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

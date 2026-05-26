@@ -428,108 +428,110 @@ export default function Bids() {
             <DialogTitle className="text-xl font-black">Registrar Novo Lance</DialogTitle>
             <p className="text-slate-400 text-sm">Informe os detalhes para a próxima assembleia</p>
           </div>
-          <div className="p-6 space-y-4">
-            <div className="space-y-2 relative">
-              <Label className="text-[10px] font-black uppercase text-slate-500">Procurar Cliente / Cota</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input 
-                  value={quotaId ? selectedQuotaDisplay : quotaSearch} 
-                  onChange={e => {
-                    setQuotaSearch(e.target.value);
-                    setQuotaId("");
-                    setShowQuotaSuggestions(true);
-                  }}
-                  onFocus={() => !quotaId && setShowQuotaSuggestions(true)}
-                  placeholder="Digite o nome do cliente ou número da cota..." 
-                  className="pl-10 bg-background border-border rounded-xl"
-                  readOnly={!!quotaId}
-                />
-                {quotaId && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => { setQuotaId(""); setQuotaSearch(""); }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-slate-100"
-                  >
-                    <XCircle className="w-4 h-4 text-slate-400" />
-                  </Button>
+          <div className="p-0 overflow-y-auto max-h-[70vh]">
+            <div className="p-6 space-y-4">
+              <div className="space-y-2 relative">
+                <Label className="text-[10px] font-black uppercase text-slate-500">Procurar Cliente / Cota</Label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input 
+                    value={quotaId ? selectedQuotaDisplay : quotaSearch} 
+                    onChange={e => {
+                      setQuotaSearch(e.target.value);
+                      setQuotaId("");
+                      setShowQuotaSuggestions(true);
+                    }}
+                    onFocus={() => !quotaId && setShowQuotaSuggestions(true)}
+                    placeholder="Digite o nome do cliente ou número da cota..." 
+                    className="pl-10 bg-background border-border rounded-xl"
+                    readOnly={!!quotaId}
+                  />
+                  {quotaId && (
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => { setQuotaId(""); setQuotaSearch(""); }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-slate-100"
+                    >
+                      <XCircle className="w-4 h-4 text-slate-400" />
+                    </Button>
+                  )}
+                </div>
+                
+                {showQuotaSuggestions && filteredQuotas.length > 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+                    {filteredQuotas.map(q => (
+                      <button
+                        key={q.id}
+                        onClick={() => {
+                          setQuotaId(q.id);
+                          setShowQuotaSuggestions(false);
+                        }}
+                        className="w-full text-left p-3 hover:bg-muted transition-colors flex flex-col gap-0.5"
+                      >
+                        <span className="text-sm font-bold text-foreground">{q.clientName}</span>
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                          G: {q.groupNumber} • C: {q.quotaNumber} • {q.companyName}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
-              
-              {showQuotaSuggestions && filteredQuotas.length > 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
-                  {filteredQuotas.map(q => (
-                    <button
-                      key={q.id}
-                      onClick={() => {
-                        setQuotaId(q.id);
-                        setShowQuotaSuggestions(false);
-                      }}
-                      className="w-full text-left p-3 hover:bg-muted transition-colors flex flex-col gap-0.5"
-                    >
-                      <span className="text-sm font-bold text-foreground">{q.clientName}</span>
-                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
-                        G: {q.groupNumber} • C: {q.quotaNumber} • {q.companyName}
-                      </span>
-                    </button>
-                  ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500">Tipo de Lance</Label>
+                  <Select value={bidType} onValueChange={v => setBidType(v as BidType)}>
+                    <SelectTrigger className="bg-background border-border rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="free">Livre</SelectItem>
+                      <SelectItem value="fixed">Fixo</SelectItem>
+                      <SelectItem value="embedded">Embutido</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500">Valor do Lance</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
+                    <Input type="number" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500">Percentual (%)</Label>
+                  <Input type="number" value={percentage} onChange={e => setPercentage(e.target.value)} placeholder="0.00" className="bg-background border-border rounded-xl text-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black uppercase text-slate-500">Data da Assembleia</Label>
+                  <Input type="date" value={assemblyDate} onChange={e => setAssemblyDate(e.target.value)} className="bg-background border-border rounded-xl text-foreground" />
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-500">Tipo de Lance</Label>
-                <Select value={bidType} onValueChange={v => setBidType(v as BidType)}>
+                <Label className="text-[10px] font-black uppercase text-slate-500">Status</Label>
+                <Select value={status} onValueChange={v => setStatus(v as BidStatus)}>
                   <SelectTrigger className="bg-background border-border rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="free">Livre</SelectItem>
-                    <SelectItem value="fixed">Fixo</SelectItem>
-                    <SelectItem value="embedded">Embutido</SelectItem>
+                    <SelectItem value="pending">Pendente (🟡)</SelectItem>
+                    <SelectItem value="contemplated">Contemplado (🟢)</SelectItem>
+                    <SelectItem value="not_contemplated">Não Contemplado (🔴)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-500">Valor do Lance</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                  <Input type="number" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
-                </div>
+                <Label className="text-[10px] font-black uppercase text-slate-500">Observações</Label>
+                <Input value={observations} onChange={e => setObservations(e.target.value)} placeholder="Ex: Informações sobre a assembleia..." className="bg-background border-border rounded-xl text-foreground" />
               </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-500">Percentual (%)</Label>
-                <Input type="number" value={percentage} onChange={e => setPercentage(e.target.value)} placeholder="0.00" className="bg-background border-border rounded-xl text-foreground" />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase text-slate-500">Data da Assembleia</Label>
-                <Input type="date" value={assemblyDate} onChange={e => setAssemblyDate(e.target.value)} className="bg-background border-border rounded-xl text-foreground" />
-              </div>
+              <DialogFooter className="pt-4 pb-2">
+                <Button variant="ghost" onClick={() => setIsBidModalOpen(false)} className="font-bold">Cancelar</Button>
+                <Button onClick={handleSaveBid} disabled={submitting} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
+                  {submitting ? "Registrando..." : "Registrar Lance"}
+                </Button>
+              </DialogFooter>
             </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-slate-500">Status</Label>
-              <Select value={status} onValueChange={v => setStatus(v as BidStatus)}>
-                <SelectTrigger className="bg-background border-border rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="pending">Pendente (🟡)</SelectItem>
-                  <SelectItem value="contemplated">Contemplado (🟢)</SelectItem>
-                  <SelectItem value="not_contemplated">Não Contemplado (🔴)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-slate-500">Observações</Label>
-              <Input value={observations} onChange={e => setObservations(e.target.value)} placeholder="Ex: Informações sobre a assembleia..." className="bg-background border-border rounded-xl text-foreground" />
-            </div>
-            <DialogFooter className="pt-4">
-              <Button variant="ghost" onClick={() => setIsBidModalOpen(false)} className="font-bold">Cancelar</Button>
-              <Button onClick={handleSaveBid} disabled={submitting} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
-                {submitting ? "Registrando..." : "Registrar Lance"}
-              </Button>
-            </DialogFooter>
           </div>
         </DialogContent>
       </Dialog>
