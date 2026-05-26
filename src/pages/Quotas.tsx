@@ -275,7 +275,7 @@ export default function Quotas() {
         </div>
       </header>
 
-      <main className="container px-4 sm:px-6 py-8 space-y-8">
+      <main className="container max-w-[1600px] mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Top Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard title="Total de Cotas" value={stats.total} icon={FileText} color="bg-slate-500" />

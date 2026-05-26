@@ -252,7 +252,7 @@ export default function Bids() {
         </div>
       </header>
 
-      <main className="container px-4 sm:px-6 py-8 space-y-8">
+      <main className="container max-w-[1600px] mx-auto px-4 sm:px-6 py-8 space-y-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard title="Total Lances" value={bids.length} icon={Gavel} color="bg-slate-500" />
           <StatCard title="Contemplados" value={bids.filter(b => b.status === "contemplated").length} icon={CheckCircle2} color="bg-emerald-500" />
