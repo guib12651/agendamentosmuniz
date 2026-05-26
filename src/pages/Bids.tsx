@@ -77,6 +77,7 @@ export default function Bids() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
   
   // Modal states
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
@@ -269,8 +270,12 @@ export default function Bids() {
   };
 
   const filteredBids = useMemo(() => {
-    return bids.filter(b => (b.clientName ?? "").toLowerCase().includes(searchTerm.toLowerCase()));
-  }, [bids, searchTerm]);
+    return bids.filter(b => {
+      const matchesSearch = (b.clientName ?? "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesDate = !dateFilter || b.assemblyDate === dateFilter;
+      return matchesSearch && matchesDate;
+    });
+  }, [bids, searchTerm, dateFilter]);
 
   const filteredQuotas = useMemo(() => {
     if (!quotaSearch.trim()) return [];
@@ -343,16 +348,37 @@ export default function Bids() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-6 rounded-3xl border border-border/60 shadow-sm backdrop-blur-sm">
-          <div className="relative w-full sm:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input 
-              placeholder="Buscar por cliente..." 
-              className="pl-11 h-12 bg-background border-border rounded-2xl focus:ring-primary/20 transition-all text-foreground"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Buscar por cliente..." 
+                className="pl-11 h-12 bg-background border-border rounded-2xl focus:ring-primary/20 transition-all text-foreground"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="relative w-full sm:w-56">
+              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <Input 
+                type="date"
+                className="pl-11 h-12 bg-background border-border rounded-2xl focus:ring-primary/20 transition-all text-foreground"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              />
+              {dateFilter && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setDateFilter("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-slate-100"
+                >
+                  <XCircle className="w-3.5 h-3.5 text-slate-400" />
+                </Button>
+              )}
+            </div>
           </div>
-          <Button onClick={() => setIsBidModalOpen(true)} className="h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl px-6 gap-2 font-black shadow-lg shadow-primary/25 transition-all active:scale-95">
+          <Button onClick={() => setIsBidModalOpen(true)} className="h-12 w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl px-6 gap-2 font-black shadow-lg shadow-primary/25 transition-all active:scale-95">
             <Plus className="w-5 h-5" /> Novo Lance
           </Button>
         </div>
