@@ -172,7 +172,7 @@ export default function TimelineSheet({ isOpen, onClose, leadId, clientName, pho
                     event: `Lance registrado (${b.bid_type})`,
                     icon: Gavel,
                     color: "bg-amber-500",
-                    observations: `Assembleia: ${format(new Date(b.assembly_date), "dd/MM")}`
+                    observations: `Assembleia: ${b.assembly_date.split('-').reverse().slice(0, 2).join('/')}`
                   });
 
                   if (b.status === "contemplated") {
@@ -241,7 +241,10 @@ export default function TimelineSheet({ isOpen, onClose, leadId, clientName, pho
                         {item.event}
                       </h4>
                       <time className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest bg-muted px-2 py-0.5 rounded-full">
-                        {format(new Date(item.date), "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                        {item.date.includes('T') || item.date.includes(' ') 
+                          ? format(new Date(item.date), "dd/MM/yyyy HH:mm", { locale: ptBR })
+                          : item.date.split('-').reverse().join('/')
+                        }
                       </time>
                     </div>
                     {item.observations && (

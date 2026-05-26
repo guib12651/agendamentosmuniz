@@ -1011,13 +1011,16 @@ export default function CentralOperacional() {
                           item.isGoal ? "text-yellow-600 dark:text-yellow-400" : "text-foreground"
                         )}>{item.event}</p>
                         <p className="text-[11px] text-muted-foreground font-medium uppercase">
-                          {new Date(item.date).toLocaleString('pt-BR', { 
-                            day: '2-digit', 
-                            month: '2-digit', 
-                            year: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {item.date.includes('T') || item.date.includes(' ') 
+                            ? new Date(item.date).toLocaleString('pt-BR', { 
+                                day: '2-digit', 
+                                month: '2-digit', 
+                                year: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })
+                            : item.date.split('-').reverse().join('/')
+                          }
                         </p>
                       </div>
                     </div>
