@@ -422,14 +422,14 @@ export default function Quotas() {
                   <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
+                    <Input type="number" step="0.01" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-black uppercase text-slate-500">Valor da Parcela</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
+                    <Input type="number" step="0.01" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
                   </div>
                 </div>
                 <div className="col-span-1 sm:col-span-2 space-y-2">
