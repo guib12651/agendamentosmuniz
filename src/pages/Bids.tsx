@@ -414,7 +414,7 @@ export default function Bids() {
 function StatCard({ title, value, icon: Icon, color, onClick }: any) {
   return (
     <Card 
-      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-white"
+      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-card"
       onClick={onClick}
     >
       <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
