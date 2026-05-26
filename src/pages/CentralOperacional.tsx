@@ -217,7 +217,7 @@ export default function CentralOperacional() {
       // Fetch daily calls registration
       const { data: dailyCallsData, error: dailyCallsError } = await supabase
         .from("daily_calls")
-        .select("id, amount, date, observations, user_id, profiles!daily_calls_user_id_fkey(display_name)")
+        .select("id, amount, date, observations, user_id, profiles!daily_calls_profiles_fkey(display_name)")
         .gte("date", dateRange.start)
         .lte("date", dateRange.end);
       
