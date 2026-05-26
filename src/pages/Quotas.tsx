@@ -26,7 +26,8 @@ import {
   XCircle,
   Archive,
   ArrowUpRight,
-  History
+  History,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
