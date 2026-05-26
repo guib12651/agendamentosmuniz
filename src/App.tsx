@@ -51,6 +51,8 @@ const App = () => (
             <Route path="/central-operacional" element={<ProtectedRoute><CentralOperacional /></ProtectedRoute>} />
             <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute><GerenciarUsuarios /></ProtectedRoute>} />
+            <Route path="/quotas" element={<ProtectedRoute><Quotas /></ProtectedRoute>} />
+            <Route path="/lances" element={<ProtectedRoute><Bids /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
