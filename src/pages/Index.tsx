@@ -29,6 +29,8 @@ import logo from "@/assets/logo_muniz.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import GoalsBanner from "@/components/goals/GoalsBanner";
+import SaleToQuotaModal from "@/components/SaleToQuotaModal";
+import QuotaForm from "@/components/QuotaForm";
 
 
 
