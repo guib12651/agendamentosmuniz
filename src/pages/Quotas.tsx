@@ -107,10 +107,11 @@ export default function Quotas() {
       if (quotasError) throw quotasError;
       if (companiesError) throw companiesError;
 
-      setQuotas(quotasData.map(q => ({
-        ...q,
+      setQuotas((quotasData || []).map(q => ({
+        id: q.id,
         companyId: q.company_id,
         clientName: q.client_name,
+        phone: q.phone,
         groupNumber: q.group_number,
         quotaNumber: q.quota_number,
         creditValue: Number(q.credit_value),
@@ -118,10 +119,15 @@ export default function Quotas() {
         sellerId: q.seller_id,
         sellerName: q.seller_name,
         saleId: q.sale_id,
+        status: q.status as QuotaStatus,
         createdAt: q.created_at,
         updatedAt: q.updated_at
       })));
-      setCompanies(companiesData);
+      setCompanies((companiesData || []).map(c => ({
+        id: c.id,
+        name: c.name,
+        createdAt: c.created_at
+      })));
     } catch (error) {
       console.error(error);
       toast.error("Erro ao carregar dados");
