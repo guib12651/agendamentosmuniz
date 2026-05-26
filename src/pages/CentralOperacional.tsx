@@ -505,17 +505,20 @@ export default function CentralOperacional() {
   }, [meetings, selectedStage, searchTerm, showArchived]);
 
   const fetchLeadHistory = async (lead: Meeting) => {
-    // In a real app, this would be a dedicated history table
-    // For now, we simulate based on meeting status transitions if tracked, 
-    // or just show the current event flow.
     const history = [];
     
-    // 1. Captured
-    history.push({ date: lead.createdAt || lead.date, event: "Lead captado", icon: Target });
+    // 1. Captured Date (Entry into system)
+    const entryDate = lead.createdAt || lead.date;
+    history.push({ 
+      date: entryDate, 
+      event: "Lead entrou no sistema", 
+      icon: Target,
+      isMain: true 
+    });
     
     // 2. Distributed (simulation)
     if (lead.preSeller) {
-      history.push({ date: lead.createdAt || lead.date, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
+      history.push({ date: entryDate, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
     }
 
     // 3. Calls
@@ -524,8 +527,13 @@ export default function CentralOperacional() {
       history.push({ date: c.callTime, event: `Ligação realizada: ${c.result}`, icon: Phone });
     });
 
-    // 4. Meeting Scheduled
-    history.push({ date: `${lead.date}T${lead.time}`, event: "Reunião agendada", icon: Calendar });
+    // 4. Meeting Scheduled (Appointment)
+    history.push({ 
+      date: `${lead.date}T${lead.time}`, 
+      event: "Agendamento realizado", 
+      icon: Calendar,
+      isMain: true
+    });
 
     // 5. Outcome
     if (lead.status === 'compareceu' || lead.status === 'visita_realizada') {
@@ -538,8 +546,15 @@ export default function CentralOperacional() {
       history.push({ date: lead.date, event: "Negociação iniciada", icon: Handshake });
     }
 
-    if (lead.status === 'venda_concluida') {
-      history.push({ date: lead.saleDate || lead.date, event: "Venda concluída", icon: ShoppingCart });
+    // 6. Sale (Final Goal)
+    if (lead.status === 'venda_concluida' || lead.saleDate) {
+      history.push({ 
+        date: lead.saleDate || lead.date, 
+        event: "Venda realizada", 
+        icon: ShoppingCart,
+        isMain: true,
+        isGoal: true
+      });
     }
 
     setLeadHistory(history.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
@@ -947,12 +962,22 @@ export default function CentralOperacional() {
                 <div className="absolute left-6 top-2 bottom-0 w-px bg-border" />
                 <div className="space-y-8 relative">
                   {leadHistory.map((item, idx) => (
-                    <div key={idx} className="flex gap-4 group">
-                      <div className="relative z-10 w-12 h-12 rounded-lg bg-card border border-border flex items-center justify-center shadow-sm group-hover:border-primary transition-colors">
-                        <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                    <div key={idx} className={cn(
+                      "flex gap-4 group",
+                      item.isMain && "scale-[1.02] origin-left"
+                    )}>
+                      <div className={cn(
+                        "relative z-10 w-12 h-12 rounded-lg border flex items-center justify-center shadow-sm transition-all",
+                        item.isGoal ? "bg-yellow-500 border-yellow-400 text-white shadow-yellow-500/20" : 
+                        item.isMain ? "bg-primary border-primary text-white" : "bg-card border-border text-muted-foreground group-hover:border-primary"
+                      )}>
+                        <item.icon className={cn("w-5 h-5", !item.isMain && !item.isGoal && "group-hover:text-primary")} />
                       </div>
                       <div className="flex-1 pt-1">
-                        <p className="text-sm font-bold text-foreground">{item.event}</p>
+                        <p className={cn(
+                          "text-sm font-bold",
+                          item.isGoal ? "text-yellow-600 dark:text-yellow-400" : "text-foreground"
+                        )}>{item.event}</p>
                         <p className="text-[11px] text-muted-foreground font-medium uppercase">
                           {new Date(item.date).toLocaleString('pt-BR', { 
                             day: '2-digit', 
@@ -965,6 +990,14 @@ export default function CentralOperacional() {
                       </div>
                     </div>
                   ))}
+                  {leadHistory.length > 1 && leadHistory.some(h => h.isGoal) && (
+                    <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 shadow-inner">
+                      <p className="text-xs font-black text-yellow-700 dark:text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
+                        <TrendingUp className="w-4 h-4" />
+                        Jornada: {Math.ceil((new Date(leadHistory[leadHistory.length-1].date).getTime() - new Date(leadHistory[0].date).getTime()) / (1000 * 60 * 60 * 24))} dias da entrada à venda
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
