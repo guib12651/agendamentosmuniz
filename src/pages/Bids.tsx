@@ -87,6 +87,8 @@ export default function Bids() {
 
   // Form states
   const [quotaId, setQuotaId] = useState(searchParams.get("quota") || "");
+  const [quotaSearch, setQuotaSearch] = useState("");
+  const [showQuotaSuggestions, setShowQuotaSuggestions] = useState(false);
   const [bidType, setBidType] = useState<BidType>("free");
   const [bidValue, setBidValue] = useState("");
   const [percentage, setPercentage] = useState("");
@@ -243,6 +245,8 @@ export default function Bids() {
 
   const resetForm = () => {
     setQuotaId("");
+    setQuotaSearch("");
+    setShowQuotaSuggestions(false);
     setBidType("free");
     setBidValue("");
     setPercentage("");
@@ -254,6 +258,21 @@ export default function Bids() {
   const filteredBids = useMemo(() => {
     return bids.filter(b => b.clientName.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [bids, searchTerm]);
+
+  const filteredQuotas = useMemo(() => {
+    if (!quotaSearch.trim()) return [];
+    const q = quotaSearch.toLowerCase();
+    return quotas.filter(quota => 
+      quota.clientName.toLowerCase().includes(q) || 
+      quota.quotaNumber.includes(q) || 
+      quota.groupNumber.includes(q)
+    ).slice(0, 5);
+  }, [quotas, quotaSearch]);
+
+  const selectedQuotaDisplay = useMemo(() => {
+    const q = quotas.find(q => q.id === quotaId);
+    return q ? `${q.clientName} (G: ${q.groupNumber} C: ${q.quotaNumber})` : "";
+  }, [quotas, quotaId]);
 
   return (
     <div className="min-h-screen pb-12">
@@ -410,18 +429,53 @@ export default function Bids() {
             <p className="text-slate-400 text-sm">Informe os detalhes para a próxima assembleia</p>
           </div>
           <div className="p-6 space-y-4">
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase text-slate-500">Selecionar Cota</Label>
-              <Select value={quotaId} onValueChange={setQuotaId}>
-                <SelectTrigger className="bg-background border-border rounded-xl">
-                  <SelectValue placeholder="Escolha o cliente/cota" />
-                </SelectTrigger>
-                <SelectContent>
-                  {quotas.map(q => (
-                    <SelectItem key={q.id} value={q.id}>{q.clientName} (G: {q.groupNumber} C: {q.quotaNumber})</SelectItem>
+            <div className="space-y-2 relative">
+              <Label className="text-[10px] font-black uppercase text-slate-500">Procurar Cliente / Cota</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input 
+                  value={quotaId ? selectedQuotaDisplay : quotaSearch} 
+                  onChange={e => {
+                    setQuotaSearch(e.target.value);
+                    setQuotaId("");
+                    setShowQuotaSuggestions(true);
+                  }}
+                  onFocus={() => !quotaId && setShowQuotaSuggestions(true)}
+                  placeholder="Digite o nome do cliente ou número da cota..." 
+                  className="pl-10 bg-background border-border rounded-xl"
+                  readOnly={!!quotaId}
+                />
+                {quotaId && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => { setQuotaId(""); setQuotaSearch(""); }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full hover:bg-slate-100"
+                  >
+                    <XCircle className="w-4 h-4 text-slate-400" />
+                  </Button>
+                )}
+              </div>
+              
+              {showQuotaSuggestions && filteredQuotas.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+                  {filteredQuotas.map(q => (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        setQuotaId(q.id);
+                        setShowQuotaSuggestions(false);
+                      }}
+                      className="w-full text-left p-3 hover:bg-muted transition-colors flex flex-col gap-0.5"
+                    >
+                      <span className="text-sm font-bold text-foreground">{q.clientName}</span>
+                      <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                        G: {q.groupNumber} • C: {q.quotaNumber} • {q.companyName}
+                      </span>
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
