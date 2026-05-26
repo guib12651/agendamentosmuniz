@@ -123,7 +123,7 @@ export default function CentralOperacional() {
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLead, setSelectedLead] = useState<Meeting | null>(null);
-  const [leadHistory, setLeadHistory] = useState<any[]>([]);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
   // Archive Modal State
