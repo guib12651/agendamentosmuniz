@@ -115,6 +115,7 @@ export default function Quotas() {
       setQuotas((quotasData || []).map(q => ({
         id: q.id,
         companyId: q.company_id,
+        companyName: q.company_name,
         clientName: q.client_name,
         phone: q.phone,
         groupNumber: q.group_number,
