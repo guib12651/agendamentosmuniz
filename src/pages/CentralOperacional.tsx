@@ -455,7 +455,9 @@ export default function CentralOperacional() {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
     const distributed = funnelData?.distribution.reduce((acc, d) => acc + (d.leadsReceived || 0), 0) || 0;
     const activeMeetings = meetings.filter(m => !m.archived);
-    const callsMade = calls.length;
+    const individualCallsCount = calls.length;
+    const dailyCallsCount = dailyCallsList.reduce((acc, c) => acc + c.amount, 0);
+    const callsMade = individualCallsCount + dailyCallsCount;
     const appointments = activeMeetings.length;
     const attended = activeMeetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
