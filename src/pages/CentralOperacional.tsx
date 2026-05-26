@@ -962,12 +962,22 @@ export default function CentralOperacional() {
                 <div className="absolute left-6 top-2 bottom-0 w-px bg-border" />
                 <div className="space-y-8 relative">
                   {leadHistory.map((item, idx) => (
-                    <div key={idx} className="flex gap-4 group">
-                      <div className="relative z-10 w-12 h-12 rounded-lg bg-card border border-border flex items-center justify-center shadow-sm group-hover:border-primary transition-colors">
-                        <item.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                    <div key={idx} className={cn(
+                      "flex gap-4 group",
+                      item.isMain && "scale-[1.02] origin-left"
+                    )}>
+                      <div className={cn(
+                        "relative z-10 w-12 h-12 rounded-lg border flex items-center justify-center shadow-sm transition-all",
+                        item.isGoal ? "bg-yellow-500 border-yellow-400 text-white shadow-yellow-500/20" : 
+                        item.isMain ? "bg-primary border-primary text-white" : "bg-card border-border text-muted-foreground group-hover:border-primary"
+                      )}>
+                        <item.icon className={cn("w-5 h-5", !item.isMain && !item.isGoal && "group-hover:text-primary")} />
                       </div>
                       <div className="flex-1 pt-1">
-                        <p className="text-sm font-bold text-foreground">{item.event}</p>
+                        <p className={cn(
+                          "text-sm font-bold",
+                          item.isGoal ? "text-yellow-600 dark:text-yellow-400" : "text-foreground"
+                        )}>{item.event}</p>
                         <p className="text-[11px] text-muted-foreground font-medium uppercase">
                           {new Date(item.date).toLocaleString('pt-BR', { 
                             day: '2-digit', 
@@ -980,6 +990,14 @@ export default function CentralOperacional() {
                       </div>
                     </div>
                   ))}
+                  {leadHistory.length > 1 && leadHistory.some(h => h.isGoal) && (
+                    <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 shadow-inner">
+                      <p className="text-xs font-black text-yellow-700 dark:text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
+                        <TrendingUp className="w-4 h-4" />
+                        Jornada: {Math.ceil((new Date(leadHistory[leadHistory.length-1].date).getTime() - new Date(leadHistory[0].date).getTime()) / (1000 * 60 * 60 * 24))} dias da entrada à venda
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
