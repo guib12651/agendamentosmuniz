@@ -328,7 +328,6 @@ export default function Bids() {
         <div className="space-y-4">
           {filteredBids.map(bid => {
             const quota = quotas.find(q => q.id === bid.quotaId);
-            const company = companies.find(c => c.id === bid.companyId);
             const status = bidStatusConfig[bid.status];
             const type = bidTypeConfig[bid.bidType];
             const StatusIcon = status.icon;
