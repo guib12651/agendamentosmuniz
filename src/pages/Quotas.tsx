@@ -25,7 +25,8 @@ import {
   Clock,
   XCircle,
   Archive,
-  ArrowUpRight
+  ArrowUpRight,
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +65,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
+import TimelineSheet from "@/components/TimelineSheet";
 
 const statusConfig: Record<QuotaStatus, { label: string; color: string; icon: any }> = {
   active: { label: "Ativa", color: "bg-blue-500/10 text-blue-500 border-blue-500/20", icon: CheckCircle2 },
