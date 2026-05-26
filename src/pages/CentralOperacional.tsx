@@ -30,7 +30,9 @@ import {
   Archive,
   RefreshCcw,
   Trash2,
-  Pencil
+  Pencil,
+  FileText,
+  Gavel
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
