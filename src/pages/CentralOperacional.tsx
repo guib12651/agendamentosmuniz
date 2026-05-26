@@ -162,6 +162,11 @@ export default function CentralOperacional() {
   const [callDate, setCallDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [callObs, setCallObs] = useState<string>("");
 
+  // Sale to Quota states
+  const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
+  const [showQuotaForm, setShowQuotaForm] = useState(false);
+  const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
+
   const dateRange = useMemo(() => {
     if (period === "today") {
       const today = new Date().toISOString().split("T")[0];
