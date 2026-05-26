@@ -961,11 +961,19 @@ export default function CentralOperacional() {
                       </div>
                     </div>
                   ))}
-                  {leadHistory.length > 1 && leadHistory.some(h => h.isGoal) && (
+                  {leadHistory.length > 1 && leadHistory.some(h => h.event === "Venda realizada") && (
                     <div className="mt-6 p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20 shadow-inner">
                       <p className="text-xs font-black text-yellow-700 dark:text-yellow-400 flex items-center gap-2 uppercase tracking-wider">
                         <TrendingUp className="w-4 h-4" />
-                        Jornada: {Math.ceil((new Date(leadHistory.find(h => h.event === "Venda realizada")?.date).getTime() - new Date(leadHistory.find(h => h.event === "Agendamento realizado")?.date).getTime()) / (1000 * 60 * 60 * 24))} dias do agendamento à venda
+                        {(() => {
+                          const sale = leadHistory.find(h => h.event === "Venda realizada")?.date;
+                          const appt = leadHistory.find(h => h.event === "Agendamento realizado")?.date;
+                          if (sale && appt) {
+                            const days = Math.ceil((new Date(sale).getTime() - new Date(appt).getTime()) / (1000 * 60 * 60 * 24));
+                            return `Jornada: ${days} ${days === 1 ? 'dia' : 'dias'} do agendamento à venda`;
+                          }
+                          return "Jornada em andamento";
+                        })()}
                       </p>
                     </div>
                   )}
