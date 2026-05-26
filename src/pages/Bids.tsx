@@ -21,7 +21,8 @@ import {
   Percent,
   ChevronRight,
   TrendingUp,
-  Users as UsersIcon
+  Users as UsersIcon,
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
+import TimelineSheet from "@/components/TimelineSheet";
 
 const bidTypeConfig: Record<BidType, { label: string; color: string }> = {
   free: { label: "Livre", color: "bg-blue-500/10 text-blue-600" },
