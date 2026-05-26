@@ -40,6 +40,16 @@ export interface Call {
   createdAt?: string;
 }
 
+export interface DailyCall {
+  id: string;
+  userId: string;
+  userDisplayName?: string;
+  amount: number;
+  date: string;
+  observations?: string;
+  createdAt?: string;
+}
+
 export interface TimeBlock {
   id: string;
   date: string;

@@ -41,6 +41,41 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_calls: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          observations: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          observations?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_calls_profiles_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads_distribution: {
         Row: {
           amount: number

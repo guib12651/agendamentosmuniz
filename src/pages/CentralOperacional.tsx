@@ -149,6 +149,15 @@ export default function CentralOperacional() {
   const [capturedLeadsList, setCapturedLeadsList] = useState<any[]>([]);
   const [editingCapturedLead, setEditingCapturedLead] = useState<any | null>(null);
 
+  // Daily Calls state
+  const [isRegisterCallsOpen, setIsRegisterCallsOpen] = useState(false);
+  const [isCallsListOpen, setIsCallsListOpen] = useState(false);
+  const [dailyCallsList, setDailyCallsList] = useState<any[]>([]);
+  const [editingDailyCall, setEditingDailyCall] = useState<any | null>(null);
+  const [callAmount, setCallAmount] = useState<string>("0");
+  const [callDate, setCallDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [callObs, setCallObs] = useState<string>("");
+
   const dateRange = useMemo(() => {
     if (period === "today") {
       const today = new Date().toISOString().split("T")[0];
@@ -205,6 +214,16 @@ export default function CentralOperacional() {
       const totalCaptured = (leadsData as any[]).reduce((acc, l) => acc + l.amount, 0);
       setCapturedLeadsList(leadsData);
 
+      // Fetch daily calls registration
+      const { data: dailyCallsData, error: dailyCallsError } = await supabase
+        .from("daily_calls")
+        .select("id, amount, date, observations, user_id, profiles!daily_calls_profiles_fkey(display_name)")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+      
+      if (dailyCallsError) throw dailyCallsError;
+      setDailyCallsList(dailyCallsData);
+
       // Fetch distributions
       const { data: distData, error: distError } = await supabase
         .from("leads_distribution")
@@ -257,6 +276,7 @@ export default function CentralOperacional() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, loadData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, loadData)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
@@ -378,11 +398,66 @@ export default function CentralOperacional() {
     }
   };
 
+  const handleRegisterDailyCalls = async () => {
+    if (!callAmount || parseInt(callAmount) <= 0) {
+      toast.error("Preencha a quantidade de ligações");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (editingDailyCall) {
+        const { error } = await supabase.from("daily_calls").update({
+          amount: parseInt(callAmount),
+          date: callDate,
+          observations: callObs,
+        }).eq("id", editingDailyCall.id);
+        if (error) throw error;
+        toast.success("Registro atualizado!");
+      } else {
+        const { error } = await supabase.from("daily_calls").insert({
+          amount: parseInt(callAmount),
+          date: callDate,
+          observations: callObs,
+          user_id: profile?.id
+        });
+        if (error) throw error;
+        toast.success("Ligações registradas!");
+      }
+
+      setIsRegisterCallsOpen(false);
+      setEditingDailyCall(null);
+      setCallAmount("0");
+      setCallObs("");
+      setCallDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao salvar registro");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteDailyCall = async (id: string) => {
+    try {
+      const { error } = await supabase.from("daily_calls").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Registro excluído!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao excluir registro");
+    }
+  };
+
   const stats = useMemo(() => {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
     const distributed = funnelData?.distribution.reduce((acc, d) => acc + (d.leadsReceived || 0), 0) || 0;
     const activeMeetings = meetings.filter(m => !m.archived);
-    const callsMade = calls.length;
+    const individualCallsCount = calls.length;
+    const dailyCallsCount = dailyCallsList.reduce((acc, c) => acc + c.amount, 0);
+    const callsMade = individualCallsCount + dailyCallsCount;
     const appointments = activeMeetings.length;
     const attended = activeMeetings.filter(m => m.status === 'compareceu' || m.status === 'visita_realizada').length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
@@ -602,6 +677,15 @@ export default function CentralOperacional() {
                 </Button>
               </div>
             )}
+
+            <div className="grid grid-cols-1 sm:flex sm:items-center gap-3 w-full xl:w-auto">
+              <Button 
+                onClick={() => setIsRegisterCallsOpen(true)}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold h-11 sm:h-9 rounded-xl shadow-lg shadow-amber-900/20 transition-all active:scale-95 w-full sm:w-auto"
+              >
+                <Phone className="w-4 h-4 mr-2" /> Registrar Ligações
+              </Button>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -647,7 +731,7 @@ export default function CentralOperacional() {
             icon={Phone} 
             color="bg-amber-400" 
             active={selectedStage === 'ligacoes'}
-            onClick={() => setSelectedStage(selectedStage === 'ligacoes' ? null : 'ligacoes')}
+            onClick={() => setIsCallsListOpen(true)}
           />
           <StatCard 
             title="Agendamentos" 
@@ -1146,6 +1230,133 @@ export default function CentralOperacional() {
                       {capturedLeadsList.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={6} className="text-center py-12 text-muted-foreground">Nenhum registro encontrado.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </div>
+          </ScrollArea>
+        </SheetContent>
+      </Sheet>
+
+      {/* 8. REGISTER DAILY CALLS DIALOG */}
+      <Dialog open={isRegisterCallsOpen} onOpenChange={setIsRegisterCallsOpen}>
+        <DialogContent className="sm:max-w-[500px] bg-card border-border">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">
+              {editingDailyCall ? "Editar Registro de Ligações" : "Registrar Ligações Diárias"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="call-amount" className="font-bold text-sm">Quantidade de Ligações</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="call-amount"
+                  type="number"
+                  placeholder="0"
+                  className="pl-10 bg-muted border-border font-black text-lg h-12"
+                  value={callAmount}
+                  onChange={(e) => setCallAmount(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="call-date" className="font-bold text-sm">Data</Label>
+              <Input
+                id="call-date"
+                type="date"
+                value={callDate}
+                onChange={(e) => setCallDate(e.target.value)}
+                className="bg-muted border-border"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="call-obs" className="font-bold text-sm">Observações (Opcional)</Label>
+              <Textarea
+                id="call-obs"
+                value={callObs}
+                onChange={(e) => setCallObs(e.target.value)}
+                placeholder="Notas sobre o desempenho do dia..."
+                className="bg-muted border-border resize-none"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={handleRegisterDailyCalls} 
+              disabled={submitting}
+              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold h-11"
+            >
+              {submitting ? "Salvando..." : editingDailyCall ? "Atualizar Registro" : "Confirmar Registro"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* 9. DAILY CALLS LIST SHEET */}
+      <Sheet open={isCallsListOpen} onOpenChange={setIsCallsListOpen}>
+        <SheetContent side="bottom" className="h-[85vh] sm:h-[70vh] bg-card border-border rounded-t-3xl p-0 overflow-hidden">
+          <div className="p-4 sm:p-6 border-b border-border bg-muted/20">
+            <h3 className="text-lg sm:text-xl font-black text-foreground">Detalhamento de Ligações Registradas</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">{dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}</p>
+          </div>
+          <ScrollArea className="h-full">
+            <div className="p-4 sm:p-6 pb-24 sm:pb-12">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="min-w-[600px] px-4 sm:px-0">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="font-bold text-center w-[80px]">Qtde</TableHead>
+                        <TableHead className="font-bold">Data</TableHead>
+                        <TableHead className="font-bold">Responsável</TableHead>
+                        <TableHead className="font-bold">Observações</TableHead>
+                        <TableHead className="font-bold text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {dailyCallsList.map((item, idx) => (
+                        <TableRow key={idx} className="border-border hover:bg-muted/30">
+                          <TableCell className="font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
+                          <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
+                          <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground italic max-w-[200px] truncate">{item.observations || "-"}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                onClick={() => {
+                                  setEditingDailyCall(item);
+                                  setCallAmount(item.amount.toString());
+                                  setCallDate(item.date);
+                                  setCallObs(item.observations || "");
+                                  setIsRegisterCallsOpen(true);
+                                }}
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => handleDeleteDailyCall(item.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {dailyCallsList.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">Nenhum registro de ligações encontrado.</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
