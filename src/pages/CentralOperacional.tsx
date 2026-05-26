@@ -84,6 +84,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import SaleToQuotaModal from "@/components/SaleToQuotaModal";
 import QuotaForm from "@/components/QuotaForm";
+import TimelineSheet from "@/components/TimelineSheet";
 
 const leadSources = [
   "Instagram",
@@ -122,7 +123,7 @@ export default function CentralOperacional() {
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLead, setSelectedLead] = useState<Meeting | null>(null);
-  const [leadHistory, setLeadHistory] = useState<any[]>([]);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
 
   // Archive Modal State
@@ -513,69 +514,9 @@ export default function CentralOperacional() {
     return list.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
   }, [meetings, selectedStage, searchTerm, showArchived]);
 
-  const fetchLeadHistory = async (lead: Meeting) => {
-    const history = [];
-    
-    // 1. Agendamento realizado (Date when it was registered)
-    if (lead.createdAt) {
-      history.push({ 
-        date: lead.createdAt, 
-        event: "Agendamento realizado", 
-        icon: Calendar,
-        isMain: true
-      });
-    }
-
-    // 2. Fetch related Quotas and Bids
-    const { data: leadQuotas } = await supabase.from("quotas").select("*").eq("sale_id", lead.id);
-    if (leadQuotas && leadQuotas.length > 0) {
-      for (const q of leadQuotas) {
-        history.push({
-          date: q.created_at,
-          event: "Cota criada",
-          icon: FileText,
-          isMain: true
-        });
-
-        const { data: leadBids } = await supabase.from("bids").select("*").eq("quota_id", q.id);
-        if (leadBids) {
-          leadBids.forEach(b => {
-            history.push({
-              date: b.created_at,
-              event: `Lance registrado (${b.bid_type === 'free' ? 'Livre' : b.bid_type === 'fixed' ? 'Fixo' : 'Embutido'})`,
-              icon: Gavel
-            });
-            if (b.status === 'contemplated') {
-              history.push({
-                date: b.created_at,
-                event: "Lance contemplado! 🏆",
-                icon: TrendingUp,
-                isMain: true,
-                isGoal: true
-              });
-            }
-          });
-        }
-      }
-    }
-
-    // 3. Venda realizada (Date when the sale happened)
-    if (lead.saleDate) {
-      history.push({ 
-        date: lead.saleDate, 
-        event: "Venda realizada", 
-        icon: ShoppingCart,
-        isMain: true,
-        isGoal: !leadQuotas?.length // Only main goal if no contemplation yet
-      });
-    }
-
-    setLeadHistory(history.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
-  };
-
   const handleLeadClick = (lead: Meeting) => {
     setSelectedLead(lead);
-    fetchLeadHistory(lead);
+    setIsTimelineOpen(true);
   };
 
   const handleDeleteLead = async () => {

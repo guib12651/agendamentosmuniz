@@ -1,0 +1,1 @@
+ALTER TABLE public.bids ADD COLUMN IF NOT EXISTS observations TEXT;

@@ -21,7 +21,8 @@ import {
   Percent,
   ChevronRight,
   TrendingUp,
-  Users as UsersIcon
+  Users as UsersIcon,
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/NotificationBell";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
+import TimelineSheet from "@/components/TimelineSheet";
 
 const bidTypeConfig: Record<BidType, { label: string; color: string }> = {
   free: { label: "Livre", color: "bg-blue-500/10 text-blue-600" },
@@ -79,6 +81,9 @@ export default function Bids() {
   // Modal states
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+  const [selectedTimelineLeadId, setSelectedTimelineLeadId] = useState<string | undefined>(undefined);
+  const [selectedTimelinePhone, setSelectedTimelinePhone] = useState<string | undefined>(undefined);
 
   // Form states
   const [quotaId, setQuotaId] = useState(searchParams.get("quota") || "");
@@ -87,6 +92,7 @@ export default function Bids() {
   const [percentage, setPercentage] = useState("");
   const [assemblyDate, setAssemblyDate] = useState("");
   const [status, setStatus] = useState<BidStatus>("pending");
+  const [observations, setObservations] = useState("");
 
   const loadData = async () => {
     setLoading(true);
@@ -162,10 +168,19 @@ export default function Bids() {
         percentage: parseFloat(percentage) || 0,
         assembly_date: assemblyDate,
         status: status,
+        observations: observations,
       };
 
       const { error } = await supabase.from("bids").insert(bidData);
       if (error) throw error;
+
+      // Automation: If bid is contemplated, update quota status
+      if (status === "contemplated") {
+        await supabase
+          .from("quotas")
+          .update({ status: "contemplated" })
+          .eq("id", quotaId);
+      }
 
       toast.success("Lance registrado com sucesso!");
       setIsBidModalOpen(false);
@@ -192,6 +207,37 @@ export default function Bids() {
     }
   };
 
+  const handleShowTimeline = (bid: Bid) => {
+    const quota = quotas.find(q => q.id === bid.quotaId);
+    setSelectedTimelineLeadId(quota?.saleId);
+    setSelectedTimelinePhone(quota?.phone);
+    setIsTimelineOpen(true);
+  };
+
+  const handleUpdateStatus = async (id: string, newStatus: BidStatus) => {
+    try {
+      const { error } = await supabase.from("bids").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+      
+      // Automation: If bid is contemplated, update quota status
+      if (newStatus === "contemplated") {
+        const bid = bids.find(b => b.id === id);
+        if (bid) {
+          await supabase
+            .from("quotas")
+            .update({ status: "contemplated" })
+            .eq("id", bid.quotaId);
+        }
+      }
+      
+      toast.success("Status do lance atualizado!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar status do lance");
+    }
+  };
+
   const resetForm = () => {
     setQuotaId("");
     setBidType("free");
@@ -199,6 +245,7 @@ export default function Bids() {
     setPercentage("");
     setAssemblyDate("");
     setStatus("pending");
+    setObservations("");
   };
 
   const filteredBids = useMemo(() => {
@@ -300,10 +347,26 @@ export default function Bids() {
                             </p>
                           </div>
                         </div>
-                        <div className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1.5", status.color)}>
-                          <StatusIcon className="w-3 h-3" />
-                          {status.label}
-                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className={cn("px-3 py-1 h-auto rounded-full text-[10px] font-black uppercase flex items-center gap-1.5 transition-all hover:scale-105", status.color)}>
+                              <StatusIcon className="w-3 h-3" />
+                              {status.label}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-border bg-card">
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "pending")} className="gap-2">
+                              <Clock className="w-4 h-4 text-amber-500" /> Pendente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "contemplated")} className="gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Contemplado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "not_contemplated")} className="gap-2">
+                              <XCircle className="w-4 h-4 text-rose-500" /> Não Contemplado
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
@@ -314,6 +377,9 @@ export default function Bids() {
                       </div>
                     </div>
                     <div className="bg-background/50 p-4 sm:p-5 flex sm:flex-col justify-end gap-2 border-t sm:border-t-0 sm:border-l border-border/50">
+                      <Button variant="ghost" size="icon" onClick={() => handleShowTimeline(bid)} className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl">
+                        <History className="w-4 h-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDeleteBid(bid.id)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl">
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -398,6 +464,10 @@ export default function Bids() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase text-slate-500">Observações</Label>
+              <Input value={observations} onChange={e => setObservations(e.target.value)} placeholder="Ex: Informações sobre a assembleia..." className="bg-background border-border rounded-xl text-foreground" />
+            </div>
             <DialogFooter className="pt-4">
               <Button variant="ghost" onClick={() => setIsBidModalOpen(false)} className="font-bold">Cancelar</Button>
               <Button onClick={handleSaveBid} disabled={submitting} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
@@ -407,6 +477,12 @@ export default function Bids() {
           </div>
         </DialogContent>
       </Dialog>
+      <TimelineSheet 
+        isOpen={isTimelineOpen} 
+        onClose={() => setIsTimelineOpen(false)} 
+        leadId={selectedTimelineLeadId} 
+        phone={selectedTimelinePhone}
+      />
     </div>
   );
 }
