@@ -169,7 +169,7 @@ export default function Bids() {
         company_name: selectedQuota.companyName,
         client_name: selectedQuota.clientName,
         bid_type: bidType,
-        bid_value: parseFloat(bidValue),
+        bid_value: parseFloat(bidValue.replace(',', '.')) || 0,
         percentage: parseFloat(percentage) || 0,
         assembly_date: assemblyDate,
         status: status,
@@ -392,7 +392,7 @@ export default function Bids() {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
                         <BidDetail label="Tipo de Lance" value={type.label} valueClass={type.color} />
-                        <BidDetail label="Valor do Lance" value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(bid.bidValue)} />
+                        <BidDetail label="Valor do Lance" value={bid.bidValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
                         <BidDetail label="Percentual" value={`${bid.percentage}%`} icon={Percent} />
                         <BidDetail label="Assembleia" value={new Date(bid.assemblyDate).toLocaleDateString('pt-BR')} icon={Calendar} />
                       </div>
@@ -496,7 +496,7 @@ export default function Bids() {
                   <Label className="text-[10px] font-black uppercase text-slate-500">Valor do Lance</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" step="0.01" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
+                    <Input type="text" value={bidValue} onChange={e => setBidValue(e.target.value.replace(/[^0-9,]/g, ''))} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
                   </div>
                 </div>
                 <div className="space-y-2">
