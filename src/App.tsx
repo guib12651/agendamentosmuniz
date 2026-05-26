@@ -16,8 +16,8 @@ import Bids from "./pages/Bids.tsx";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { session, profile, loading, signOut } = useAuth();
+function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
+  const { session, profile, isAdmin, loading, signOut } = useAuth();
   
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!session) return <Navigate to="/login" replace />;
@@ -25,6 +25,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (profile?.is_blocked) {
     signOut();
     return <Navigate to="/login" replace />;
+  }
+
+  if (requireAdmin && !isAdmin) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
@@ -50,9 +54,9 @@ const App = () => (
             <Route path="/fechamentos" element={<ProtectedRoute><Fechamentos /></ProtectedRoute>} />
             <Route path="/central-operacional" element={<ProtectedRoute><CentralOperacional /></ProtectedRoute>} />
             <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
-            <Route path="/usuarios" element={<ProtectedRoute><GerenciarUsuarios /></ProtectedRoute>} />
-            <Route path="/quotas" element={<ProtectedRoute><Quotas /></ProtectedRoute>} />
-            <Route path="/lances" element={<ProtectedRoute><Bids /></ProtectedRoute>} />
+            <Route path="/usuarios" element={<ProtectedRoute requireAdmin><GerenciarUsuarios /></ProtectedRoute>} />
+            <Route path="/quotas" element={<ProtectedRoute requireAdmin><Quotas /></ProtectedRoute>} />
+            <Route path="/lances" element={<ProtectedRoute requireAdmin><Bids /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

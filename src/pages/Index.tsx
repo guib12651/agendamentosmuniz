@@ -234,7 +234,7 @@ export default function Index() {
     await reload();
     toast.success("Status atualizado!");
     
-    if (status === "venda_concluida") {
+    if (status === "venda_concluida" && isAdmin) {
       const meeting = meetings.find(m => m.id === id);
       if (meeting) {
         setLastSoldMeeting(meeting);
@@ -304,14 +304,18 @@ export default function Index() {
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
                   Central Operacional
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/quotas")}>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Cotas
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/lances")}>
-                  <Gavel className="w-4 h-4 mr-2" />
-                  Lances
-                </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={() => navigate("/quotas")}>
+                      <FileText className="w-4 h-4 mr-2" />
+                      Cotas
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/lances")}>
+                      <Gavel className="w-4 h-4 mr-2" />
+                      Lances
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
                   Por dia
