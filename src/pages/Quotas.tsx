@@ -178,8 +178,8 @@ export default function Quotas() {
         company_name: companyName,
         group_number: groupNumber,
         quota_number: quotaNumber,
-        credit_value: parseFloat(creditValue) || 0,
-        installment_value: parseFloat(installmentValue) || 0,
+        credit_value: parseFloat(creditValue.replace(',', '.')) || 0,
+        installment_value: parseFloat(installmentValue.replace(',', '.')) || 0,
         status,
         seller_id: profile?.id,
         seller_name: profile?.displayName,
@@ -422,14 +422,14 @@ export default function Quotas() {
                   <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" step="0.01" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
+                    <Input type="text" value={creditValue} onChange={e => setCreditValue(e.target.value.replace(/[^0-9,]/g, ''))} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs font-black uppercase text-slate-500">Valor da Parcela</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" step="0.01" value={installmentValue} onChange={e => setInstallmentValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
+                    <Input type="text" value={installmentValue} onChange={e => setInstallmentValue(e.target.value.replace(/[^0-9,]/g, ''))} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl" />
                   </div>
                 </div>
                 <div className="col-span-1 sm:col-span-2 space-y-2">
