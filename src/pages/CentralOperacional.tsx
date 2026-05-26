@@ -398,6 +398,59 @@ export default function CentralOperacional() {
     }
   };
 
+  const handleRegisterDailyCalls = async () => {
+    if (!callAmount || parseInt(callAmount) <= 0) {
+      toast.error("Preencha a quantidade de ligações");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      if (editingDailyCall) {
+        const { error } = await supabase.from("daily_calls").update({
+          amount: parseInt(callAmount),
+          date: callDate,
+          observations: callObs,
+        }).eq("id", editingDailyCall.id);
+        if (error) throw error;
+        toast.success("Registro atualizado!");
+      } else {
+        const { error } = await supabase.from("daily_calls").insert({
+          amount: parseInt(callAmount),
+          date: callDate,
+          observations: callObs,
+          user_id: profile?.id
+        });
+        if (error) throw error;
+        toast.success("Ligações registradas!");
+      }
+
+      setIsRegisterCallsOpen(false);
+      setEditingDailyCall(null);
+      setCallAmount("0");
+      setCallObs("");
+      setCallDate(new Date().toISOString().split("T")[0]);
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao salvar registro");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteDailyCall = async (id: string) => {
+    try {
+      const { error } = await supabase.from("daily_calls").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Registro excluído!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao excluir registro");
+    }
+  };
+
   const stats = useMemo(() => {
     const totalLeads = funnelData?.totalLeadsCaptured || 0;
     const distributed = funnelData?.distribution.reduce((acc, d) => acc + (d.leadsReceived || 0), 0) || 0;
