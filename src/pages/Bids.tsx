@@ -496,7 +496,7 @@ export default function Bids() {
                   <Label className="text-[10px] font-black uppercase text-slate-500">Valor do Lance</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                    <Input type="number" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
+                    <Input type="number" step="0.01" value={bidValue} onChange={e => setBidValue(e.target.value)} placeholder="0,00" className="pl-10 bg-background border-border rounded-xl text-foreground" />
                   </div>
                 </div>
                 <div className="space-y-2">
