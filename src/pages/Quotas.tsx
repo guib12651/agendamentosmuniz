@@ -87,6 +87,9 @@ export default function Quotas() {
   const [isQuotaModalOpen, setIsQuotaModalOpen] = useState(false);
   const [editingQuota, setEditingQuota] = useState<Quota | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isTimelineOpen, setIsTimelineOpen] = useState(false);
+  const [selectedTimelineLeadId, setSelectedTimelineLeadId] = useState<string | undefined>(undefined);
+  const [selectedTimelinePhone, setSelectedTimelinePhone] = useState<string | undefined>(undefined);
 
   // Form states
   const [clientName, setClientName] = useState("");
