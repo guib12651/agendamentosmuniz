@@ -233,6 +233,14 @@ export default function Index() {
     await updateMeetingStatus(id, status);
     await reload();
     toast.success("Status atualizado!");
+    
+    if (status === "venda_concluida") {
+      const meeting = meetings.find(m => m.id === id);
+      if (meeting) {
+        setLastSoldMeeting(meeting);
+        setShowSaleToQuotaModal(true);
+      }
+    }
   };
 
   type TimelineItem =
