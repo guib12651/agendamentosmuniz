@@ -229,22 +229,22 @@ export default function Quotas() {
   };
 
   return (
-    <div className="min-h-screen pb-12 bg-[#F8FAFC]">
-      <header className="border-b border-border sticky top-0 z-40 bg-white/80 backdrop-blur-md">
+    <div className="min-h-screen pb-12">
+      <header className="border-b border-border sticky top-0 z-40 bg-background/80 backdrop-blur-md">
         <div className="container flex items-center justify-between py-4 px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="w-10 h-10 rounded-xl shadow-sm border border-border/50" />
             <div>
-              <h1 className="text-lg font-black text-slate-900 tracking-tight">Cotas de Consórcio</h1>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Gestão Operacional</p>
+              <h1 className="text-lg font-black text-foreground tracking-tight">Cotas de Consórcio</h1>
+              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Gestão Operacional</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell userId={profile?.id} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full hover:bg-slate-100 transition-colors">
-                  <Menu className="w-5 h-5 text-slate-600" />
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-card transition-colors">
+                  <Menu className="w-5 h-5 text-muted-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 p-2 rounded-xl border-border/50 shadow-xl">
@@ -285,19 +285,19 @@ export default function Quotas() {
         </div>
 
         {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-white p-6 rounded-3xl border border-slate-200/60 shadow-sm backdrop-blur-sm">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-6 rounded-3xl border border-border/60 shadow-sm backdrop-blur-sm">
           <div className="relative w-full sm:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
               placeholder="Buscar por cliente, cota ou grupo..." 
-              className="pl-11 h-12 bg-slate-50/50 border-slate-200 rounded-2xl focus:ring-primary/20 transition-all"
+              className="pl-11 h-12 bg-background border-border rounded-2xl focus:ring-primary/20 transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <SelectTrigger className="w-full sm:w-44 h-12 bg-slate-50/50 border-slate-200 rounded-2xl font-semibold text-slate-700">
+              <SelectTrigger className="w-full sm:w-44 h-12 bg-background border-border rounded-2xl font-semibold text-foreground">
                 <Filter className="w-4 h-4 mr-2 text-slate-400" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -341,9 +341,9 @@ export default function Quotas() {
           ))}
           {loading && <div className="col-span-full text-center py-20 text-slate-400 font-medium">Carregando cotas...</div>}
           {!loading && filteredQuotas.length === 0 && (
-            <div className="col-span-full text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
-              <div className="bg-slate-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-8 h-8 text-slate-400" />
+            <div className="col-span-full text-center py-20 bg-card rounded-3xl border border-dashed border-border">
+              <div className="bg-muted w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-8 h-8 text-muted-foreground" />
               </div>
               <h3 className="text-slate-900 font-black">Nenhuma cota encontrada</h3>
               <p className="text-slate-500 text-sm">Tente ajustar seus filtros ou crie uma nova cota.</p>
@@ -354,7 +354,7 @@ export default function Quotas() {
 
       {/* Quota Modal */}
       <Dialog open={isQuotaModalOpen} onOpenChange={setIsQuotaModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-white rounded-3xl border-none shadow-2xl overflow-hidden p-0">
+        <DialogContent className="sm:max-w-lg bg-card rounded-3xl border border-border shadow-2xl overflow-hidden p-0">
           <div className="bg-slate-900 p-6 text-white">
             <DialogTitle className="text-xl font-black">{editingQuota ? "Editar Cota" : "Nova Cota de Consórcio"}</DialogTitle>
             <p className="text-slate-400 text-sm font-medium">Preencha os dados operacionais da cota</p>
@@ -365,20 +365,20 @@ export default function Quotas() {
                 <Label className="text-xs font-black uppercase text-slate-500">Cliente</Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome completo" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Telefone</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input value={phone} onChange={e => setPhone(e.target.value)} placeholder="(00) 00000-0000" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Administradora</Label>
                 <Select value={companyId} onValueChange={setCompanyId}>
-                  <SelectTrigger className="bg-slate-50 border-slate-200 rounded-xl">
+                  <SelectTrigger className="bg-background border-border rounded-xl">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -391,17 +391,17 @@ export default function Quotas() {
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Grupo</Label>
-                <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input value={groupNumber} onChange={e => setGroupNumber(e.target.value)} placeholder="0000" className="bg-background border-border rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Cota</Label>
-                <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-slate-50 border-slate-200 rounded-xl" />
+                <Input value={quotaNumber} onChange={e => setQuotaNumber(e.target.value)} placeholder="000" className="bg-background border-border rounded-xl" />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs font-black uppercase text-slate-500">Valor do Crédito</Label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-bold">R$</span>
-                  <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-slate-50 border-slate-200 rounded-xl" />
+                  <Input type="number" value={creditValue} onChange={e => setCreditValue(e.target.value)} placeholder="0.00" className="pl-10 bg-background border-border rounded-xl" />
                 </div>
               </div>
               <div className="space-y-2">
@@ -442,7 +442,7 @@ export default function Quotas() {
 function StatCard({ title, value, icon: Icon, color, onClick }: any) {
   return (
     <Card 
-      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-white"
+      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-card"
       onClick={onClick}
     >
       <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
@@ -450,8 +450,8 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
         </div>
@@ -465,16 +465,16 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
   const StatusIcon = config.icon;
 
   return (
-    <div className="group bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+    <div className="group bg-card rounded-[2.5rem] border border-border/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
       <div className="p-8 space-y-6">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="text-lg font-black text-slate-900 tracking-tight leading-tight">{quota.clientName}</h3>
+              <h3 className="text-lg font-black text-foreground tracking-tight leading-tight">{quota.clientName}</h3>
               <ArrowUpRight className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-bold uppercase tracking-wider">
-              <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">{companyName}</span>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-bold uppercase tracking-wider">
+              <span className="bg-background px-1.5 py-0.5 rounded text-[10px]">{companyName}</span>
               <span>•</span>
               <span>G: {quota.groupNumber}</span>
               <span>•</span>
@@ -487,14 +487,14 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 shadow-inner">
+        <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-background border border-border shadow-inner">
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Crédito</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Crédito</p>
             <p className="text-sm font-black text-primary tracking-tight">{formatCurrency(quota.creditValue)}</p>
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Parcela</p>
-            <p className="text-sm font-black text-slate-900 tracking-tight">{formatCurrency(quota.installmentValue)}</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-0.5">Parcela</p>
+            <p className="text-sm font-black text-foreground tracking-tight">{formatCurrency(quota.installmentValue)}</p>
           </div>
         </div>
 
@@ -502,10 +502,10 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsável</span>
             <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center">
-                <User className="w-3 h-3 text-slate-500" />
+              <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                <User className="w-3 h-3 text-muted-foreground" />
               </div>
-              <span className="text-xs font-bold text-slate-700">{quota.sellerName}</span>
+              <span className="text-xs font-bold text-foreground">{quota.sellerName}</span>
             </div>
           </div>
           <div className="flex gap-1">
