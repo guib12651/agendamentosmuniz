@@ -80,6 +80,8 @@ export default function Bids() {
   
   // Modal states
   const [isBidModalOpen, setIsBidModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [bidToDelete, setBidToDelete] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [selectedTimelineLeadId, setSelectedTimelineLeadId] = useState<string | undefined>(undefined);
@@ -200,15 +202,26 @@ export default function Bids() {
   };
 
   const handleDeleteBid = async (id: string) => {
-    if (!confirm("Excluir este lance?")) return;
+    setBidToDelete(id);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteBid = async () => {
+    if (!bidToDelete) return;
+
+    setSubmitting(true);
     try {
-      const { error } = await supabase.from("bids").delete().eq("id", id);
+      const { error } = await supabase.from("bids").delete().eq("id", bidToDelete);
       if (error) throw error;
       toast.success("Lance removido");
       loadData();
     } catch (error) {
       console.error(error);
       toast.error("Erro ao remover lance");
+    } finally {
+      setSubmitting(false);
+      setIsDeleteConfirmOpen(false);
+      setBidToDelete(null);
     }
   };
 
