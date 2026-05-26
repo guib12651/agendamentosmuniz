@@ -164,6 +164,7 @@ export default function Bids() {
       const bidData = {
         quota_id: quotaId,
         company_id: selectedQuota.companyId,
+        company_name: selectedQuota.companyName,
         client_name: selectedQuota.clientName,
         bid_type: bidType,
         bid_value: parseFloat(bidValue),
