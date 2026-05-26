@@ -174,7 +174,7 @@ export default function Quotas() {
       const quotaData = {
         client_name: clientName,
         phone,
-        company_id: companyId,
+        company_name: companyName,
         group_number: groupNumber,
         quota_number: quotaNumber,
         credit_value: parseFloat(creditValue) || 0,
