@@ -507,49 +507,20 @@ export default function CentralOperacional() {
   const fetchLeadHistory = async (lead: Meeting) => {
     const history = [];
     
-    // 1. Captured Date (Entry into system)
-    const entryDate = lead.createdAt || lead.date;
-    history.push({ 
-      date: entryDate, 
-      event: "Lead entrou no sistema", 
-      icon: Target,
-      isMain: true 
-    });
-    
-    // 2. Distributed (simulation)
-    if (lead.preSeller) {
-      history.push({ date: entryDate, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
-    }
-
-    // 3. Calls
-    const leadCalls = calls.filter(c => c.leadName === lead.leadName);
-    leadCalls.forEach(c => {
-      history.push({ date: c.callTime, event: `Ligação realizada: ${c.result}`, icon: Phone });
-    });
-
-    // 4. Meeting Scheduled (Appointment)
-    history.push({ 
-      date: `${lead.date}T${lead.time}`, 
-      event: "Agendamento realizado", 
-      icon: Calendar,
-      isMain: true
-    });
-
-    // 5. Outcome
-    if (lead.status === 'compareceu' || lead.status === 'visita_realizada') {
-      history.push({ date: lead.date, event: "Compareceu", icon: CheckCircle2 });
-    } else if (lead.status === 'nao_compareceu') {
-      history.push({ date: lead.date, event: "Não Compareceu", icon: XCircle });
-    }
-
-    if (lead.status === 'em_negociacao') {
-      history.push({ date: lead.date, event: "Negociação iniciada", icon: Handshake });
-    }
-
-    // 6. Sale (Final Goal)
-    if (lead.status === 'venda_concluida' || lead.saleDate) {
+    // 1. Agendamento realizado (Date when it was registered)
+    if (lead.createdAt) {
       history.push({ 
-        date: lead.saleDate || lead.date, 
+        date: lead.createdAt, 
+        event: "Agendamento realizado", 
+        icon: Calendar,
+        isMain: true
+      });
+    }
+
+    // 2. Venda realizada (Date when the sale happened)
+    if (lead.saleDate) {
+      history.push({ 
+        date: lead.saleDate, 
         event: "Venda realizada", 
         icon: ShoppingCart,
         isMain: true,
