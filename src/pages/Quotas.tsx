@@ -240,7 +240,7 @@ export default function Quotas() {
     setEditingQuota(null);
     setClientName("");
     setPhone("");
-    setCompanyId("");
+    setCompanyName("");
     setGroupNumber("");
     setQuotaNumber("");
     setCreditValue("");
