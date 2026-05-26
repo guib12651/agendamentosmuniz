@@ -554,6 +554,24 @@ export default function Bids() {
         leadId={selectedTimelineLeadId} 
         phone={selectedTimelinePhone}
       />
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-3xl p-6 bg-card border border-border shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-foreground">Confirmar Exclusão</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-muted-foreground font-medium">
+            Tem certeza que deseja excluir este lance? Esta ação não pode ser desfeita.
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)} className="rounded-xl font-bold">
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteBid} disabled={submitting} className="rounded-xl font-bold bg-rose-500 hover:bg-rose-600">
+              {submitting ? "Excluindo..." : "Sim, Excluir"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
