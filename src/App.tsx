@@ -11,6 +11,8 @@ import Fechamentos from "./pages/Fechamentos.tsx";
 import MeusAgendamentos from "./pages/MeusAgendamentos.tsx";
 import GerenciarUsuarios from "./pages/GerenciarUsuarios.tsx";
 import CentralOperacional from "./pages/CentralOperacional.tsx";
+import Quotas from "./pages/Quotas.tsx";
+import Bids from "./pages/Bids.tsx";
 
 const queryClient = new QueryClient();
 
