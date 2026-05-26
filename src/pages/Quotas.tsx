@@ -204,6 +204,24 @@ export default function Quotas() {
     }
   };
 
+  const handleUpdateStatus = async (id: string, newStatus: QuotaStatus) => {
+    try {
+      const { error } = await supabase.from("quotas").update({ status: newStatus }).eq("id", id);
+      if (error) throw error;
+      toast.success("Status da cota atualizado!");
+      loadData();
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar status");
+    }
+  };
+
+  const handleShowTimeline = (quota: Quota) => {
+    setSelectedTimelineLeadId(quota.saleId);
+    setSelectedTimelinePhone(quota.phone);
+    setIsTimelineOpen(true);
+  };
+
   const handleDeleteQuota = async (id: string) => {
     if (!confirm("Deseja realmente excluir esta cota?")) return;
     try {
