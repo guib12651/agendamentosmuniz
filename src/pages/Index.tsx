@@ -53,6 +53,9 @@ export default function Index() {
   const [leadSearch, setLeadSearch] = useState("");
   const [successData, setSuccessData] = useState<any>(null);
   const [viewingMeetings, setViewingMeetings] = useState<Meeting[]>([]);
+  const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
+  const [showQuotaForm, setShowQuotaForm] = useState(false);
+  const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
   
 
 
