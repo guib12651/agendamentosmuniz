@@ -392,7 +392,7 @@ export default function Bids() {
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
                         <BidDetail label="Tipo de Lance" value={type.label} valueClass={type.color} />
-                        <BidDetail label="Valor do Lance" value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(bid.bidValue)} />
+                        <BidDetail label="Valor do Lance" value={bid.bidValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
                         <BidDetail label="Percentual" value={`${bid.percentage}%`} icon={Percent} />
                         <BidDetail label="Assembleia" value={new Date(bid.assemblyDate).toLocaleDateString('pt-BR')} icon={Calendar} />
                       </div>
