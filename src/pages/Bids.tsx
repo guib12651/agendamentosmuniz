@@ -256,16 +256,16 @@ export default function Bids() {
   };
 
   const filteredBids = useMemo(() => {
-    return bids.filter(b => b.clientName.toLowerCase().includes(searchTerm.toLowerCase()));
+    return bids.filter(b => (b.clientName ?? "").toLowerCase().includes(searchTerm.toLowerCase()));
   }, [bids, searchTerm]);
 
   const filteredQuotas = useMemo(() => {
     if (!quotaSearch.trim()) return [];
     const q = quotaSearch.toLowerCase();
     return quotas.filter(quota => 
-      quota.clientName.toLowerCase().includes(q) || 
-      quota.quotaNumber.includes(q) || 
-      quota.groupNumber.includes(q)
+      (quota.clientName ?? "").toLowerCase().includes(q) || 
+      (quota.quotaNumber ?? "").toLowerCase().includes(q) || 
+      (quota.groupNumber ?? "").toLowerCase().includes(q)
     ).slice(0, 10);
   }, [quotas, quotaSearch]);
 
