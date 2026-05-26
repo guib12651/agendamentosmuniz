@@ -601,14 +601,8 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, onShowTimeline, onUpdate
             </Button>
           </div>
         </div>
+      </div>
     </div>
   );
 }
-
-function QuotasPage() {
-  const { profile, isAdmin, signOut } = useAuth();
-  // ... rest of the component logic if it was split, but it seems I accidentally moved the dialog inside QuotaCard
-}
-
-// I need to see where Quotas ends and QuotaCard starts
 
