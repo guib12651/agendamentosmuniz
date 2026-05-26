@@ -731,7 +731,7 @@ export default function CentralOperacional() {
             icon={Phone} 
             color="bg-amber-400" 
             active={selectedStage === 'ligacoes'}
-            onClick={() => setSelectedStage(selectedStage === 'ligacoes' ? null : 'ligacoes')}
+            onClick={() => setIsCallsListOpen(true)}
           />
           <StatCard 
             title="Agendamentos" 
