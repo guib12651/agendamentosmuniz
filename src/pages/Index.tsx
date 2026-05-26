@@ -291,6 +291,14 @@ export default function Index() {
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
                   Central Operacional
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/quotas")}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Cotas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/lances")}>
+                  <Gavel className="w-4 h-4 mr-2" />
+                  Lances
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
                   Por dia
