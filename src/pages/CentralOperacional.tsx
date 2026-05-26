@@ -677,6 +677,15 @@ export default function CentralOperacional() {
                 </Button>
               </div>
             )}
+
+            <div className="grid grid-cols-1 sm:flex sm:items-center gap-3 w-full xl:w-auto">
+              <Button 
+                onClick={() => setIsRegisterCallsOpen(true)}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold h-11 sm:h-9 rounded-xl shadow-lg shadow-amber-900/20 transition-all active:scale-95 w-full sm:w-auto"
+              >
+                <Phone className="w-4 h-4 mr-2" /> Registrar Ligações
+              </Button>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
