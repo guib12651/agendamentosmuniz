@@ -347,10 +347,26 @@ export default function Bids() {
                             </p>
                           </div>
                         </div>
-                        <div className={cn("px-3 py-1 rounded-full text-[10px] font-black uppercase flex items-center gap-1.5", status.color)}>
-                          <StatusIcon className="w-3 h-3" />
-                          {status.label}
-                        </div>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className={cn("px-3 py-1 h-auto rounded-full text-[10px] font-black uppercase flex items-center gap-1.5 transition-all hover:scale-105", status.color)}>
+                              <StatusIcon className="w-3 h-3" />
+                              {status.label}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-xl border-border bg-card">
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "pending")} className="gap-2">
+                              <Clock className="w-4 h-4 text-amber-500" /> Pendente
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "contemplated")} className="gap-2">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Contemplado
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(bid.id, "not_contemplated")} className="gap-2">
+                              <XCircle className="w-4 h-4 text-rose-500" /> Não Contemplado
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
@@ -361,6 +377,9 @@ export default function Bids() {
                       </div>
                     </div>
                     <div className="bg-background/50 p-4 sm:p-5 flex sm:flex-col justify-end gap-2 border-t sm:border-t-0 sm:border-l border-border/50">
+                      <Button variant="ghost" size="icon" onClick={() => handleShowTimeline(bid)} className="text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl">
+                        <History className="w-4 h-4" />
+                      </Button>
                       <Button variant="ghost" size="icon" onClick={() => handleDeleteBid(bid.id)} className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl">
                         <Trash2 className="w-4 h-4" />
                       </Button>
