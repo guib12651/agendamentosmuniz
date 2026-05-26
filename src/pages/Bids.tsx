@@ -284,7 +284,7 @@ export default function Bids() {
             const StatusIcon = status.icon;
 
             return (
-              <Card key={bid.id} className="border-none shadow-sm rounded-2xl overflow-hidden group hover:shadow-md transition-all">
+              <Card key={bid.id} className="border border-slate-200/60 shadow-sm rounded-[2rem] overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-500 bg-white">
                 <CardContent className="p-0">
                   <div className="flex flex-col sm:flex-row sm:items-center">
                     <div className="p-5 flex-1 space-y-3">

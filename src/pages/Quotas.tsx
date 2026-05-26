@@ -439,16 +439,21 @@ export default function Quotas() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, color, bgColor }: any) {
+function StatCard({ title, value, icon: Icon, color, onClick }: any) {
   return (
-    <Card className="border-none shadow-sm overflow-hidden rounded-2xl">
-      <CardContent className="p-5 flex items-center justify-between">
-        <div>
-          <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">{label}</p>
-          <h3 className="text-2xl font-black text-slate-900 tracking-tight">{value}</h3>
+    <Card 
+      className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-white"
+      onClick={onClick}
+    >
+      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
+        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm", color)}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
-        <div className={cn("p-3 rounded-xl", bgColor)}>
-          <Icon className={cn("w-5 h-5", color)} />
+        <div className="space-y-0.5">
+          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+            {title}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -460,8 +465,8 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
   const StatusIcon = config.icon;
 
   return (
-    <div className="group bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-      <div className="p-6 space-y-5">
+    <div className="group bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+      <div className="p-8 space-y-6">
         <div className="flex justify-between items-start">
           <div>
             <div className="flex items-center gap-2 mb-1">
