@@ -276,6 +276,7 @@ export default function CentralOperacional() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, loadData)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, loadData)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, loadData)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
