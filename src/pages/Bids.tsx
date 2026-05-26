@@ -422,8 +422,8 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
         </div>

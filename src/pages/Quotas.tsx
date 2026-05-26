@@ -450,8 +450,8 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
         </div>
@@ -502,10 +502,10 @@ function QuotaCard({ quota, onEdit, onDelete, onAddBid, formatCurrency, companyN
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Responsável</span>
             <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center">
-                <User className="w-3 h-3 text-slate-500" />
+              <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                <User className="w-3 h-3 text-muted-foreground" />
               </div>
-              <span className="text-xs font-bold text-slate-700">{quota.sellerName}</span>
+              <span className="text-xs font-bold text-foreground">{quota.sellerName}</span>
             </div>
           </div>
           <div className="flex gap-1">
