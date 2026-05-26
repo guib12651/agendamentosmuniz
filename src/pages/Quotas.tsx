@@ -164,7 +164,7 @@ export default function Quotas() {
   }), [quotas]);
 
   const handleSaveQuota = async () => {
-    if (!clientName || !companyId || !groupNumber || !quotaNumber) {
+    if (!clientName || !companyName || !groupNumber || !quotaNumber) {
       toast.error("Preencha todos os campos obrigatórios");
       return;
     }
