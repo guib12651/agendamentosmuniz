@@ -62,7 +62,8 @@ export type QuotaStatus = "active" | "contemplated" | "cancelled" | "pending";
 
 export interface Quota {
   id: string;
-  companyId: string;
+  companyId?: string;
+  companyName?: string;
   clientName: string;
   phone?: string;
   groupNumber: string;
@@ -82,7 +83,8 @@ export type BidStatus = "pending" | "contemplated" | "not_contemplated";
 
 export interface Bid {
   id: string;
-  companyId: string;
+  companyId?: string;
+  companyName?: string;
   quotaId: string;
   clientName: string;
   bidType: BidType;
