@@ -345,7 +345,7 @@ export default function Bids() {
                           <div>
                             <h3 className="font-black text-foreground tracking-tight">{bid.clientName}</h3>
                             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                              {company?.name || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
+                              {bid.companyName || "Administradora"} • G: {quota?.groupNumber} C: {quota?.quotaNumber}
                             </p>
                           </div>
                         </div>
