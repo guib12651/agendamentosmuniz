@@ -433,7 +433,7 @@ export default function Bids() {
                         <BidDetail label="Tipo de Lance" value={type.label} valueClass={type.color} />
                         <BidDetail label="Valor do Lance" value={bid.bidValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} />
                         <BidDetail label="Percentual" value={`${bid.percentage}%`} icon={Percent} />
-                        <BidDetail label="Assembleia" value={new Date(bid.assemblyDate).toLocaleDateString('pt-BR')} icon={Calendar} />
+                        <BidDetail label="Assembleia" value={bid.assemblyDate ? bid.assemblyDate.split('-').reverse().join('/') : ""} icon={Calendar} />
                       </div>
                     </div>
                     <div className="bg-background/50 p-4 sm:p-5 flex flex-row md:flex-col justify-end gap-2 border-t md:border-t-0 md:border-l border-border/50">
