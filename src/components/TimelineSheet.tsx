@@ -172,7 +172,7 @@ export default function TimelineSheet({ isOpen, onClose, leadId, clientName, pho
                     event: `Lance registrado (${b.bid_type})`,
                     icon: Gavel,
                     color: "bg-amber-500",
-                    observations: `Assembleia: ${format(new Date(b.assembly_date), "dd/MM")}`
+                    observations: `Assembleia: ${b.assembly_date.split('-').reverse().slice(0, 2).join('/')}`
                   });
 
                   if (b.status === "contemplated") {
