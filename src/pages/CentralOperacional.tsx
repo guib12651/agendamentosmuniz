@@ -505,17 +505,20 @@ export default function CentralOperacional() {
   }, [meetings, selectedStage, searchTerm, showArchived]);
 
   const fetchLeadHistory = async (lead: Meeting) => {
-    // In a real app, this would be a dedicated history table
-    // For now, we simulate based on meeting status transitions if tracked, 
-    // or just show the current event flow.
     const history = [];
     
-    // 1. Captured
-    history.push({ date: lead.createdAt || lead.date, event: "Lead captado", icon: Target });
+    // 1. Captured Date (Entry into system)
+    const entryDate = lead.createdAt || lead.date;
+    history.push({ 
+      date: entryDate, 
+      event: "Lead entrou no sistema", 
+      icon: Target,
+      isMain: true 
+    });
     
     // 2. Distributed (simulation)
     if (lead.preSeller) {
-      history.push({ date: lead.createdAt || lead.date, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
+      history.push({ date: entryDate, event: `Distribuído para ${lead.preSeller}`, icon: UserPlus });
     }
 
     // 3. Calls
@@ -524,8 +527,13 @@ export default function CentralOperacional() {
       history.push({ date: c.callTime, event: `Ligação realizada: ${c.result}`, icon: Phone });
     });
 
-    // 4. Meeting Scheduled
-    history.push({ date: `${lead.date}T${lead.time}`, event: "Reunião agendada", icon: Calendar });
+    // 4. Meeting Scheduled (Appointment)
+    history.push({ 
+      date: `${lead.date}T${lead.time}`, 
+      event: "Agendamento realizado", 
+      icon: Calendar,
+      isMain: true
+    });
 
     // 5. Outcome
     if (lead.status === 'compareceu' || lead.status === 'visita_realizada') {
@@ -538,8 +546,15 @@ export default function CentralOperacional() {
       history.push({ date: lead.date, event: "Negociação iniciada", icon: Handshake });
     }
 
-    if (lead.status === 'venda_concluida') {
-      history.push({ date: lead.saleDate || lead.date, event: "Venda concluída", icon: ShoppingCart });
+    // 6. Sale (Final Goal)
+    if (lead.status === 'venda_concluida' || lead.saleDate) {
+      history.push({ 
+        date: lead.saleDate || lead.date, 
+        event: "Venda realizada", 
+        icon: ShoppingCart,
+        isMain: true,
+        isGoal: true
+      });
     }
 
     setLeadHistory(history.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
