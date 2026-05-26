@@ -349,7 +349,7 @@ export default function Quotas() {
                 setEditingQuota(quota);
                 setClientName(quota.clientName);
                 setPhone(quota.phone || "");
-                setCompanyId(quota.companyId);
+                setCompanyName(quota.companyName || "");
                 setGroupNumber(quota.groupNumber);
                 setQuotaNumber(quota.quotaNumber);
                 setCreditValue(quota.creditValue.toString());
@@ -362,7 +362,7 @@ export default function Quotas() {
               onShowTimeline={() => handleShowTimeline(quota)}
               onUpdateStatus={handleUpdateStatus}
               formatCurrency={formatCurrency}
-              companyName={companies.find(c => c.id === quota.companyId)?.name || "N/A"}
+              companyName={quota.companyName || "N/A"}
             />
           ))}
           {loading && <div className="col-span-full text-center py-20 text-slate-400 font-medium">Carregando cotas...</div>}
