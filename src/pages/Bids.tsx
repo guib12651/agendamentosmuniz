@@ -433,6 +433,10 @@ export default function Bids() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase text-slate-500">Observações</Label>
+              <Input value={observations} onChange={e => setObservations(e.target.value)} placeholder="Ex: Informações sobre a assembleia..." className="bg-background border-border rounded-xl text-foreground" />
+            </div>
             <DialogFooter className="pt-4">
               <Button variant="ghost" onClick={() => setIsBidModalOpen(false)} className="font-bold">Cancelar</Button>
               <Button onClick={handleSaveBid} disabled={submitting} className="bg-primary hover:bg-primary/90 rounded-xl font-bold min-w-[120px]">
