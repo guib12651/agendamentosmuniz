@@ -594,7 +594,27 @@ export default function Index() {
         <MeetingSuccessModal data={successData} onClose={() => setSuccessData(null)} />
       )}
 
-      <hr className="border-transparent" />
+      <SaleToQuotaModal 
+        isOpen={showSaleToQuotaModal} 
+        onClose={() => setShowSaleToQuotaModal(false)}
+        onCreateQuota={() => {
+          setShowSaleToQuotaModal(false);
+          setShowQuotaForm(true);
+        }}
+        clientName={lastSoldMeeting?.leadName || ""}
+      />
+
+      <QuotaForm 
+        isOpen={showQuotaForm}
+        onClose={() => setShowQuotaForm(false)}
+        onSuccess={() => {
+          setShowQuotaForm(false);
+          toast.success("Cota vinculada com sucesso!");
+        }}
+        preFill={lastSoldMeeting || undefined}
+        userId={profile?.id}
+        userName={profile?.displayName}
+      />
     </div>
   );
 }
