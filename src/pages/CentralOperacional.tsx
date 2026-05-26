@@ -588,6 +588,31 @@ export default function CentralOperacional() {
     return Math.round((val2 / val1) * 100);
   };
 
+  const handleUpdateLeadStatus = async (id: string, status: string) => {
+    try {
+      const { error } = await supabase
+        .from("meetings")
+        .update({ status })
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      toast.success("Status atualizado!");
+      loadData();
+      
+      if (status === "venda_concluida") {
+        const lead = meetings.find(m => m.id === id);
+        if (lead) {
+          setLastSoldMeeting(lead);
+          setShowSaleToQuotaModal(true);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao atualizar status");
+    }
+  };
+
   return (
     <div className="min-h-screen pb-12">
       <header className="border-b border-border sticky top-0 z-40 bg-background/95 backdrop-blur">
