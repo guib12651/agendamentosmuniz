@@ -495,12 +495,12 @@ function StatCard({ title, value, icon: Icon, color, onClick }: any) {
       className="transition-all duration-300 hover:scale-[1.02] border border-border shadow-sm bg-card"
       onClick={onClick}
     >
-      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
+      <CardContent className="p-3 sm:p-5 flex flex-col items-center text-center">
         <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center mb-3 shadow-sm", color)}>
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight line-clamp-1">{value}</p>
+          <p className="text-lg sm:text-2xl font-black text-foreground tracking-tight line-clamp-1">{value}</p>
           <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
