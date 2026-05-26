@@ -621,7 +621,7 @@ export default function CentralOperacional() {
       toast.success("Status atualizado!");
       loadData();
       
-      if (status === "venda_concluida") {
+      if (status === "venda_concluida" && isAdmin) {
         const lead = meetings.find(m => m.id === id);
         if (lead) {
           setLastSoldMeeting(lead);
