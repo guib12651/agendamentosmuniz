@@ -606,12 +606,18 @@ export default function CentralOperacional() {
                 </DropdownMenuItem>
                 {isAdmin && (
                   <>
-                    <DropdownMenuItem onClick={() => navigate("/usuarios")}>
-                      <UsersIcon className="w-4 h-4 mr-2" /> Usuários
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
-                      <TrendingUp className="w-4 h-4 mr-2" /> Fechamentos
-                    </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/usuarios")}>
+                  <UsersIcon className="w-4 h-4 mr-2" /> Usuários
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
+                  <TrendingUp className="w-4 h-4 mr-2" /> Fechamentos
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/quotas")}>
+                  <FileText className="w-4 h-4 mr-2" /> Cotas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/lances")}>
+                  <Gavel className="w-4 h-4 mr-2" /> Lances
+                </DropdownMenuItem>
                   </>
                 )}
                 <DropdownMenuSeparator />
