@@ -162,10 +162,19 @@ export default function Bids() {
         percentage: parseFloat(percentage) || 0,
         assembly_date: assemblyDate,
         status: status,
+        observations: observations,
       };
 
       const { error } = await supabase.from("bids").insert(bidData);
       if (error) throw error;
+
+      // Automation: If bid is contemplated, update quota status
+      if (status === "contemplated") {
+        await supabase
+          .from("quotas")
+          .update({ status: "contemplated" })
+          .eq("id", quotaId);
+      }
 
       toast.success("Lance registrado com sucesso!");
       setIsBidModalOpen(false);
