@@ -106,6 +106,7 @@ export default function Bids() {
       setBids((bidsData || []).map(b => ({
         id: b.id,
         companyId: b.company_id,
+        companyName: b.company_name,
         quotaId: b.quota_id,
         clientName: b.client_name,
         bidType: b.bid_type as BidType,
@@ -119,6 +120,7 @@ export default function Bids() {
       setQuotas((quotasData || []).map(q => ({
         id: q.id,
         companyId: q.company_id,
+        companyName: q.company_name,
         clientName: q.client_name,
         groupNumber: q.group_number,
         quotaNumber: q.quota_number,
