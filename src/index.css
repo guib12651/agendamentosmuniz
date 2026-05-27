@@ -78,6 +78,15 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
   }
+
+  /* Force Space Grotesk on all numbers */
+  input, span, p, div, td, th {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .font-display, .font-black, .font-bold {
+    font-family: 'Space Grotesk', sans-serif !important;
+  }
 }
 
 @layer components {
