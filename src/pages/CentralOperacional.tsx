@@ -738,7 +738,7 @@ export default function CentralOperacional() {
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase tracking-wider">
+              <span className="text-xs font-display font-bold uppercase tracking-wider">
                 {dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}
               </span>
             </div>
