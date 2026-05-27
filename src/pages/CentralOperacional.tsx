@@ -469,9 +469,9 @@ export default function CentralOperacional() {
     const dailyCallsCount = dailyCallsList.reduce((acc, c) => acc + c.amount, 0);
     const callsMade = individualCallsCount + dailyCallsCount;
     const appointments = activeMeetings.length;
-    const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada'].includes(m.status)).length;
+    const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status)).length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
-    const negotiations = activeMeetings.filter(m => m.status === 'em_negociacao').length;
+    const negotiations = activeMeetings.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status)).length;
     const sales = activeMeetings.filter(m => m.status === 'venda_concluida').length;
 
     return {
@@ -484,7 +484,7 @@ export default function CentralOperacional() {
       negotiations,
       sales
     };
-  }, [funnelData, calls, meetings]);
+  }, [funnelData, calls, meetings, dailyCallsList]);
 
   const filteredLeads = useMemo(() => {
     let list = meetings;
@@ -496,9 +496,9 @@ export default function CentralOperacional() {
       if (selectedStage === 'agendamentos') {
         // Show all active meetings as they are all considered "appointments" in stats
       }
-      else if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada'].includes(m.status));
+      else if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
-      else if (selectedStage === 'negociacoes') list = list.filter(m => m.status === 'em_negociacao');
+      else if (selectedStage === 'negociacoes') list = list.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status));
       else if (selectedStage === 'vendas') list = list.filter(m => m.status === 'venda_concluida');
     }
 
