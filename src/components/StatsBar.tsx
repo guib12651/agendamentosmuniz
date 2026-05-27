@@ -29,7 +29,7 @@ export default function StatsBar({ meetings }: StatsBarProps) {
       <div className="stat-card flex items-center gap-2 sm:gap-3 p-3 sm:p-4">
         <XCircle className="w-5 h-5 text-destructive shrink-0" />
         <div className="min-w-0">
-          <p className="text-xl sm:text-2xl font-display font-bold text-destructive">{naoCompareceu}</p>
+          <p className="text-xl sm:text-2xl font-display font-black text-destructive">{naoCompareceu}</p>
           <p className="text-[10px] sm:text-xs text-muted-foreground truncate">Não compareceu</p>
         </div>
       </div>
