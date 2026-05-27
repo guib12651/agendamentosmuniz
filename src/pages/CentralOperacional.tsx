@@ -1646,7 +1646,7 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
 function ConversionStep({ label, value }: { label: string, value: number }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-black text-primary drop-shadow-sm">{value}</span>
+      <span className="text-2xl font-display font-black text-primary drop-shadow-sm">{value}</span>
       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
 
     </div>
