@@ -738,7 +738,7 @@ export default function CentralOperacional() {
           <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase tracking-wider">
+              <span className="text-xs font-display font-bold uppercase tracking-wider">
                 {dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}
               </span>
             </div>
@@ -1340,7 +1340,7 @@ export default function CentralOperacional() {
                   <TableBody>
                     {capturedLeadsList.map((item, idx) => (
                       <TableRow key={idx} className="border-border hover:bg-muted/30">
-                        <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
+                        <TableCell className="font-display font-black text-lg text-primary text-center">{item.amount}</TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="font-bold">{item.source}</Badge>
                         </TableCell>
@@ -1529,7 +1529,7 @@ export default function CentralOperacional() {
                   <TableBody>
                     {dailyCallsList.map((item, idx) => (
                       <TableRow key={idx} className="border-border hover:bg-muted/30">
-                        <TableCell className="font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
+                        <TableCell className="font-display font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
                         <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
                         <TableCell className="text-xs text-muted-foreground italic max-w-[200px] truncate">{item.observations || "-"}</TableCell>
@@ -1633,7 +1633,7 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
           <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
         </div>
         <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-black text-foreground tracking-tight">{value}</p>
+          <p className="text-xl sm:text-2xl font-display font-black text-foreground tracking-tight">{value}</p>
           <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
             {title}
           </p>
@@ -1646,7 +1646,7 @@ function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
 function ConversionStep({ label, value }: { label: string, value: number }) {
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-black text-primary drop-shadow-sm">{value}</span>
+      <span className="text-2xl font-display font-black text-primary drop-shadow-sm">{value}</span>
       <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
 
     </div>

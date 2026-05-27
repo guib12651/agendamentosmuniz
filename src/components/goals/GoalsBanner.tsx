@@ -128,7 +128,7 @@ export default function GoalsBanner() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl sm:text-3xl font-display font-bold text-primary">
+                  <div className="text-2xl sm:text-3xl font-display font-black text-primary">
                     {Math.round(generalPctRaw)}%
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export default function GoalsBanner() {
 
               <div className="space-y-1">
                 <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                  <span className="text-3xl sm:text-4xl font-display font-bold">
+                  <span className="text-3xl sm:text-4xl font-display font-black">
                     {formatBRL(animTotalRealized)}
                   </span>
                   <span className="text-sm text-muted-foreground">
@@ -179,7 +179,7 @@ export default function GoalsBanner() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl sm:text-3xl font-display font-bold">
+                  <div className="text-2xl sm:text-3xl font-display font-black">
                     {Math.round(individualPctRaw)}%
                   </div>
                 </div>
@@ -187,7 +187,7 @@ export default function GoalsBanner() {
 
               <div className="space-y-1">
                 <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                  <span className="text-3xl sm:text-4xl font-display font-bold">
+                  <span className="text-3xl sm:text-4xl font-display font-black">
                     {formatBRL(animMyProgress)}
                   </span>
                   <span className="text-sm text-muted-foreground">
