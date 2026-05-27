@@ -79,12 +79,18 @@
     @apply font-display;
   }
 
-  /* Force Space Grotesk on all numbers */
-  input, span, p, div, td, th {
+  /* Force Space Grotesk on all numbers and common display elements */
+  input, span, p, div, td, th, h1, h2, h3, h4, h5, h6 {
     font-variant-numeric: tabular-nums;
   }
 
-  .font-display, .font-black, .font-bold {
+  /* Override Inter with Space Grotesk for any element with bold or black weights */
+  [class*="font-bold"], [class*="font-black"], [class*="font-semibold"], .font-display {
+    font-family: 'Space Grotesk', sans-serif !important;
+  }
+
+  /* Target BRL and percentage displays specifically */
+  .font-black, .text-xl, .text-2xl, .text-3xl, .text-4xl {
     font-family: 'Space Grotesk', sans-serif !important;
   }
 }
