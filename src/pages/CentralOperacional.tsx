@@ -1340,7 +1340,7 @@ export default function CentralOperacional() {
                   <TableBody>
                     {capturedLeadsList.map((item, idx) => (
                       <TableRow key={idx} className="border-border hover:bg-muted/30">
-                        <TableCell className="font-black text-lg text-primary text-center">{item.amount}</TableCell>
+                        <TableCell className="font-display font-black text-lg text-primary text-center">{item.amount}</TableCell>
                         <TableCell>
                           <Badge variant="secondary" className="font-bold">{item.source}</Badge>
                         </TableCell>
