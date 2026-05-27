@@ -2,7 +2,7 @@
   display: none !important;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 
 @tailwind base;
 @tailwind components;
@@ -84,14 +84,19 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Override Inter with Space Grotesk for any element with bold or black weights */
-  [class*="font-bold"], [class*="font-black"], [class*="font-semibold"], .font-display {
+  /* Force Space Grotesk as the primary font for everything to ensure it loads */
+  * {
     font-family: 'Space Grotesk', sans-serif !important;
   }
 
-  /* Target BRL and percentage displays specifically */
-  .font-black, .text-xl, .text-2xl, .text-3xl, .text-4xl {
+  /* Keep Inter only for lighter body text if necessary, but prioritize Space Grotesk */
+  .font-body {
+    font-family: 'Inter', sans-serif !important;
+  }
+
+  [class*="font-bold"], [class*="font-black"], [class*="font-semibold"], .font-display, .text-xl, .text-2xl, .text-3xl, .text-4xl {
     font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 800; /* Extra bold for numbers as in the screenshot */
   }
 }
 
