@@ -128,7 +128,7 @@ export default function GoalsBanner() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl sm:text-3xl font-display font-bold text-primary">
+                  <div className="text-2xl sm:text-3xl font-display font-black text-primary">
                     {Math.round(generalPctRaw)}%
                   </div>
                 </div>
