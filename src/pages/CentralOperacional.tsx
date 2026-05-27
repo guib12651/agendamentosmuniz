@@ -1529,7 +1529,7 @@ export default function CentralOperacional() {
                   <TableBody>
                     {dailyCallsList.map((item, idx) => (
                       <TableRow key={idx} className="border-border hover:bg-muted/30">
-                        <TableCell className="font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
+                        <TableCell className="font-display font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
                         <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
                         <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
                         <TableCell className="text-xs text-muted-foreground italic max-w-[200px] truncate">{item.observations || "-"}</TableCell>
