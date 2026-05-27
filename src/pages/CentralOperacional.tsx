@@ -1459,61 +1459,119 @@ export default function CentralOperacional() {
           </div>
           <ScrollArea className="h-full">
             <div className="p-4 sm:p-6 pb-24 sm:pb-12">
-              <div className="overflow-x-auto -mx-4 sm:mx-0">
-                <div className="min-w-[600px] px-4 sm:px-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-border hover:bg-transparent">
-                        <TableHead className="font-bold text-center w-[80px]">Qtde</TableHead>
-                        <TableHead className="font-bold">Data</TableHead>
-                        <TableHead className="font-bold">Responsável</TableHead>
-                        <TableHead className="font-bold">Observações</TableHead>
-                        <TableHead className="font-bold text-right">Ações</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {dailyCallsList.map((item, idx) => (
-                        <TableRow key={idx} className="border-border hover:bg-muted/30">
-                          <TableCell className="font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
-                          <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
-                          <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
-                          <TableCell className="text-xs text-muted-foreground italic max-w-[200px] truncate">{item.observations || "-"}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
-                                onClick={() => {
-                                  setEditingDailyCall(item);
-                                  setCallAmount(item.amount.toString());
-                                  setCallDate(item.date);
-                                  setCallObs(item.observations || "");
-                                  setIsRegisterCallsOpen(true);
-                                }}
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => handleDeleteDailyCall(item.id)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      {dailyCallsList.length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">Nenhum registro de ligações encontrado.</TableCell>
-                        </TableRow>
+              <div className="sm:hidden space-y-4">
+                {dailyCallsList.map((item, idx) => (
+                  <Card key={idx} className="bg-muted/30 border-border">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-2xl font-black text-amber-500">{item.amount}</p>
+                          <p className="text-xs text-muted-foreground">{item.date.split('-').reverse().join('/')}</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-muted-foreground hover:text-primary"
+                            onClick={() => {
+                              setEditingDailyCall(item);
+                              setCallAmount(item.amount.toString());
+                              setCallDate(item.date);
+                              setCallObs(item.observations || "");
+                              setIsRegisterCallsOpen(true);
+                            }}
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-muted-foreground hover:text-destructive"
+                            onClick={() => {
+                              if (window.confirm("Deseja realmente excluir este registro?")) {
+                                handleDeleteDailyCall(item.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <div className="text-sm">
+                        <p className="text-[10px] uppercase font-bold text-muted-foreground">Responsável</p>
+                        <p className="font-medium">{item.profiles?.display_name || "N/A"}</p>
+                      </div>
+                      {item.observations && (
+                        <div className="mt-2">
+                          <p className="text-[10px] uppercase font-bold text-muted-foreground">Observações</p>
+                          <p className="text-xs text-muted-foreground italic">{item.observations}</p>
+                        </div>
                       )}
-                    </TableBody>
-                  </Table>
-                </div>
+                    </CardContent>
+                  </Card>
+                ))}
+                {dailyCallsList.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">Nenhum registro de ligações encontrado.</div>
+                )}
+              </div>
+
+              <div className="hidden sm:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-border hover:bg-transparent">
+                      <TableHead className="font-bold text-center w-[80px]">Qtde</TableHead>
+                      <TableHead className="font-bold">Data</TableHead>
+                      <TableHead className="font-bold">Responsável</TableHead>
+                      <TableHead className="font-bold">Observações</TableHead>
+                      <TableHead className="font-bold text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {dailyCallsList.map((item, idx) => (
+                      <TableRow key={idx} className="border-border hover:bg-muted/30">
+                        <TableCell className="font-black text-lg text-amber-500 text-center">{item.amount}</TableCell>
+                        <TableCell className="text-muted-foreground text-sm">{item.date.split('-').reverse().join('/')}</TableCell>
+                        <TableCell className="font-medium text-sm">{item.profiles?.display_name || "N/A"}</TableCell>
+                        <TableCell className="text-xs text-muted-foreground italic max-w-[200px] truncate">{item.observations || "-"}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                              onClick={() => {
+                                setEditingDailyCall(item);
+                                setCallAmount(item.amount.toString());
+                                setCallDate(item.date);
+                                setCallObs(item.observations || "");
+                                setIsRegisterCallsOpen(true);
+                              }}
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => {
+                                if (window.confirm("Deseja realmente excluir este registro?")) {
+                                  handleDeleteDailyCall(item.id);
+                                }
+                              }}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {dailyCallsList.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-12 text-muted-foreground">Nenhum registro de ligações encontrado.</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
               </div>
             </div>
           </ScrollArea>
