@@ -496,9 +496,9 @@ export default function CentralOperacional() {
       if (selectedStage === 'agendamentos') {
         // Show all active meetings as they are all considered "appointments" in stats
       }
-      else if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
+      else if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada'].includes(m.status));
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
-      else if (selectedStage === 'negociacoes') list = list.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status));
+      else if (selectedStage === 'negociacoes') list = list.filter(m => m.status === 'em_negociacao');
       else if (selectedStage === 'vendas') list = list.filter(m => m.status === 'venda_concluida');
     }
 
