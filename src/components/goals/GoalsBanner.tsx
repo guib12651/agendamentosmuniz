@@ -136,7 +136,7 @@ export default function GoalsBanner() {
 
               <div className="space-y-1">
                 <div className="flex items-baseline justify-between gap-2 flex-wrap">
-                  <span className="text-3xl sm:text-4xl font-display font-bold">
+                  <span className="text-3xl sm:text-4xl font-display font-black">
                     {formatBRL(animTotalRealized)}
                   </span>
                   <span className="text-sm text-muted-foreground">
