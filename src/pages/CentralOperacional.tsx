@@ -194,11 +194,11 @@ export default function CentralOperacional() {
     return getDateRange(period as any, filterDate, customStart, customEnd);
   }, [period, filterDate, customStart, customEnd]);
 
-  const fetchPreSellers = async () => {
+  const fetchAllUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name")
-      .eq("role", "pre_seller");
+      .order("display_name");
     if (!error && data) setPreSellers(data);
   };
 
@@ -279,7 +279,7 @@ export default function CentralOperacional() {
 
   useEffect(() => {
     loadData();
-    if (isAdmin) fetchPreSellers();
+    if (isAdmin) fetchAllUsers();
     
     const channel = supabase
       .channel('central-operacional-realtime')
@@ -1165,7 +1165,7 @@ export default function CentralOperacional() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="employee" className="font-bold">Membro da Equipe (Pré-venda)</Label>
+              <Label htmlFor="employee" className="font-bold">Membro da Equipe</Label>
               <Select value={distEmployee} onValueChange={setDistEmployee}>
                 <SelectTrigger className="bg-muted border-border">
                   <SelectValue placeholder="Selecione o funcionário" />
