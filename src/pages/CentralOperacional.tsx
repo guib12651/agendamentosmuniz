@@ -194,11 +194,11 @@ export default function CentralOperacional() {
     return getDateRange(period as any, filterDate, customStart, customEnd);
   }, [period, filterDate, customStart, customEnd]);
 
-  const fetchPreSellers = async () => {
+  const fetchAllUsers = async () => {
     const { data, error } = await supabase
       .from("profiles")
       .select("id, display_name")
-      .eq("role", "pre_seller");
+      .order("display_name");
     if (!error && data) setPreSellers(data);
   };
 
