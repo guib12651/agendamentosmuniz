@@ -1165,7 +1165,7 @@ export default function CentralOperacional() {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="employee" className="font-bold">Membro da Equipe (Pré-venda)</Label>
+              <Label htmlFor="employee" className="font-bold">Membro da Equipe</Label>
               <Select value={distEmployee} onValueChange={setDistEmployee}>
                 <SelectTrigger className="bg-muted border-border">
                   <SelectValue placeholder="Selecione o funcionário" />
