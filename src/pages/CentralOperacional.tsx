@@ -279,7 +279,7 @@ export default function CentralOperacional() {
 
   useEffect(() => {
     loadData();
-    if (isAdmin) fetchPreSellers();
+    if (isAdmin) fetchAllUsers();
     
     const channel = supabase
       .channel('central-operacional-realtime')
