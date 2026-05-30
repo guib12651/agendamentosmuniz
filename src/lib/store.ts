@@ -109,19 +109,43 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
 export async function updateMeetingStatus(id: string, status: string): Promise<void> {
   const { data: meeting } = await supabase
     .from("meetings")
-    .select("status_history")
+    .select("status, status_history")
     .eq("id", id)
     .single();
 
-  const currentHistory = meeting?.status_history || [];
-  const newHistory = currentHistory.includes(status) 
-    ? currentHistory 
-    : [...currentHistory, status];
+  if (!meeting) return;
+
+  const currentStatus = meeting.status;
+  let currentHistory = meeting.status_history || [];
+  let newStatus = status as MeetingStatus;
+  let newHistory = [...currentHistory];
+
+  // Se o status já está no histórico ou é o status atual, removemos
+  if (newHistory.includes(status) || currentStatus === status) {
+    newHistory = newHistory.filter(s => s !== status);
+    if (currentStatus === status) {
+      // Se estamos removendo o status atual, definimos o anterior como atual
+      newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
+      // E removemos ele do histórico se houver
+      if (newHistory.length > 0) {
+        newHistory = newHistory.slice(0, -1);
+      }
+    } else {
+      // Se não é o atual, mantemos o atual
+      newStatus = currentStatus as MeetingStatus;
+    }
+  } else {
+    // Adição normal
+    if (currentStatus !== "pending" && !newHistory.includes(currentStatus)) {
+      newHistory.push(currentStatus);
+    }
+    newStatus = status as MeetingStatus;
+  }
 
   const { error } = await supabase
     .from("meetings")
     .update({ 
-      status,
+      status: newStatus,
       status_history: newHistory
     })
     .eq("id", id);
