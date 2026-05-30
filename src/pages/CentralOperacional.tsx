@@ -596,9 +596,15 @@ export default function CentralOperacional() {
     list = list.filter(m => showArchived ? m.archived === true : m.archived === false);
 
     if (selectedStage && selectedStage !== 'agendamentos') {
-      if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
+      if (selectedStage === 'compareceram') list = list.filter(m => 
+        ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status) ||
+        (m.statusHistory && m.statusHistory.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s)))
+      );
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
-      else if (selectedStage === 'negociacoes') list = list.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status));
+      else if (selectedStage === 'negociacoes') list = list.filter(m => 
+        ['em_negociacao', 'venda_concluida'].includes(m.status) ||
+        (m.statusHistory && m.statusHistory.some(s => ['em_negociacao', 'venda_concluida'].includes(s)))
+      );
       else if (selectedStage === 'vendas') list = list.filter(m => m.status === 'venda_concluida');
     }
 
