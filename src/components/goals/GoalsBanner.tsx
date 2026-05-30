@@ -3,12 +3,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePeriodGoal, formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles, Plus, Minus, Printer } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus, Minus, Printer, CheckCircle2 } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
 import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
 import NoShowPrintDialog from "../NoShowPrintDialog";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const formatBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
