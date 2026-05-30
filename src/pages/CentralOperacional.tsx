@@ -561,9 +561,15 @@ export default function CentralOperacional() {
     const appointments = createdAppointmentsCount;
     
     // Resultado: Ações que ocorreram nas reuniões marcadas para o período
-    const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status)).length;
+    const attended = activeMeetings.filter(m => 
+      ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status) ||
+      (m.statusHistory && m.statusHistory.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s)))
+    ).length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
-    const negotiations = activeMeetings.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status)).length;
+    const negotiations = activeMeetings.filter(m => 
+      ['em_negociacao', 'venda_concluida'].includes(m.status) ||
+      (m.statusHistory && m.statusHistory.some(s => ['em_negociacao', 'venda_concluida'].includes(s)))
+    ).length;
     const sales = activeMeetings.filter(m => m.status === 'venda_concluida').length;
 
     return {
