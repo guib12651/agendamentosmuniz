@@ -31,12 +31,12 @@ const restrictionConfig = {
 };
 
 const statusConfig = {
-  pending: { label: "Pendente", className: "bg-muted text-muted-foreground", icon: Clock },
-  compareceu: { label: "Compareceu", className: "bg-success/20 text-success", icon: CheckCircle },
-  visita_realizada: { label: "Visita Realizada", className: "bg-success/20 text-success", icon: CheckCircle },
+  pending: { label: "Pendente", className: "bg-primary/20 text-primary", icon: Clock },
+  compareceu: { label: "Compareceu", className: "bg-primary/20 text-primary", icon: CheckCircle },
+  visita_realizada: { label: "Visita Realizada", className: "bg-primary/20 text-primary", icon: CheckCircle },
   nao_compareceu: { label: "Não compareceu", className: "bg-destructive/20 text-destructive", icon: XCircle },
-  em_negociacao: { label: "Em Negociação", className: "bg-emerald-500/20 text-emerald-500", icon: Handshake },
-  venda_concluida: { label: "Venda Concluída", className: "bg-rose-500/20 text-rose-500", icon: ShoppingCart },
+  em_negociacao: { label: "Em Negociação", className: "bg-blue-500/20 text-blue-400", icon: Handshake },
+  venda_concluida: { label: "Venda Concluída", className: "bg-success/20 text-success", icon: ShoppingCart },
 };
 
 const markingTypeLabels: Record<MarkingType, string> = {
