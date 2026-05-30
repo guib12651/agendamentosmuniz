@@ -913,8 +913,8 @@ export default function CentralOperacional() {
                 title="Compareceram" 
                 value={stats.attended} 
                 icon={CheckCircle2} 
-                color="bg-emerald-50 text-emerald-600" 
-                valueColor="text-emerald-600"
+                color="bg-primary/10 text-primary" 
+                valueColor="text-primary"
                 active={selectedStage === 'compareceram'}
                 onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
               />
@@ -931,8 +931,8 @@ export default function CentralOperacional() {
                 title="Negociações" 
                 value={stats.negotiations} 
                 icon={Handshake} 
-                color="bg-blue-50 text-blue-600" 
-                valueColor="text-blue-600"
+                color="bg-blue-500/10 text-blue-500" 
+                valueColor="text-blue-500"
                 active={selectedStage === 'negociacoes'}
                 onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
               />
@@ -940,8 +940,8 @@ export default function CentralOperacional() {
                 title="Vendas" 
                 value={stats.sales} 
                 icon={ShoppingCart} 
-                color="bg-emerald-600 text-white" 
-                valueColor="text-emerald-700"
+                color="bg-success text-success-foreground" 
+                valueColor="text-success"
                 isHighlight={true}
                 active={selectedStage === 'vendas'}
                 onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
