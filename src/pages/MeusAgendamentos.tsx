@@ -104,10 +104,9 @@ export default function MeusAgendamentos() {
     supabase
       .from("profiles")
       .select("display_name, role")
-      .eq("role", "pre_seller")
       .then(({ data }) => {
         if (data) {
-          const names = data.map((p: any) => p.display_name).sort();
+          const names = data.map((p: any) => p.display_name).filter(Boolean).sort();
           setPreSellers(names);
           if (!selectedPreSeller) setSelectedPreSeller("__all__");
         }
