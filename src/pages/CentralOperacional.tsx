@@ -135,7 +135,7 @@ export default function CentralOperacional() {
   // Modal States
   const [isRegisterLeadsOpen, setIsRegisterLeadsOpen] = useState(false);
   const [isDistributeLeadsOpen, setIsDistributeLeadsOpen] = useState(false);
-  const [preSellers, setPreSellers] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   // Form States - Register Leads
