@@ -208,12 +208,19 @@ export default function CentralOperacional() {
     setLoading(true);
     try {
       // Fetch meetings and calls
-      const [m, c] = await Promise.all([
+      const [m, c, createdCount] = await Promise.all([
         getMeetings(dateRange.start, dateRange.end),
         getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z"),
+        supabase
+          .from("meetings")
+          .select("id", { count: 'exact', head: true })
+          .gte("created_at", dateRange.start + "T00:00:00Z")
+          .lte("created_at", dateRange.end + "T23:59:59Z")
+          .then(res => res.count || 0)
       ]);
       setMeetings(m);
       setCalls(c);
+      setCreatedAppointmentsCount(createdCount);
 
       // Fetch captured leads sum
       const { data: leadsData, error: leadsError } = await supabase
