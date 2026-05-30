@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, Call } from "@/lib/types";
+import { Meeting, Call, MeetingStatus } from "@/lib/types";
 import { getMeetings, getCalls } from "@/lib/store";
 import { getFunnelDataRange, SalesFunnelData } from "@/lib/funnelStore";
 import { 
@@ -224,6 +224,7 @@ export default function CentralOperacional() {
         restriction: row.restriction as any,
         notes: row.notes || "",
         status: (row.status || "pending") as any,
+        statusHistory: (row.status_history || []) as any,
         markingType: (row.marking_type || "lead_quente") as any,
         meetingType: (row.meeting_type || "presencial") as any,
         trigger: (row.trigger || "imovel") as any,
@@ -560,9 +561,15 @@ export default function CentralOperacional() {
     const appointments = createdAppointmentsCount;
     
     // Resultado: Ações que ocorreram nas reuniões marcadas para o período
-    const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status)).length;
+    const attended = activeMeetings.filter(m => 
+      ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status) ||
+      (m.statusHistory && m.statusHistory.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s)))
+    ).length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
-    const negotiations = activeMeetings.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status)).length;
+    const negotiations = activeMeetings.filter(m => 
+      ['em_negociacao', 'venda_concluida'].includes(m.status) ||
+      (m.statusHistory && m.statusHistory.some(s => ['em_negociacao', 'venda_concluida'].includes(s)))
+    ).length;
     const sales = activeMeetings.filter(m => m.status === 'venda_concluida').length;
 
     return {
@@ -589,9 +596,15 @@ export default function CentralOperacional() {
     list = list.filter(m => showArchived ? m.archived === true : m.archived === false);
 
     if (selectedStage && selectedStage !== 'agendamentos') {
-      if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
+      if (selectedStage === 'compareceram') list = list.filter(m => 
+        ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status) ||
+        (m.statusHistory && m.statusHistory.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s)))
+      );
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
-      else if (selectedStage === 'negociacoes') list = list.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status));
+      else if (selectedStage === 'negociacoes') list = list.filter(m => 
+        ['em_negociacao', 'venda_concluida'].includes(m.status) ||
+        (m.statusHistory && m.statusHistory.some(s => ['em_negociacao', 'venda_concluida'].includes(s)))
+      );
       else if (selectedStage === 'vendas') list = list.filter(m => m.status === 'venda_concluida');
     }
 
@@ -625,8 +638,10 @@ export default function CentralOperacional() {
       isMain: true
     });
 
+    const combinedStatus = [...(selectedLead.statusHistory || []), selectedLead.status];
+
     // Visit event
-    if (selectedLead.status === 'compareceu' || selectedLead.status === 'visita_realizada' || selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+    if (combinedStatus.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s))) {
       history.push({
         event: "Visita realizada",
         date: selectedLead.date,
@@ -636,17 +651,17 @@ export default function CentralOperacional() {
     }
 
     // Negotiation event
-    if (selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+    if (combinedStatus.some(s => ['em_negociacao', 'venda_concluida'].includes(s))) {
       history.push({
         event: "Início da negociação",
-        date: selectedLead.date, // We don't have a specific date for negotiation start, using lead date
+        date: selectedLead.date, 
         icon: Handshake,
         isMain: true
       });
     }
 
     // Sale event
-    if (selectedLead.status === 'venda_concluida') {
+    if (selectedLead.status === 'venda_concluida' || (selectedLead.statusHistory && selectedLead.statusHistory.includes('venda_concluida'))) {
       history.push({
         event: "Venda realizada",
         date: selectedLead.saleDate || selectedLead.date,
@@ -709,9 +724,34 @@ export default function CentralOperacional() {
 
   const handleUpdateLeadStatus = async (id: string, status: string) => {
     try {
+      const currentLead = meetings.find(m => m.id === id);
+      if (!currentLead) return;
+
+      let newStatus = status as MeetingStatus;
+      let newHistory = [...(currentLead.statusHistory || [])];
+
+      // If the status is already in history, we remove it
+      if (newHistory.includes(newStatus)) {
+        newHistory = newHistory.filter(s => s !== newStatus);
+        // If the current status was the one removed, we need to set a new current status
+        if (currentLead.status === newStatus) {
+          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] : "pending";
+          newHistory = newHistory.slice(0, -1);
+        }
+      } else {
+        // Add current status to history before changing if it's not pending and not already there
+        if (currentLead.status !== "pending" && !newHistory.includes(currentLead.status)) {
+          newHistory.push(currentLead.status);
+        }
+        newStatus = status as MeetingStatus;
+      }
+
       const { error } = await supabase
         .from("meetings")
-        .update({ status })
+        .update({ 
+          status: newStatus,
+          status_history: newHistory 
+        })
         .eq("id", id);
       
       if (error) throw error;
@@ -719,12 +759,9 @@ export default function CentralOperacional() {
       toast.success("Status atualizado!");
       loadData();
       
-      if (status === "venda_concluida" && isAdmin) {
-        const lead = meetings.find(m => m.id === id);
-        if (lead) {
-          setLastSoldMeeting(lead);
-          setShowSaleToQuotaModal(true);
-        }
+      if (newStatus === "venda_concluida" && isAdmin) {
+        setLastSoldMeeting({...currentLead, status: newStatus, statusHistory: newHistory});
+        setShowSaleToQuotaModal(true);
       }
     } catch (error) {
       console.error(error);
@@ -1018,7 +1055,7 @@ export default function CentralOperacional() {
                       <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                       <TableCell>{lead.city || "-"}</TableCell>
                       <TableCell>
-                        <StatusBadge status={lead.status} />
+                        <StatusBadge lead={lead} />
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
@@ -1093,7 +1130,7 @@ export default function CentralOperacional() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
-              <StatusBadge status={selectedLead?.status} />
+              <StatusBadge lead={selectedLead!} />
               <Badge variant="outline">{selectedLead?.city || "Cidade não inf."}</Badge>
             </div>
           </SheetHeader>
@@ -1174,10 +1211,18 @@ export default function CentralOperacional() {
                   <div className="pt-2 border-t border-border space-y-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Alterar Status</p>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-blue-500 border-blue-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-success border-success/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-primary border-primary/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-destructive" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>Falta</Button>
+                      <Button size="sm" variant={selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao')) ? "bg-blue-500" : "text-blue-500 border-blue-500/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>
+                        {selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao') ? "Remover Negociação" : "Negociação"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida')) ? "bg-success" : "text-success border-success/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>
+                        {selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida') ? "Remover Venda" : "Vendido"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu')) ? "bg-primary" : "text-primary border-primary/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>
+                        {selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu') ? "Remover Compareceu" : "Compareceu"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu')) ? "bg-destructive" : "text-destructive border-destructive/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>
+                        {selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu') ? "Remover Falta" : "Falta"}
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -1762,13 +1807,31 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
 }
 
 
-function StatusBadge({ status }: { status: any }) {
-  const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+function StatusBadge({ lead }: { lead: Meeting }) {
+  const combinedStatus = [...(lead.statusHistory || []), lead.status].filter(s => s !== "pending");
+  
+  if (combinedStatus.length === 0) {
+    const config = statusConfig.pending;
+    return (
+      <Badge className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
+        <config.icon className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
+  }
+
   return (
-    <Badge className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
-      <config.icon className="w-3 h-3 mr-1" />
-      {config.label}
-    </Badge>
+    <div className="flex flex-wrap gap-1">
+      {combinedStatus.map((status, idx) => {
+        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+        return (
+          <Badge key={`${status}-${idx}`} className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
+            <config.icon className="w-3 h-3 mr-1" />
+            {config.label}
+          </Badge>
+        );
+      })}
+    </div>
   );
 }
 

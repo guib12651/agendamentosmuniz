@@ -78,16 +78,38 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
             </span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.className}`}>{r.label}</span>
             
-            {(meeting.statusHistory && meeting.statusHistory.length > 0 ? meeting.statusHistory : [meeting.status || "pending"]).map((status, idx) => {
-              const config = statusConfig[status as MeetingStatus] || statusConfig.pending;
-              const Icon = config.icon;
-              return (
-                <span key={`${status}-${idx}`} className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${config.className}`}>
-                  <Icon className="w-3 h-3" />
-                  {config.label}
-                </span>
-              );
-            })}
+            {(() => {
+              const combinedStatus = [...(meeting.statusHistory || []), meeting.status].filter(s => s !== "pending");
+              if (combinedStatus.length === 0) {
+                const config = statusConfig.pending;
+                const Icon = config.icon;
+                return (
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${config.className}`}>
+                    <Icon className="w-3 h-3" />
+                    {config.label}
+                  </span>
+                );
+              }
+              return combinedStatus.map((status, idx) => {
+                const config = statusConfig[status as MeetingStatus] || statusConfig.pending;
+                const Icon = config.icon;
+                return (
+                  <span 
+                    key={`${status}-${idx}`} 
+                    className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer hover:opacity-80 transition-all ${config.className}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStatusChange(status as MeetingStatus);
+                    }}
+                    title="Clique para remover esta tag"
+                  >
+                    <Icon className="w-3 h-3" />
+                    {config.label}
+                    <XCircle className="w-3 h-3 ml-1 opacity-50 hover:opacity-100" />
+                  </span>
+                );
+              });
+            })()}
             {isSoon && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary animate-pulse">
                 Em breve
