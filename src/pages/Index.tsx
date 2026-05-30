@@ -230,16 +230,19 @@ export default function Index() {
   };
 
   const handleStatusChange = async (id: string, status: string) => {
+    const meeting = meetings.find(m => m.id === id);
+    if (!meeting) return;
+
+    // Se o status já existe no histórico ou é o status atual, ele será removido pelo updateMeetingStatus
+    const isRemoving = meeting.status === status || (meeting.statusHistory || []).includes(status);
+    
     await updateMeetingStatus(id, status);
     await reload();
     toast.success("Status atualizado!");
     
-    if (status === "venda_concluida" && isAdmin) {
-      const meeting = meetings.find(m => m.id === id);
-      if (meeting) {
-        setLastSoldMeeting(meeting);
-        setShowSaleToQuotaModal(true);
-      }
+    if (status === "venda_concluida" && isAdmin && !isRemoving) {
+      setLastSoldMeeting(meeting);
+      setShowSaleToQuotaModal(true);
     }
   };
 
