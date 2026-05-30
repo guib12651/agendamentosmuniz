@@ -6,7 +6,7 @@ interface UserProfile {
   id: string;
   username: string;
   displayName: string;
-  role: "admin" | "pre_seller";
+  role: "admin" | "pre_seller" | "seller";
   is_blocked: boolean;
 }
 
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: data.id,
         username: data.username,
         displayName: data.display_name,
-        role: data.role as "admin" | "pre_seller",
+        role: data.role as "admin" | "pre_seller" | "seller",
         is_blocked: !!data.is_blocked,
       });
     }
