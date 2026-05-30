@@ -41,6 +41,7 @@ export async function getMeetings(startDate?: string, endDate?: string): Promise
     restriction: row.restriction as RestrictionType,
     notes: row.notes || "",
     status: (row.status || "pending") as MeetingStatus,
+    statusHistory: (row.status_history || []) as MeetingStatus[],
     markingType: (row.marking_type || "lead_quente") as MarkingType,
     meetingType: (row.meeting_type || "presencial") as MeetingType,
     trigger: (row.trigger || "imovel") as TriggerType,
@@ -108,7 +109,10 @@ export async function updateMeeting(meeting: Meeting): Promise<void> {
 export async function updateMeetingStatus(id: string, status: string): Promise<void> {
   const { error } = await supabase
     .from("meetings")
-    .update({ status })
+    .update({ 
+      status,
+      status_history: supabase.rpc('append_to_status_history', { _meeting_id: id, _new_status: status })
+    })
     .eq("id", id);
   if (error) throw error;
 }
@@ -126,6 +130,12 @@ export async function updateFunnelStage(id: string, stage: FunnelStage): Promise
       status: stage === 'visit' ? 'compareceu' : 
               stage === 'negotiation' ? 'em_negociacao' : 
               stage === 'sale' ? 'venda_concluida' : 'pending',
+      status_history: supabase.rpc('append_to_status_history', { 
+        _meeting_id: id, 
+        _new_status: stage === 'visit' ? 'compareceu' : 
+                    stage === 'negotiation' ? 'em_negociacao' : 
+                    stage === 'sale' ? 'venda_concluida' : 'pending' 
+      }),
       sale_date: stage === 'sale' ? new Date().toISOString().split('T')[0] : null
     })
     .eq("id", id);

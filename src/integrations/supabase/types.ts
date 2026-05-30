@@ -689,6 +689,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      append_to_status_history: {
+        Args: { _meeting_id: string; _new_status: string }
+        Returns: string[]
+      }
       get_occupied_slots: {
         Args: { _date: string }
         Returns: {
