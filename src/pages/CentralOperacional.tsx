@@ -900,57 +900,20 @@ export default function CentralOperacional() {
 
         {/* 2. OPERATIONAL DASHBOARD BLOCKS */}
         <section className="space-y-12">
-          {/* BLOCO 1: PRODUÇÃO DO DIA */}
+          {/* BLOCO 1: PRODUÇÃO DO PERÍODO */}
           <div className="space-y-6">
             <div className="border-l-4 border-blue-500 pl-4 py-1">
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Produção do Dia</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Produção do período</h2>
               <p className="text-sm text-muted-foreground font-medium">Tudo que a equipe produziu durante o período selecionado.</p>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <StatCard 
-                title="Leads Captados" 
-                value={stats.captured} 
-                icon={Target} 
-                color="bg-slate-100 text-slate-600" 
-                valueColor="text-slate-900"
-                active={selectedStage === 'captados'}
-                onClick={() => setIsLeadsListOpen(true)}
-              />
-              <StatCard 
-                title="Leads Distribuídos" 
-                value={stats.distributed} 
-                icon={UserPlus} 
-                color="bg-blue-50 text-blue-600"
-                valueColor="text-blue-700"
-                active={selectedStage === 'distribuicao'}
-                onClick={() => setSelectedStage(selectedStage === 'distribuicao' ? null : 'distribuicao')}
-              />
-              <StatCard 
-                title="Ligações" 
-                value={stats.calls} 
-                icon={Phone} 
-                color="bg-slate-100 text-slate-600" 
-                valueColor="text-slate-900"
-                active={selectedStage === 'ligacoes'}
-                onClick={() => setIsCallsListOpen(true)}
-              />
-              <StatCard 
-                title="Agendamentos Criados" 
-                value={stats.appointments} 
-                icon={Calendar} 
-                color="bg-primary/10 text-primary"
-                valueColor="text-primary"
-                active={selectedStage === 'agendamentos'}
-                onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
-              />
-            </div>
+...
           </div>
 
-          {/* BLOCO 2: RESULTADO DO DIA */}
+          {/* BLOCO 2: RESULTADO DO PERÍODO */}
           <div className="space-y-6">
             <div className="border-l-4 border-emerald-500 pl-4 py-1">
-              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Resultado do Dia</h2>
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Resultado do período</h2>
               <p className="text-sm text-muted-foreground font-medium">Tudo que efetivamente aconteceu na operação durante o período selecionado.</p>
             </div>
             
