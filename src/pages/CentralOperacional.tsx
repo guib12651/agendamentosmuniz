@@ -604,7 +604,12 @@ export default function CentralOperacional() {
       );
     }
 
-    return list.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+    return list.sort((a, b) => {
+      if (selectedStage === 'agendamentos' && a.createdAt && b.createdAt) {
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      }
+      return b.date.localeCompare(a.date) || b.time.localeCompare(a.time);
+    });
   }, [meetings, createdMeetings, selectedStage, searchTerm, showArchived]);
 
   const leadHistory = useMemo(() => {
