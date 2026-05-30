@@ -117,6 +117,7 @@ export default function CentralOperacional() {
   const [customEnd, setCustomEnd] = useState(new Date().toISOString().split("T")[0]);
   
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [createdMeetings, setCreatedMeetings] = useState<Meeting[]>([]);
   const [createdAppointmentsCount, setCreatedAppointmentsCount] = useState(0);
   const [calls, setCalls] = useState<Call[]>([]);
   const [funnelData, setFunnelData] = useState<SalesFunnelData | null>(null);
