@@ -104,6 +104,19 @@ export default function GoalsBanner() {
               <span className="hidden sm:inline">Gerenciar metas</span>
               <span className="sm:hidden">Metas</span>
             </Button>
+            {goal && (
+              <Button 
+                size="sm" 
+                variant="default" 
+                onClick={handleConcludeGoal} 
+                disabled={concluding}
+                className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm"
+              >
+                <CheckCircle2 className="size-4" />
+                <span className="hidden sm:inline">{concluding ? "Concluindo..." : "Concluir meta"}</span>
+                <span className="sm:hidden">{concluding ? "..." : "Concluir"}</span>
+              </Button>
+            )}
           </div>
         )}
       </div>
