@@ -99,12 +99,12 @@ const leadSources = [
 ];
 
 const statusConfig = {
-  pending: { label: "Agendado", color: "bg-muted text-muted-foreground", icon: Clock },
-  compareceu: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  pending: { label: "Agendado", color: "bg-primary/20 text-primary", icon: Clock },
+  compareceu: { label: "Compareceu", color: "bg-primary/20 text-primary", icon: CheckCircle2 },
   nao_compareceu: { label: "Não Compareceu", color: "bg-destructive/20 text-destructive", icon: XCircle },
-  em_negociacao: { label: "Negociação", color: "bg-emerald-500/20 text-emerald-500", icon: Handshake },
-  venda_concluida: { label: "Vendido", color: "bg-rose-500/20 text-rose-500", icon: ShoppingCart },
-  visita_realizada: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  em_negociacao: { label: "Negociação", color: "bg-blue-500/20 text-blue-400", icon: Handshake },
+  venda_concluida: { label: "Vendido", color: "bg-success/20 text-success", icon: ShoppingCart },
+  visita_realizada: { label: "Compareceu", color: "bg-primary/20 text-primary", icon: CheckCircle2 },
 };
 
 export default function CentralOperacional() {
@@ -893,8 +893,8 @@ export default function CentralOperacional() {
                 title="Agendamentos Criados" 
                 value={stats.appointments} 
                 icon={Calendar} 
-                color="bg-blue-50 text-blue-600"
-                valueColor="text-blue-700"
+                color="bg-primary/10 text-primary"
+                valueColor="text-primary"
                 active={selectedStage === 'agendamentos'}
                 onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
               />
@@ -913,8 +913,8 @@ export default function CentralOperacional() {
                 title="Compareceram" 
                 value={stats.attended} 
                 icon={CheckCircle2} 
-                color="bg-emerald-50 text-emerald-600" 
-                valueColor="text-emerald-600"
+                color="bg-primary/10 text-primary" 
+                valueColor="text-primary"
                 active={selectedStage === 'compareceram'}
                 onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
               />
@@ -931,8 +931,8 @@ export default function CentralOperacional() {
                 title="Negociações" 
                 value={stats.negotiations} 
                 icon={Handshake} 
-                color="bg-blue-50 text-blue-600" 
-                valueColor="text-blue-600"
+                color="bg-blue-500/10 text-blue-500" 
+                valueColor="text-blue-500"
                 active={selectedStage === 'negociacoes'}
                 onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
               />
@@ -940,8 +940,8 @@ export default function CentralOperacional() {
                 title="Vendas" 
                 value={stats.sales} 
                 icon={ShoppingCart} 
-                color="bg-emerald-600 text-white" 
-                valueColor="text-emerald-700"
+                color="bg-success text-success-foreground" 
+                valueColor="text-success"
                 isHighlight={true}
                 active={selectedStage === 'vendas'}
                 onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
@@ -1174,9 +1174,9 @@ export default function CentralOperacional() {
                   <div className="pt-2 border-t border-border space-y-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Alterar Status</p>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-rose-500 border-rose-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-blue-500 border-blue-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-success border-success/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-primary border-primary/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
                       <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-destructive" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>Falta</Button>
                     </div>
                   </div>
@@ -1735,7 +1735,7 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
       className={cn(
         "cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] border border-border overflow-hidden group",
         active ? "ring-2 ring-primary bg-card" : "bg-card",
-        isHighlight && "border-emerald-500/50 shadow-emerald-500/10"
+        isHighlight && "border-success/50 shadow-success/10"
       )}
       onClick={onClick}
     >

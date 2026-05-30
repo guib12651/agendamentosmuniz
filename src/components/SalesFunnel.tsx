@@ -370,10 +370,11 @@ export default function SalesFunnel({ date: initialDate }: { date: string }) {
                         <h4 className="font-black text-slate-900 text-base">{m.leadName}</h4>
                         <div className="flex items-center gap-2">
                            <span className={`text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${
-                             m.status === 'pending' ? 'bg-amber-100 text-amber-700' : 
-                             m.status === 'compareceu' ? 'bg-emerald-100 text-emerald-700' : 
+                             m.status === 'pending' || m.status === 'compareceu' || m.status === 'visita_realizada' ? 'bg-amber-100 text-amber-700' : 
+                             m.status === 'em_negociacao' ? 'bg-blue-100 text-blue-700' : 
+                             m.status === 'venda_concluida' ? 'bg-emerald-100 text-emerald-700' : 
                              m.status === 'nao_compareceu' ? 'bg-rose-100 text-rose-700' : 
-                             'bg-blue-100 text-blue-700'
+                             'bg-slate-100 text-slate-700'
                            }`}>
                             {m.status === 'pending' ? 'Agendado' : m.status.replace('_', ' ')}
                           </span>
