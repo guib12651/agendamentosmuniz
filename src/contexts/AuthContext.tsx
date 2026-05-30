@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile,
-        isAdmin: profile?.role === "admin",
+        isAdmin: profile?.role === "admin" || profile?.role === "seller",
         loading,
         signIn,
         signOut,

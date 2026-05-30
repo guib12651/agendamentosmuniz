@@ -17,7 +17,6 @@ import Bids from "./pages/Bids.tsx";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
-  console.log("ProtectedRoute check:", { requireAdmin });
   const { session, profile, isAdmin, loading, signOut } = useAuth();
   
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
@@ -29,7 +28,7 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
   }
 
   if (requireAdmin && !isAdmin) {
-    console.log("Access denied: Not an admin", { profile, isAdmin });
+    console.error("DEBUG: Access denied. requireAdmin:", requireAdmin, "isAdmin:", isAdmin, "profile_role:", profile?.role);
     return <Navigate to="/" replace />;
   }
 
