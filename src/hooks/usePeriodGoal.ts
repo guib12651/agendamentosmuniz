@@ -58,6 +58,7 @@ export function usePeriodGoal() {
     const { data: latestGoal, error: gErr } = await supabase
       .from("period_goals")
       .select("*")
+      .eq("status", "active")
       .order("updated_at", { ascending: false })
       .limit(1)
       .maybeSingle();
