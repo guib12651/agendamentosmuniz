@@ -1268,7 +1268,7 @@ export default function CentralOperacional() {
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
                 <SelectContent>
-                  {preSellers.map((u) => (
+                  {users.map((u) => (
                     <SelectItem key={u.id} value={u.id}>{u.display_name}</SelectItem>
                   ))}
                 </SelectContent>
