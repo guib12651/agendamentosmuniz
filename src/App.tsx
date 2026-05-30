@@ -28,6 +28,7 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
   }
 
   if (requireAdmin && !isAdmin) {
+    console.log("Access denied: Not an admin", { profile, isAdmin });
     return <Navigate to="/" replace />;
   }
 
