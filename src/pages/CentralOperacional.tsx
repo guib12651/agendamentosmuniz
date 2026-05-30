@@ -208,28 +208,10 @@ export default function CentralOperacional() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // 1. Fetch appointments (meetings) for the period
-      // For "Appointments Created", we count meetings created in the period
-      const { count: createdCount, error: createdError } = await supabase
-        .from("meetings")
-        .select("id", { count: 'exact', head: true })
-        .gte("created_at", dateRange.start + "T00:00:00Z")
-        .lte("created_at", dateRange.end + "T23:59:59Z");
-      
-      if (createdError) throw createdError;
-      setCreatedAppointmentsCount(createdCount || 0);
+      const startISO = new Date(dateRange.start + "T00:00:00").toISOString();
+      const endISO = new Date(dateRange.end + "T23:59:59").toISOString();
 
-      // For Result cards (Attended, No Show, Negotiations, Sales), we look at meetings
-      // scheduled for the period, regardless of when they were created.
-      const { data: meetingsData, error: meetingsError } = await supabase
-        .from("meetings")
-        .select("*")
-        .gte("date", dateRange.start)
-        .lte("date", dateRange.end);
-      
-      if (meetingsError) throw meetingsError;
-      
-      const mappedMeetings: Meeting[] = (meetingsData || []).map((row) => ({
+      const mapMeetingRow = (row: any): Meeting => ({
         id: row.id,
         leadName: row.lead_name,
         phone: row.phone,
@@ -251,7 +233,30 @@ export default function CentralOperacional() {
         createdAt: row.created_at || undefined,
         funnelStage: (row.funnel_stage || "appointment") as any,
         archived: row.archived || false,
-      }));
+      });
+
+      // 1. Fetch appointments (meetings) CREATED for the period
+      const { data: createdData, error: createdError } = await supabase
+        .from("meetings")
+        .select("*")
+        .gte("created_at", startISO)
+        .lte("created_at", endISO);
+      
+      if (createdError) throw createdError;
+      const mappedCreated = (createdData || []).map(mapMeetingRow);
+      setCreatedMeetings(mappedCreated);
+      setCreatedAppointmentsCount(mappedCreated.length);
+
+      // 2. Fetch appointments (meetings) SCHEDULED for the period
+      const { data: meetingsData, error: meetingsError } = await supabase
+        .from("meetings")
+        .select("*")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+      
+      if (meetingsError) throw meetingsError;
+      
+      const mappedMeetings = (meetingsData || []).map(mapMeetingRow);
       setMeetings(mappedMeetings);
 
       // 2. Fetch Manual Data (Leads and Calls) - NOT automatic as per instructions
