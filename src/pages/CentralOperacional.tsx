@@ -1136,7 +1136,7 @@ export default function CentralOperacional() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
-              <StatusBadge lead={selectedLead!} />
+              <StatusBadge lead={selectedLead!} onUpdate={handleUpdateLeadStatus} />
               <Badge variant="outline">{selectedLead?.city || "Cidade não inf."}</Badge>
             </div>
           </SheetHeader>
