@@ -724,9 +724,34 @@ export default function CentralOperacional() {
 
   const handleUpdateLeadStatus = async (id: string, status: string) => {
     try {
+      const currentLead = meetings.find(m => m.id === id);
+      if (!currentLead) return;
+
+      let newStatus = status as MeetingStatus;
+      let newHistory = [...(currentLead.statusHistory || [])];
+
+      // If the status is already in history, we remove it
+      if (newHistory.includes(newStatus)) {
+        newHistory = newHistory.filter(s => s !== newStatus);
+        // If the current status was the one removed, we need to set a new current status
+        if (currentLead.status === newStatus) {
+          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] : "pending";
+          newHistory = newHistory.slice(0, -1);
+        }
+      } else {
+        // Add current status to history before changing if it's not pending and not already there
+        if (currentLead.status !== "pending" && !newHistory.includes(currentLead.status)) {
+          newHistory.push(currentLead.status);
+        }
+        newStatus = status as MeetingStatus;
+      }
+
       const { error } = await supabase
         .from("meetings")
-        .update({ status })
+        .update({ 
+          status: newStatus,
+          status_history: newHistory 
+        })
         .eq("id", id);
       
       if (error) throw error;
@@ -734,12 +759,9 @@ export default function CentralOperacional() {
       toast.success("Status atualizado!");
       loadData();
       
-      if (status === "venda_concluida" && isAdmin) {
-        const lead = meetings.find(m => m.id === id);
-        if (lead) {
-          setLastSoldMeeting(lead);
-          setShowSaleToQuotaModal(true);
-        }
+      if (newStatus === "venda_concluida" && isAdmin) {
+        setLastSoldMeeting({...currentLead, status: newStatus, statusHistory: newHistory});
+        setShowSaleToQuotaModal(true);
       }
     } catch (error) {
       console.error(error);
