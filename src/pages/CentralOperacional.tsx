@@ -99,12 +99,12 @@ const leadSources = [
 ];
 
 const statusConfig = {
-  pending: { label: "Agendado", color: "bg-muted text-muted-foreground", icon: Clock },
-  compareceu: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  pending: { label: "Agendado", color: "bg-primary/20 text-primary", icon: Clock },
+  compareceu: { label: "Compareceu", color: "bg-primary/20 text-primary", icon: CheckCircle2 },
   nao_compareceu: { label: "Não Compareceu", color: "bg-destructive/20 text-destructive", icon: XCircle },
-  em_negociacao: { label: "Negociação", color: "bg-emerald-500/20 text-emerald-500", icon: Handshake },
-  venda_concluida: { label: "Vendido", color: "bg-rose-500/20 text-rose-500", icon: ShoppingCart },
-  visita_realizada: { label: "Compareceu", color: "bg-success/20 text-success", icon: CheckCircle2 },
+  em_negociacao: { label: "Negociação", color: "bg-blue-500/20 text-blue-400", icon: Handshake },
+  venda_concluida: { label: "Vendido", color: "bg-success/20 text-success", icon: ShoppingCart },
+  visita_realizada: { label: "Compareceu", color: "bg-primary/20 text-primary", icon: CheckCircle2 },
 };
 
 export default function CentralOperacional() {
