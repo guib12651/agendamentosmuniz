@@ -288,23 +288,31 @@ export default function CentralOperacional() {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'meetings' }, (payload) => {
         console.log("Realtime: new meeting detected", payload.new);
         const newMeeting = payload.new as Meeting;
-        const today = new Date().toISOString().split("T")[0];
         
-        // Se a reunião foi marcada para hoje OU criada hoje
-        if (newMeeting.date === today || (newMeeting.createdAt && newMeeting.createdAt.startsWith(today))) {
-          setPeriod("today");
-          setSelectedStage("agendamentos");
-          toast.info(`Novo agendamento: ${newMeeting.leadName}`, {
-            description: `Marcado para as ${newMeeting.time}`,
-            action: {
-              label: "Ver",
-              onClick: () => {
-                setSelectedStage("agendamentos");
-                setSearchTerm(newMeeting.leadName);
-              }
-            }
-          });
+        // Sempre seleciona a aba de agendamentos para qualquer nova reunião
+        setSelectedStage("agendamentos");
+        
+        // Ajusta o período se a reunião for para uma data fora do range atual
+        const meetingDate = newMeeting.date;
+        if (meetingDate < dateRange.start || meetingDate > dateRange.end) {
+          // Se estiver fora do range, mudamos para a data específica da reunião 
+          // ou simplesmente recarregamos para garantir que apareça se o usuário mudar o filtro
+          setPeriod("custom");
+          setFilterDate(meetingDate);
+          setCustomStart(meetingDate);
+          setCustomEnd(meetingDate);
         }
+
+        toast.info(`Novo agendamento: ${newMeeting.leadName}`, {
+          description: `Marcado para ${newMeeting.date} às ${newMeeting.time}`,
+          action: {
+            label: "Ver",
+            onClick: () => {
+              setSelectedStage("agendamentos");
+              setSearchTerm(newMeeting.leadName);
+            }
+          }
+        });
         loadData();
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'meetings' }, () => {
