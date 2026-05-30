@@ -605,7 +605,7 @@ export default function CentralOperacional() {
     }
 
     return list.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
-  }, [meetings, selectedStage, searchTerm, showArchived]);
+  }, [meetings, createdMeetings, selectedStage, searchTerm, showArchived]);
 
   const leadHistory = useMemo(() => {
     if (!selectedLead) return [];
