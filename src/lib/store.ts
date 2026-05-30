@@ -122,7 +122,9 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
 
   // Se o status já está no histórico ou é o status atual, removemos
   if (newHistory.includes(status) || currentStatus === status) {
+    // Para evitar duplicatas, primeiro limpamos qualquer ocorrência desse status
     newHistory = newHistory.filter(s => s !== status);
+    
     if (currentStatus === status) {
       // Se estamos removendo o status atual, definimos o anterior como atual
       newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
@@ -135,7 +137,8 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
       newStatus = currentStatus as MeetingStatus;
     }
   } else {
-    // Adição normal
+    // Adição normal: garante que não haja duplicatas antes de adicionar
+    newHistory = newHistory.filter(s => s !== status);
     if (currentStatus !== "pending" && !newHistory.includes(currentStatus)) {
       newHistory.push(currentStatus);
     }
