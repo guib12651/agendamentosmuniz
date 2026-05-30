@@ -161,7 +161,6 @@ export default function GerenciarUsuarios() {
   );
 
   if (!isAdmin) {
-    console.log("GerenciarUsuarios: Access denied (isAdmin is false)", { isAdmin, role: profile?.role });
     return (
       <div className="min-h-screen flex items-center justify-center text-muted-foreground p-6 text-center">
         Acesso restrito a administradores.

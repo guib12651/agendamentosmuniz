@@ -28,7 +28,6 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
   }
 
   if (requireAdmin && !isAdmin) {
-    console.error("DEBUG: Access denied. requireAdmin:", requireAdmin, "isAdmin:", isAdmin, "profile_role:", profile?.role);
     return <Navigate to="/" replace />;
   }
 
