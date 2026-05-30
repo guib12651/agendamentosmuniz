@@ -24,12 +24,38 @@ function motivationalMessage(pct: number) {
 }
 
 export default function GoalsBanner() {
-  const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
+  const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal, reload } =
     usePeriodGoal();
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
+  const [concluding, setConcluding] = useState(false);
+
+  async function handleConcludeGoal() {
+    if (!goal || concluding) return;
+    
+    const confirm = window.confirm("Deseja realmente concluir esta meta? Ela será movida para o histórico.");
+    if (!confirm) return;
+
+    setConcluding(true);
+    try {
+      const { error } = await supabase
+        .from("period_goals")
+        .update({ status: "completed", updated_at: new Date().toISOString() })
+        .eq("id", goal.id);
+
+      if (error) throw error;
+      
+      toast.success("Meta concluída com sucesso!");
+      await reload();
+    } catch (error: any) {
+      console.error("Error concluding goal:", error);
+      toast.error("Erro ao concluir meta");
+    } finally {
+      setConcluding(false);
+    }
+  }
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
