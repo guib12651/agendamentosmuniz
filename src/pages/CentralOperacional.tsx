@@ -117,6 +117,7 @@ export default function CentralOperacional() {
   const [customEnd, setCustomEnd] = useState(new Date().toISOString().split("T")[0]);
   
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [createdAppointmentsCount, setCreatedAppointmentsCount] = useState(0);
   const [calls, setCalls] = useState<Call[]>([]);
   const [funnelData, setFunnelData] = useState<SalesFunnelData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -207,12 +208,19 @@ export default function CentralOperacional() {
     setLoading(true);
     try {
       // Fetch meetings and calls
-      const [m, c] = await Promise.all([
+      const [m, c, createdCount] = await Promise.all([
         getMeetings(dateRange.start, dateRange.end),
         getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z"),
+        supabase
+          .from("meetings")
+          .select("id", { count: 'exact', head: true })
+          .gte("created_at", dateRange.start + "T00:00:00Z")
+          .lte("created_at", dateRange.end + "T23:59:59Z")
+          .then(res => res.count || 0)
       ]);
       setMeetings(m);
       setCalls(c);
+      setCreatedAppointmentsCount(createdCount);
 
       // Fetch captured leads sum
       const { data: leadsData, error: leadsError } = await supabase
@@ -516,7 +524,11 @@ export default function CentralOperacional() {
     const individualCallsCount = calls.length;
     const dailyCallsCount = dailyCallsList.reduce((acc, c) => acc + c.amount, 0);
     const callsMade = individualCallsCount + dailyCallsCount;
-    const appointments = activeMeetings.length;
+    
+    // Produção: Agendamentos criados no período
+    const appointments = createdAppointmentsCount;
+    
+    // Resultado: Ações que ocorreram nas reuniões marcadas para o período
     const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status)).length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
     const negotiations = activeMeetings.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status)).length;
@@ -532,7 +544,7 @@ export default function CentralOperacional() {
       negotiations,
       sales
     };
-  }, [funnelData, calls, meetings, dailyCallsList]);
+  }, [funnelData, calls, meetings, dailyCallsList, createdAppointmentsCount]);
 
   const filteredLeads = useMemo(() => {
     let list = meetings;
@@ -802,92 +814,104 @@ export default function CentralOperacional() {
           </div>
         </section>
 
-        {/* 2. OPERATIONAL CARDS */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8 gap-4">
-          <StatCard 
-            title="Leads Captados" 
-            value={stats.captured} 
-            icon={Target} 
-            color="bg-blue-500" 
-            active={selectedStage === 'captados'}
-            onClick={() => setIsLeadsListOpen(true)}
-          />
-          <StatCard 
-            title="Distribuição" 
-            value={stats.distributed} 
-            icon={UserPlus} 
-            color="bg-slate-800"
-            active={selectedStage === 'distribuicao'}
-            onClick={() => setSelectedStage(selectedStage === 'distribuicao' ? null : 'distribuicao')}
-          />
-          <StatCard 
-            title="Ligações" 
-            value={stats.calls} 
-            icon={Phone} 
-            color="bg-amber-400" 
-            active={selectedStage === 'ligacoes'}
-            onClick={() => setIsCallsListOpen(true)}
-          />
-          <StatCard 
-            title="Agendamentos" 
-            value={stats.appointments} 
-            icon={Calendar} 
-            color="bg-emerald-500" 
-            active={selectedStage === 'agendamentos'}
-            onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
-          />
-          <StatCard 
-            title="Compareceram" 
-            value={stats.attended} 
-            icon={CheckCircle2} 
-            color="bg-emerald-600" 
-            active={selectedStage === 'compareceram'}
-            onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
-          />
-          <StatCard 
-            title="Faltas" 
-            value={stats.noShow} 
-            icon={XCircle} 
-            color="bg-rose-500" 
-            active={selectedStage === 'faltas'}
-            onClick={() => setSelectedStage(selectedStage === 'faltas' ? null : 'faltas')}
-          />
-          <StatCard 
-            title="Negociações" 
-            value={stats.negotiations} 
-            icon={Handshake} 
-            color="bg-purple-600" 
-            active={selectedStage === 'negociacoes'}
-            onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
-          />
-          <StatCard 
-            title="Vendas" 
-            value={stats.sales} 
-            icon={ShoppingCart} 
-            color="bg-yellow-500" 
-            active={selectedStage === 'vendas'}
-            onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
-          />
-        </section>
+        {/* 2. OPERATIONAL DASHBOARD BLOCKS */}
+        <section className="space-y-12">
+          {/* BLOCO 1: PRODUÇÃO DO DIA */}
+          <div className="space-y-6">
+            <div className="border-l-4 border-blue-500 pl-4 py-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Produção do Dia</h2>
+              <p className="text-sm text-muted-foreground font-medium">Tudo que a equipe produziu durante o período selecionado.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard 
+                title="Leads Captados" 
+                value={stats.captured} 
+                icon={Target} 
+                color="bg-slate-100 text-slate-600" 
+                valueColor="text-slate-900"
+                active={selectedStage === 'captados'}
+                onClick={() => setIsLeadsListOpen(true)}
+              />
+              <StatCard 
+                title="Leads Distribuídos" 
+                value={stats.distributed} 
+                icon={UserPlus} 
+                color="bg-blue-50 text-blue-600"
+                valueColor="text-blue-700"
+                active={selectedStage === 'distribuicao'}
+                onClick={() => setSelectedStage(selectedStage === 'distribuicao' ? null : 'distribuicao')}
+              />
+              <StatCard 
+                title="Ligações" 
+                value={stats.calls} 
+                icon={Phone} 
+                color="bg-slate-100 text-slate-600" 
+                valueColor="text-slate-900"
+                active={selectedStage === 'ligacoes'}
+                onClick={() => setIsCallsListOpen(true)}
+              />
+              <StatCard 
+                title="Agendamentos Criados" 
+                value={stats.appointments} 
+                icon={Calendar} 
+                color="bg-blue-50 text-blue-600"
+                valueColor="text-blue-700"
+                active={selectedStage === 'agendamentos'}
+                onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
+              />
+            </div>
+          </div>
 
-        {/* 3. CONVERSION LINE */}
-        <section className="bg-card p-4 sm:p-8 rounded-lg border border-border shadow-sm overflow-x-auto scrollbar-thin">
-          <div className="flex items-center justify-between min-w-[900px] lg:min-w-0 px-4">
-            <ConversionStep label="Captados" value={stats.captured} />
-            <ConversionArrow percentage={calculateConversion(stats.captured, stats.distributed)} />
-            <ConversionStep label="Distribuídos" value={stats.distributed} />
-            <ConversionArrow percentage={calculateConversion(stats.distributed, stats.calls)} />
-            <ConversionStep label="Ligações" value={stats.calls} />
-            <ConversionArrow percentage={calculateConversion(stats.calls, stats.appointments)} />
-            <ConversionStep label="Agendados" value={stats.appointments} />
-            <ConversionArrow percentage={calculateConversion(stats.appointments, stats.attended)} />
-            <ConversionStep label="Compareceram" value={stats.attended} />
-            <ConversionArrow percentage={calculateConversion(stats.attended, stats.negotiations)} />
-            <ConversionStep label="Negociação" value={stats.negotiations} />
-            <ConversionArrow percentage={calculateConversion(stats.negotiations, stats.sales)} />
-            <ConversionStep label="Vendas" value={stats.sales} />
+          {/* BLOCO 2: RESULTADO DO DIA */}
+          <div className="space-y-6">
+            <div className="border-l-4 border-emerald-500 pl-4 py-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Resultado do Dia</h2>
+              <p className="text-sm text-muted-foreground font-medium">Tudo que efetivamente aconteceu na operação durante o período selecionado.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard 
+                title="Compareceram" 
+                value={stats.attended} 
+                icon={CheckCircle2} 
+                color="bg-emerald-50 text-emerald-600" 
+                valueColor="text-emerald-600"
+                active={selectedStage === 'compareceram'}
+                onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
+              />
+              <StatCard 
+                title="Faltaram" 
+                value={stats.noShow} 
+                icon={XCircle} 
+                color="bg-rose-50 text-rose-600" 
+                valueColor="text-rose-600"
+                active={selectedStage === 'faltas'}
+                onClick={() => setSelectedStage(selectedStage === 'faltas' ? null : 'faltas')}
+              />
+              <StatCard 
+                title="Negociações" 
+                value={stats.negotiations} 
+                icon={Handshake} 
+                color="bg-blue-50 text-blue-600" 
+                valueColor="text-blue-600"
+                active={selectedStage === 'negociacoes'}
+                onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
+              />
+              <StatCard 
+                title="Vendas" 
+                value={stats.sales} 
+                icon={ShoppingCart} 
+                color="bg-emerald-600 text-white" 
+                valueColor="text-emerald-700"
+                isHighlight={true}
+                active={selectedStage === 'vendas'}
+                onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
+              />
+            </div>
           </div>
         </section>
+
 
         {/* 4. DYNAMIC LIST */}
         <section className="space-y-4">
@@ -1667,51 +1691,38 @@ function FilterButton({ label, active, onClick }: { label: string, active: boole
   );
 }
 
-function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
+function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick, isHighlight }: any) {
   return (
     <Card 
       className={cn(
-        "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-border shadow-sm",
-        active ? "ring-2 ring-primary bg-card shadow-md" : "bg-card"
+        "cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] border border-border overflow-hidden group",
+        active ? "ring-2 ring-primary bg-card" : "bg-card",
+        isHighlight && "border-emerald-500/50 shadow-emerald-500/10"
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
-        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 shadow-sm", color)}>
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-        </div>
-        <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-display font-black text-foreground tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
-            {title}
-          </p>
+      <CardContent className="p-0">
+        <div className="flex items-stretch h-full min-h-[110px]">
+          <div className={cn(
+            "w-16 sm:w-20 flex items-center justify-center transition-colors duration-300 group-hover:brightness-95",
+            color
+          )}>
+            <Icon className={cn("w-7 h-7 sm:w-8 sm:h-8", isHighlight ? "text-white" : "text-current")} />
+          </div>
+          <div className="flex-1 p-4 sm:p-5 flex flex-col justify-center bg-card">
+            <p className={cn("text-3xl sm:text-4xl font-display font-black tracking-tighter mb-0.5", valueColor)}>
+              {value}
+            </p>
+            <p className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-wider leading-tight">
+              {title}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
 
-function ConversionStep({ label, value }: { label: string, value: number }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-display font-black text-primary drop-shadow-sm">{value}</span>
-      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
-
-    </div>
-  );
-}
-
-function ConversionArrow({ percentage }: { percentage: number }) {
-  return (
-    <div className="flex flex-col items-center gap-1 px-2">
-      <div className="flex items-center text-success font-bold text-[10px] bg-success/15 px-2 py-0.5 rounded-full border border-success/20">
-        <ArrowRight className="w-3 h-3 mr-0.5" />
-        {percentage}%
-      </div>
-      <div className="h-px w-8 sm:w-16 bg-border" />
-    </div>
-  );
-}
 
 function StatusBadge({ status }: { status: any }) {
   const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
