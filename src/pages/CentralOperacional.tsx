@@ -1174,9 +1174,9 @@ export default function CentralOperacional() {
                   <div className="pt-2 border-t border-border space-y-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Alterar Status</p>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-rose-500 border-rose-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-blue-500 border-blue-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-success border-success/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
+                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-primary border-primary/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
                       <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-destructive" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>Falta</Button>
                     </div>
                   </div>
