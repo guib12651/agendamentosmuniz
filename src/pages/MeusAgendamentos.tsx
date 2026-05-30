@@ -120,8 +120,8 @@ export default function MeusAgendamentos() {
   const rangeEnd = usingCustomRange ? customEnd : monthEnd;
 
   const filteredMeetings = useMemo(() => {
-    const showAll = selectedPreSeller === "__all__";
-    const target = showAll ? "" : selectedPreSeller.trim().toLowerCase();
+    const showAll = selectedUser === "__all__";
+    const target = showAll ? "" : selectedUser.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
       const regDate = registrationDate(m);
@@ -134,7 +134,7 @@ export default function MeusAgendamentos() {
       if (lead && !m.leadName.toLowerCase().includes(lead) && !m.phone.toLowerCase().includes(lead)) return false;
       return true;
     });
-  }, [meetings, rangeStart, rangeEnd, selectedPreSeller, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
+  }, [meetings, rangeStart, rangeEnd, selectedUser, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
 
   // Group by REGISTRATION date (when the appointment was created), not the meeting date.
   const byDate = useMemo(() => {
