@@ -580,14 +580,16 @@ export default function CentralOperacional() {
   const filteredLeads = useMemo(() => {
     let list = meetings;
     
+    // Se a etapa selecionada for "agendamentos", mostramos o que foi CRIADO no período
+    if (selectedStage === 'agendamentos') {
+      list = createdMeetings;
+    }
+    
     // Filter by archived status
     list = list.filter(m => showArchived ? m.archived === true : m.archived === false);
 
-    if (selectedStage) {
-      if (selectedStage === 'agendamentos') {
-        // Show all active meetings as they are all considered "appointments" in stats
-      }
-      else if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
+    if (selectedStage && selectedStage !== 'agendamentos') {
+      if (selectedStage === 'compareceram') list = list.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status));
       else if (selectedStage === 'faltas') list = list.filter(m => m.status === 'nao_compareceu');
       else if (selectedStage === 'negociacoes') list = list.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status));
       else if (selectedStage === 'vendas') list = list.filter(m => m.status === 'venda_concluida');
