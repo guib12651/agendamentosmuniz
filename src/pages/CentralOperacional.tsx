@@ -730,16 +730,22 @@ export default function CentralOperacional() {
       let newStatus = status as MeetingStatus;
       let newHistory = [...(currentLead.statusHistory || [])];
 
-      // If the status is already in history, we remove it
-      if (newHistory.includes(newStatus)) {
-        newHistory = newHistory.filter(s => s !== newStatus);
-        // If the current status was the one removed, we need to set a new current status
-        if (currentLead.status === newStatus) {
-          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] : "pending";
-          newHistory = newHistory.slice(0, -1);
+      // Se o status já está no histórico ou é o status atual, removemos
+      if (newHistory.includes(status) || currentLead.status === status) {
+        newHistory = newHistory.filter(s => s !== status);
+        if (currentLead.status === status) {
+          // Se estamos removendo o status atual, definimos o anterior do histórico como atual
+          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
+          // E removemos ele do histórico se houver
+          if (newHistory.length > 0) {
+            newHistory = newHistory.slice(0, -1);
+          }
+        } else {
+          // Se não é o atual, mantemos o atual
+          newStatus = currentLead.status as MeetingStatus;
         }
       } else {
-        // Add current status to history before changing if it's not pending and not already there
+        // Adição normal: move atual para histórico se não for pendente
         if (currentLead.status !== "pending" && !newHistory.includes(currentLead.status)) {
           newHistory.push(currentLead.status);
         }
