@@ -231,6 +231,7 @@ export type Database = {
           restriction: string
           sale_date: string | null
           status: string
+          status_history: string[] | null
           time: string
           trigger: string
           user_id: string | null
@@ -254,6 +255,7 @@ export type Database = {
           restriction?: string
           sale_date?: string | null
           status?: string
+          status_history?: string[] | null
           time: string
           trigger?: string
           user_id?: string | null
@@ -277,6 +279,7 @@ export type Database = {
           restriction?: string
           sale_date?: string | null
           status?: string
+          status_history?: string[] | null
           time?: string
           trigger?: string
           user_id?: string | null
@@ -686,6 +689,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      append_to_status_history: {
+        Args: { _meeting_id: string; _new_status: string }
+        Returns: string[]
+      }
       get_occupied_slots: {
         Args: { _date: string }
         Returns: {

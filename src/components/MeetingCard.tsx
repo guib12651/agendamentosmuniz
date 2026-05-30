@@ -77,10 +77,17 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
               {meeting.date.split("-").reverse().join("/")}
             </span>
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.className}`}>{r.label}</span>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${s.className}`}>
-              <StatusIcon className="w-3 h-3" />
-              {s.label}
-            </span>
+            
+            {(meeting.statusHistory && meeting.statusHistory.length > 0 ? meeting.statusHistory : [meeting.status || "pending"]).map((status, idx) => {
+              const config = statusConfig[status as MeetingStatus] || statusConfig.pending;
+              const Icon = config.icon;
+              return (
+                <span key={`${status}-${idx}`} className={`text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 ${config.className}`}>
+                  <Icon className="w-3 h-3" />
+                  {config.label}
+                </span>
+              );
+            })}
             {isSoon && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/20 text-primary animate-pulse">
                 Em breve

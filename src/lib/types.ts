@@ -19,6 +19,7 @@ export interface Meeting {
   restriction: RestrictionType;
   notes: string;
   status: MeetingStatus;
+  statusHistory?: MeetingStatus[];
   markingType: MarkingType;
   meetingType: MeetingType;
   trigger: TriggerType;
