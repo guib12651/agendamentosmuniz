@@ -730,16 +730,22 @@ export default function CentralOperacional() {
       let newStatus = status as MeetingStatus;
       let newHistory = [...(currentLead.statusHistory || [])];
 
-      // If the status is already in history, we remove it
-      if (newHistory.includes(newStatus)) {
-        newHistory = newHistory.filter(s => s !== newStatus);
-        // If the current status was the one removed, we need to set a new current status
-        if (currentLead.status === newStatus) {
-          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] : "pending";
-          newHistory = newHistory.slice(0, -1);
+      // Se o status já está no histórico ou é o status atual, removemos
+      if (newHistory.includes(status as MeetingStatus) || currentLead.status === status) {
+        newHistory = newHistory.filter(s => s !== status);
+        if (currentLead.status === status) {
+          // Se estamos removendo o status atual, definimos o anterior do histórico como atual
+          newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
+          // E removemos ele do histórico se houver
+          if (newHistory.length > 0) {
+            newHistory = newHistory.slice(0, -1);
+          }
+        } else {
+          // Se não é o atual, mantemos o atual
+          newStatus = currentLead.status as MeetingStatus;
         }
       } else {
-        // Add current status to history before changing if it's not pending and not already there
+        // Adição normal: move atual para histórico se não for pendente
         if (currentLead.status !== "pending" && !newHistory.includes(currentLead.status)) {
           newHistory.push(currentLead.status);
         }
@@ -1055,7 +1061,7 @@ export default function CentralOperacional() {
                       <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                       <TableCell>{lead.city || "-"}</TableCell>
                       <TableCell>
-                        <StatusBadge lead={lead} />
+                        <StatusBadge lead={lead} onUpdate={handleUpdateLeadStatus} />
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
@@ -1130,7 +1136,7 @@ export default function CentralOperacional() {
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pt-2">
-              <StatusBadge lead={selectedLead!} />
+              <StatusBadge lead={selectedLead!} onUpdate={handleUpdateLeadStatus} />
               <Badge variant="outline">{selectedLead?.city || "Cidade não inf."}</Badge>
             </div>
           </SheetHeader>
@@ -1807,7 +1813,7 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
 }
 
 
-function StatusBadge({ lead }: { lead: Meeting }) {
+function StatusBadge({ lead, onUpdate }: { lead: Meeting, onUpdate?: (id: string, status: string) => void }) {
   const combinedStatus = [...(lead.statusHistory || []), lead.status].filter(s => s !== "pending");
   
   if (combinedStatus.length === 0) {
@@ -1825,9 +1831,23 @@ function StatusBadge({ lead }: { lead: Meeting }) {
       {combinedStatus.map((status, idx) => {
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
         return (
-          <Badge key={`${status}-${idx}`} className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
-            <config.icon className="w-3 h-3 mr-1" />
+          <Badge 
+            key={`${status}-${idx}`} 
+            className={cn(
+              "border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1 flex items-center gap-1", 
+              config.color,
+              onUpdate && "cursor-pointer hover:opacity-80 transition-all"
+            )}
+            onClick={(e) => {
+              if (onUpdate) {
+                e.stopPropagation();
+                onUpdate(lead.id, status);
+              }
+            }}
+          >
+            <config.icon className="w-3 h-3" />
             {config.label}
+            {onUpdate && <XCircle className="w-3 h-3 ml-0.5 opacity-50 hover:opacity-100" />}
           </Badge>
         );
       })}
