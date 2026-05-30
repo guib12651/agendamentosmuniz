@@ -224,6 +224,7 @@ export default function CentralOperacional() {
         restriction: row.restriction as any,
         notes: row.notes || "",
         status: (row.status || "pending") as any,
+        statusHistory: (row.status_history || []) as any,
         markingType: (row.marking_type || "lead_quente") as any,
         meetingType: (row.meeting_type || "presencial") as any,
         trigger: (row.trigger || "imovel") as any,
