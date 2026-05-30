@@ -738,7 +738,7 @@ export default function CentralOperacional() {
         if (currentLead.status === status) {
           // Se estamos removendo o status atual, definimos o anterior do histórico como atual
           newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
-          // E removemos ele do histórico se houver
+          // E removemos ele do histórico se houver (já foi removido pelo filter acima se estivesse lá, mas garantimos que não duplica)
           if (newHistory.length > 0) {
             newHistory = newHistory.slice(0, -1);
           }
