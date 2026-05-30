@@ -521,7 +521,7 @@ export default function MeusAgendamentos() {
                       <span className="font-display font-bold text-base sm:text-lg text-primary">
                         {dayMeetings.length}
                       </span>
-                      <span className="px-1.5 py-0.5 rounded-full bg-success/20 text-success text-[10px] font-semibold flex items-center gap-0.5">
+                      <span className="px-1.5 py-0.5 rounded-full bg-primary/20 text-primary text-[10px] font-semibold flex items-center gap-0.5">
                         <CheckCircle className="w-3 h-3" />{compareceu}
                       </span>
                       <span className="px-1.5 py-0.5 rounded-full bg-destructive/20 text-destructive text-[10px] font-semibold flex items-center gap-0.5">
