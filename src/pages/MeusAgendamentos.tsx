@@ -310,10 +310,10 @@ export default function MeusAgendamentos() {
             <div className="ml-auto min-w-[180px]">
               <Select value={selectedPreSeller} onValueChange={setSelectedPreSeller}>
                 <SelectTrigger className="h-9 text-sm bg-card border-border">
-                  <SelectValue placeholder="Pré-vendedor" />
+                  <SelectValue placeholder="Usuário" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos os pré-vendedores</SelectItem>
+                  <SelectItem value="__all__">Todos os usuários</SelectItem>
                   {preSellers.map((name) => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
