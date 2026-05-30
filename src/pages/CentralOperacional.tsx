@@ -1813,7 +1813,7 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
 }
 
 
-function StatusBadge({ lead }: { lead: Meeting }) {
+function StatusBadge({ lead, onUpdate }: { lead: Meeting, onUpdate?: (id: string, status: string) => void }) {
   const combinedStatus = [...(lead.statusHistory || []), lead.status].filter(s => s !== "pending");
   
   if (combinedStatus.length === 0) {
@@ -1831,9 +1831,23 @@ function StatusBadge({ lead }: { lead: Meeting }) {
       {combinedStatus.map((status, idx) => {
         const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
         return (
-          <Badge key={`${status}-${idx}`} className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
-            <config.icon className="w-3 h-3 mr-1" />
+          <Badge 
+            key={`${status}-${idx}`} 
+            className={cn(
+              "border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1 flex items-center gap-1", 
+              config.color,
+              onUpdate && "cursor-pointer hover:opacity-80 transition-all"
+            )}
+            onClick={(e) => {
+              if (onUpdate) {
+                e.stopPropagation();
+                onUpdate(lead.id, status);
+              }
+            }}
+          >
+            <config.icon className="w-3 h-3" />
             {config.label}
+            {onUpdate && <XCircle className="w-3 h-3 ml-0.5 opacity-50 hover:opacity-100" />}
           </Badge>
         );
       })}
