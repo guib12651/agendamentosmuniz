@@ -1061,7 +1061,7 @@ export default function CentralOperacional() {
                       <TableCell className="text-muted-foreground">{lead.phone}</TableCell>
                       <TableCell>{lead.city || "-"}</TableCell>
                       <TableCell>
-                        <StatusBadge lead={lead} />
+                        <StatusBadge lead={lead} onUpdate={handleUpdateLeadStatus} />
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
