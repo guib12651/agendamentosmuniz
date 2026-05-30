@@ -201,7 +201,7 @@ export default function CentralOperacional() {
       .from("profiles")
       .select("id, display_name")
       .order("display_name");
-    if (!error && data) setPreSellers(data);
+    if (!error && data) setUsers(data);
   };
 
   const loadData = async () => {
