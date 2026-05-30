@@ -802,92 +802,104 @@ export default function CentralOperacional() {
           </div>
         </section>
 
-        {/* 2. OPERATIONAL CARDS */}
-        <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-8 gap-4">
-          <StatCard 
-            title="Leads Captados" 
-            value={stats.captured} 
-            icon={Target} 
-            color="bg-blue-500" 
-            active={selectedStage === 'captados'}
-            onClick={() => setIsLeadsListOpen(true)}
-          />
-          <StatCard 
-            title="Distribuição" 
-            value={stats.distributed} 
-            icon={UserPlus} 
-            color="bg-slate-800"
-            active={selectedStage === 'distribuicao'}
-            onClick={() => setSelectedStage(selectedStage === 'distribuicao' ? null : 'distribuicao')}
-          />
-          <StatCard 
-            title="Ligações" 
-            value={stats.calls} 
-            icon={Phone} 
-            color="bg-amber-400" 
-            active={selectedStage === 'ligacoes'}
-            onClick={() => setIsCallsListOpen(true)}
-          />
-          <StatCard 
-            title="Agendamentos" 
-            value={stats.appointments} 
-            icon={Calendar} 
-            color="bg-emerald-500" 
-            active={selectedStage === 'agendamentos'}
-            onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
-          />
-          <StatCard 
-            title="Compareceram" 
-            value={stats.attended} 
-            icon={CheckCircle2} 
-            color="bg-emerald-600" 
-            active={selectedStage === 'compareceram'}
-            onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
-          />
-          <StatCard 
-            title="Faltas" 
-            value={stats.noShow} 
-            icon={XCircle} 
-            color="bg-rose-500" 
-            active={selectedStage === 'faltas'}
-            onClick={() => setSelectedStage(selectedStage === 'faltas' ? null : 'faltas')}
-          />
-          <StatCard 
-            title="Negociações" 
-            value={stats.negotiations} 
-            icon={Handshake} 
-            color="bg-purple-600" 
-            active={selectedStage === 'negociacoes'}
-            onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
-          />
-          <StatCard 
-            title="Vendas" 
-            value={stats.sales} 
-            icon={ShoppingCart} 
-            color="bg-yellow-500" 
-            active={selectedStage === 'vendas'}
-            onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
-          />
-        </section>
+        {/* 2. OPERATIONAL DASHBOARD BLOCKS */}
+        <section className="space-y-12">
+          {/* BLOCO 1: PRODUÇÃO DO DIA */}
+          <div className="space-y-6">
+            <div className="border-l-4 border-blue-500 pl-4 py-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Produção do Dia</h2>
+              <p className="text-sm text-muted-foreground font-medium">Tudo que a equipe produziu durante o período selecionado.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard 
+                title="Leads Captados" 
+                value={stats.captured} 
+                icon={Target} 
+                color="bg-slate-100 text-slate-600" 
+                valueColor="text-slate-900"
+                active={selectedStage === 'captados'}
+                onClick={() => setIsLeadsListOpen(true)}
+              />
+              <StatCard 
+                title="Leads Distribuídos" 
+                value={stats.distributed} 
+                icon={UserPlus} 
+                color="bg-blue-50 text-blue-600"
+                valueColor="text-blue-700"
+                active={selectedStage === 'distribuicao'}
+                onClick={() => setSelectedStage(selectedStage === 'distribuicao' ? null : 'distribuicao')}
+              />
+              <StatCard 
+                title="Ligações" 
+                value={stats.calls} 
+                icon={Phone} 
+                color="bg-slate-100 text-slate-600" 
+                valueColor="text-slate-900"
+                active={selectedStage === 'ligacoes'}
+                onClick={() => setIsCallsListOpen(true)}
+              />
+              <StatCard 
+                title="Agendamentos Criados" 
+                value={stats.appointments} 
+                icon={Calendar} 
+                color="bg-blue-50 text-blue-600"
+                valueColor="text-blue-700"
+                active={selectedStage === 'agendamentos'}
+                onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
+              />
+            </div>
+          </div>
 
-        {/* 3. CONVERSION LINE */}
-        <section className="bg-card p-4 sm:p-8 rounded-lg border border-border shadow-sm overflow-x-auto scrollbar-thin">
-          <div className="flex items-center justify-between min-w-[900px] lg:min-w-0 px-4">
-            <ConversionStep label="Captados" value={stats.captured} />
-            <ConversionArrow percentage={calculateConversion(stats.captured, stats.distributed)} />
-            <ConversionStep label="Distribuídos" value={stats.distributed} />
-            <ConversionArrow percentage={calculateConversion(stats.distributed, stats.calls)} />
-            <ConversionStep label="Ligações" value={stats.calls} />
-            <ConversionArrow percentage={calculateConversion(stats.calls, stats.appointments)} />
-            <ConversionStep label="Agendados" value={stats.appointments} />
-            <ConversionArrow percentage={calculateConversion(stats.appointments, stats.attended)} />
-            <ConversionStep label="Compareceram" value={stats.attended} />
-            <ConversionArrow percentage={calculateConversion(stats.attended, stats.negotiations)} />
-            <ConversionStep label="Negociação" value={stats.negotiations} />
-            <ConversionArrow percentage={calculateConversion(stats.negotiations, stats.sales)} />
-            <ConversionStep label="Vendas" value={stats.sales} />
+          {/* BLOCO 2: RESULTADO DO DIA */}
+          <div className="space-y-6">
+            <div className="border-l-4 border-emerald-500 pl-4 py-1">
+              <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">Resultado do Dia</h2>
+              <p className="text-sm text-muted-foreground font-medium">Tudo que efetivamente aconteceu na operação durante o período selecionado.</p>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard 
+                title="Compareceram" 
+                value={stats.attended} 
+                icon={CheckCircle2} 
+                color="bg-emerald-50 text-emerald-600" 
+                valueColor="text-emerald-600"
+                active={selectedStage === 'compareceram'}
+                onClick={() => setSelectedStage(selectedStage === 'compareceram' ? null : 'compareceram')}
+              />
+              <StatCard 
+                title="Faltaram" 
+                value={stats.noShow} 
+                icon={XCircle} 
+                color="bg-rose-50 text-rose-600" 
+                valueColor="text-rose-600"
+                active={selectedStage === 'faltas'}
+                onClick={() => setSelectedStage(selectedStage === 'faltas' ? null : 'faltas')}
+              />
+              <StatCard 
+                title="Negociações" 
+                value={stats.negotiations} 
+                icon={Handshake} 
+                color="bg-blue-50 text-blue-600" 
+                valueColor="text-blue-600"
+                active={selectedStage === 'negociacoes'}
+                onClick={() => setSelectedStage(selectedStage === 'negociacoes' ? null : 'negociacoes')}
+              />
+              <StatCard 
+                title="Vendas" 
+                value={stats.sales} 
+                icon={ShoppingCart} 
+                color="bg-emerald-600 text-white" 
+                valueColor="text-emerald-700"
+                isHighlight={true}
+                active={selectedStage === 'vendas'}
+                onClick={() => setSelectedStage(selectedStage === 'vendas' ? null : 'vendas')}
+              />
+            </div>
           </div>
         </section>
+
 
         {/* 4. DYNAMIC LIST */}
         <section className="space-y-4">
