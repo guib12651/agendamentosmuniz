@@ -6,7 +6,7 @@ interface UserProfile {
   id: string;
   username: string;
   displayName: string;
-  role: "admin" | "pre_seller";
+  role: "admin" | "pre_seller" | "seller";
   is_blocked: boolean;
 }
 
@@ -32,12 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select("*")
       .eq("id", userId)
       .single();
+    
     if (data) {
       setProfile({
         id: data.id,
         username: data.username,
         displayName: data.display_name,
-        role: data.role as "admin" | "pre_seller",
+        role: data.role as "admin" | "pre_seller" | "seller",
         is_blocked: !!data.is_blocked,
       });
     }
@@ -99,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile,
-        isAdmin: profile?.role === "admin",
+        isAdmin: profile?.role === "admin" || profile?.role === "seller",
         loading,
         signIn,
         signOut,
