@@ -98,7 +98,7 @@ export default function MeusAgendamentos() {
 
   useEffect(() => {
     if (!isAdmin) {
-      setSelectedPreSeller(profile?.displayName || "");
+      setSelectedUser(profile?.displayName || "");
       return;
     }
     supabase
@@ -107,8 +107,8 @@ export default function MeusAgendamentos() {
       .then(({ data }) => {
         if (data) {
           const names = data.map((p: any) => p.display_name).filter(Boolean).sort();
-          setPreSellers(names);
-          if (!selectedPreSeller) setSelectedPreSeller("__all__");
+          setUsers(names);
+          if (!selectedUser) setSelectedUser("__all__");
         }
       });
   }, [isAdmin, profile]);
