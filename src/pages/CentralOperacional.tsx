@@ -1711,27 +1711,6 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
   );
 }
 
-function ConversionStep({ label, value }: { label: string, value: number }) {
-  return (
-    <div className="flex flex-col items-center gap-1">
-      <span className="text-2xl font-display font-black text-primary drop-shadow-sm">{value}</span>
-      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
-
-    </div>
-  );
-}
-
-function ConversionArrow({ percentage }: { percentage: number }) {
-  return (
-    <div className="flex flex-col items-center gap-1 px-2">
-      <div className="flex items-center text-success font-bold text-[10px] bg-success/15 px-2 py-0.5 rounded-full border border-success/20">
-        <ArrowRight className="w-3 h-3 mr-0.5" />
-        {percentage}%
-      </div>
-      <div className="h-px w-8 sm:w-16 bg-border" />
-    </div>
-  );
-}
 
 function StatusBadge({ status }: { status: any }) {
   const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
