@@ -1211,10 +1211,18 @@ export default function CentralOperacional() {
                   <div className="pt-2 border-t border-border space-y-2">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">Alterar Status</p>
                     <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-blue-500 border-blue-500/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>Negociação</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-success border-success/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>Vendido</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-primary border-primary/20" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>Compareceu</Button>
-                      <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold text-destructive" onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>Falta</Button>
+                      <Button size="sm" variant={selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao')) ? "bg-blue-500" : "text-blue-500 border-blue-500/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'em_negociacao')}>
+                        {selectedLead?.status === 'em_negociacao' || selectedLead?.statusHistory?.includes('em_negociacao') ? "Remover Negociação" : "Negociação"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida')) ? "bg-success" : "text-success border-success/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'venda_concluida')}>
+                        {selectedLead?.status === 'venda_concluida' || selectedLead?.statusHistory?.includes('venda_concluida') ? "Remover Venda" : "Vendido"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu')) ? "bg-primary" : "text-primary border-primary/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'compareceu')}>
+                        {selectedLead?.status === 'compareceu' || selectedLead?.statusHistory?.includes('compareceu') ? "Remover Compareceu" : "Compareceu"}
+                      </Button>
+                      <Button size="sm" variant={selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu') ? "default" : "outline"} className={cn("h-8 text-[10px] font-bold", (selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu')) ? "bg-destructive" : "text-destructive border-destructive/20")} onClick={() => handleUpdateLeadStatus(selectedLead!.id, 'nao_compareceu')}>
+                        {selectedLead?.status === 'nao_compareceu' || selectedLead?.statusHistory?.includes('nao_compareceu') ? "Remover Falta" : "Falta"}
+                      </Button>
                     </div>
                   </div>
                 )}
