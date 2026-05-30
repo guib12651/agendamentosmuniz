@@ -893,8 +893,8 @@ export default function CentralOperacional() {
                 title="Agendamentos Criados" 
                 value={stats.appointments} 
                 icon={Calendar} 
-                color="bg-blue-50 text-blue-600"
-                valueColor="text-blue-700"
+                color="bg-primary/10 text-primary"
+                valueColor="text-primary"
                 active={selectedStage === 'agendamentos'}
                 onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
               />
