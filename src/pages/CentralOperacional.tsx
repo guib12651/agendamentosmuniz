@@ -729,9 +729,11 @@ export default function CentralOperacional() {
 
       let newStatus = status as MeetingStatus;
       let newHistory = [...(currentLead.statusHistory || [])];
+      let isRemoving = false;
 
       // Se o status já está no histórico ou é o status atual, removemos
       if (newHistory.includes(status as MeetingStatus) || currentLead.status === status) {
+        isRemoving = true;
         newHistory = newHistory.filter(s => s !== status);
         if (currentLead.status === status) {
           // Se estamos removendo o status atual, definimos o anterior do histórico como atual
@@ -765,7 +767,8 @@ export default function CentralOperacional() {
       toast.success("Status atualizado!");
       loadData();
       
-      if (newStatus === "venda_concluida" && isAdmin) {
+      // Só mostra o modal de parabéns se estiver ADICIONANDO o status de venda
+      if (!isRemoving && newStatus === "venda_concluida" && isAdmin) {
         setLastSoldMeeting({...currentLead, status: newStatus, statusHistory: newHistory});
         setShowSaleToQuotaModal(true);
       }
