@@ -524,7 +524,11 @@ export default function CentralOperacional() {
     const individualCallsCount = calls.length;
     const dailyCallsCount = dailyCallsList.reduce((acc, c) => acc + c.amount, 0);
     const callsMade = individualCallsCount + dailyCallsCount;
-    const appointments = activeMeetings.length;
+    
+    // Produção: Agendamentos criados no período
+    const appointments = createdAppointmentsCount;
+    
+    // Resultado: Ações que ocorreram nas reuniões marcadas para o período
     const attended = activeMeetings.filter(m => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(m.status)).length;
     const noShow = activeMeetings.filter(m => m.status === 'nao_compareceu').length;
     const negotiations = activeMeetings.filter(m => ['em_negociacao', 'venda_concluida'].includes(m.status)).length;
@@ -540,7 +544,7 @@ export default function CentralOperacional() {
       negotiations,
       sales
     };
-  }, [funnelData, calls, meetings, dailyCallsList]);
+  }, [funnelData, calls, meetings, dailyCallsList, createdAppointmentsCount]);
 
   const filteredLeads = useMemo(() => {
     let list = meetings;
