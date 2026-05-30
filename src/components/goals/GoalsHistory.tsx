@@ -30,19 +30,26 @@ export default function GoalsHistory() {
   const [progress, setProgress] = useState<ProgressRow[]>([]);
   const { goal: activeGoal } = usePeriodGoal();
 
+  const fetchHistory = async () => {
+    const [g, p] = await Promise.all([
+      supabase.from("period_goals" as any).select("*").order("start_date", { ascending: false }),
+      supabase.from("period_goal_progress" as any).select("start_date, end_date, amount"),
+    ]);
+    setGoals(((g.data as any) ?? []) as GoalRow[]);
+    setProgress(((p.data as any) ?? []) as ProgressRow[]);
+  };
+
   useEffect(() => {
-    let cancel = false;
-    (async () => {
-      const [g, p] = await Promise.all([
-        supabase.from("period_goals" as any).select("*").order("start_date", { ascending: false }),
-        supabase.from("period_goal_progress" as any).select("start_date, end_date, amount"),
-      ]);
-      if (cancel) return;
-      setGoals(((g.data as any) ?? []) as GoalRow[]);
-      setProgress(((p.data as any) ?? []) as ProgressRow[]);
-    })();
+    fetchHistory();
+
+    const channel = supabase
+      .channel('goals-history-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goals' }, fetchHistory)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goal_progress' }, fetchHistory)
+      .subscribe();
+
     return () => {
-      cancel = true;
+      supabase.removeChannel(channel);
     };
   }, []);
 
