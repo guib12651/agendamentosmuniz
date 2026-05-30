@@ -135,7 +135,7 @@ export default function CentralOperacional() {
   // Modal States
   const [isRegisterLeadsOpen, setIsRegisterLeadsOpen] = useState(false);
   const [isDistributeLeadsOpen, setIsDistributeLeadsOpen] = useState(false);
-  const [preSellers, setPreSellers] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   // Form States - Register Leads
@@ -201,7 +201,7 @@ export default function CentralOperacional() {
       .from("profiles")
       .select("id, display_name")
       .order("display_name");
-    if (!error && data) setPreSellers(data);
+    if (!error && data) setUsers(data);
   };
 
   const loadData = async () => {
@@ -1149,7 +1149,7 @@ export default function CentralOperacional() {
                   <InfoItem label="Entrada" value={selectedLead?.downPayment || "-"} />
                   <InfoItem label="Parcela" value={selectedLead?.installment || "-"} />
                   <InfoItem label="Consultor" value={selectedLead?.consultant || "-"} />
-                  <InfoItem label="Pré-vendedor" value={selectedLead?.preSeller || "-"} />
+                  <InfoItem label="Usuário" value={selectedLead?.preSeller || "-"} />
                 </div>
                 {selectedLead?.notes && (
                   <div className="pt-2 border-t border-border">
@@ -1268,7 +1268,7 @@ export default function CentralOperacional() {
                   <SelectValue placeholder="Selecione o funcionário" />
                 </SelectTrigger>
                 <SelectContent>
-                  {preSellers.map((u) => (
+                  {users.map((u) => (
                     <SelectItem key={u.id} value={u.id}>{u.display_name}</SelectItem>
                   ))}
                 </SelectContent>

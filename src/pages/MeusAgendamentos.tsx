@@ -67,8 +67,8 @@ export default function MeusAgendamentos() {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [preSellers, setPreSellers] = useState<string[]>([]);
-  const [selectedPreSeller, setSelectedPreSeller] = useState<string>("");
+  const [users, setUsers] = useState<string[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string>("");
 
   // Filters
   const [showFilters, setShowFilters] = useState(false);
@@ -98,18 +98,17 @@ export default function MeusAgendamentos() {
 
   useEffect(() => {
     if (!isAdmin) {
-      setSelectedPreSeller(profile?.displayName || "");
+      setSelectedUser(profile?.displayName || "");
       return;
     }
     supabase
       .from("profiles")
       .select("display_name, role")
-      .eq("role", "pre_seller")
       .then(({ data }) => {
         if (data) {
-          const names = data.map((p: any) => p.display_name).sort();
-          setPreSellers(names);
-          if (!selectedPreSeller) setSelectedPreSeller("__all__");
+          const names = data.map((p: any) => p.display_name).filter(Boolean).sort();
+          setUsers(names);
+          if (!selectedUser) setSelectedUser("__all__");
         }
       });
   }, [isAdmin, profile]);
@@ -121,8 +120,8 @@ export default function MeusAgendamentos() {
   const rangeEnd = usingCustomRange ? customEnd : monthEnd;
 
   const filteredMeetings = useMemo(() => {
-    const showAll = selectedPreSeller === "__all__";
-    const target = showAll ? "" : selectedPreSeller.trim().toLowerCase();
+    const showAll = selectedUser === "__all__";
+    const target = showAll ? "" : selectedUser.trim().toLowerCase();
     const lead = leadSearch.trim().toLowerCase();
     return meetings.filter((m) => {
       const regDate = registrationDate(m);
@@ -135,7 +134,7 @@ export default function MeusAgendamentos() {
       if (lead && !m.leadName.toLowerCase().includes(lead) && !m.phone.toLowerCase().includes(lead)) return false;
       return true;
     });
-  }, [meetings, rangeStart, rangeEnd, selectedPreSeller, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
+  }, [meetings, rangeStart, rangeEnd, selectedUser, statusFilter, markingFilter, triggerFilter, meetingTypeFilter, leadSearch]);
 
   // Group by REGISTRATION date (when the appointment was created), not the meeting date.
   const byDate = useMemo(() => {
@@ -309,13 +308,13 @@ export default function MeusAgendamentos() {
 
           {isAdmin && (
             <div className="ml-auto min-w-[180px]">
-              <Select value={selectedPreSeller} onValueChange={setSelectedPreSeller}>
+              <Select value={selectedUser} onValueChange={setSelectedUser}>
                 <SelectTrigger className="h-9 text-sm bg-card border-border">
-                  <SelectValue placeholder="Pré-vendedor" />
+                  <SelectValue placeholder="Usuário" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__all__">Todos os pré-vendedores</SelectItem>
-                  {preSellers.map((name) => (
+                  <SelectItem value="__all__">Todos os usuários</SelectItem>
+                  {users.map((name) => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
                 </SelectContent>
