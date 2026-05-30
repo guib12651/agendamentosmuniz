@@ -3,12 +3,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePeriodGoal, formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles, Plus, Minus, Printer } from "lucide-react";
+import { Settings2, Trophy, Sparkles, Plus, Minus, Printer, CheckCircle2 } from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
 import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
 import NoShowPrintDialog from "../NoShowPrintDialog";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const formatBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
@@ -22,12 +24,38 @@ function motivationalMessage(pct: number) {
 }
 
 export default function GoalsBanner() {
-  const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal } =
+  const { isAdmin, totalGoal, individualGoal, totalRealized, myProgress, goal, reload } =
     usePeriodGoal();
   const [adminOpen, setAdminOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
+  const [concluding, setConcluding] = useState(false);
+
+  async function handleConcludeGoal() {
+    if (!goal || concluding) return;
+    
+    const confirm = window.confirm("Deseja realmente concluir esta meta? Ela será movida para o histórico.");
+    if (!confirm) return;
+
+    setConcluding(true);
+    try {
+      const { error } = await supabase
+        .from("period_goals")
+        .update({ status: "completed", updated_at: new Date().toISOString() })
+        .eq("id", goal.id);
+
+      if (error) throw error;
+      
+      toast.success("Meta concluída com sucesso!");
+      await reload();
+    } catch (error: any) {
+      console.error("Error concluding goal:", error);
+      toast.error("Erro ao concluir meta");
+    } finally {
+      setConcluding(false);
+    }
+  }
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
@@ -76,6 +104,19 @@ export default function GoalsBanner() {
               <span className="hidden sm:inline">Gerenciar metas</span>
               <span className="sm:hidden">Metas</span>
             </Button>
+            {goal && (
+              <Button 
+                size="sm" 
+                variant="default" 
+                onClick={handleConcludeGoal} 
+                disabled={concluding}
+                className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm"
+              >
+                <CheckCircle2 className="size-4" />
+                <span className="hidden sm:inline">{concluding ? "Concluindo..." : "Concluir meta"}</span>
+                <span className="sm:hidden">{concluding ? "..." : "Concluir"}</span>
+              </Button>
+            )}
           </div>
         )}
       </div>

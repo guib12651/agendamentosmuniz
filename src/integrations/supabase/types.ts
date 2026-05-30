@@ -405,6 +405,7 @@ export type Database = {
           month: string | null
           split_count: number | null
           start_date: string
+          status: string
           total_goal: number
           updated_at: string
         }
@@ -416,6 +417,7 @@ export type Database = {
           month?: string | null
           split_count?: number | null
           start_date: string
+          status?: string
           total_goal?: number
           updated_at?: string
         }
@@ -427,6 +429,7 @@ export type Database = {
           month?: string | null
           split_count?: number | null
           start_date?: string
+          status?: string
           total_goal?: number
           updated_at?: string
         }
