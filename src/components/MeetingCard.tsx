@@ -94,7 +94,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
           {/* Info grid */}
           <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-sm text-muted-foreground">
             <span className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 shrink-0" />{meeting.phone}</span>
-            <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" />Pré-venda: {meeting.preSeller}</span>
+            <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5 shrink-0" />Usuário: {meeting.preSeller}</span>
             <span className="flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5 shrink-0" />Consultor: {meeting.consultant}</span>
             {meeting.downPayment && <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5 shrink-0" />Entrada: {meeting.downPayment}</span>}
             {meeting.installment && <span className="flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5 shrink-0" />Parcela: {meeting.installment}</span>}
