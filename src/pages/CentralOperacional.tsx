@@ -1679,24 +1679,32 @@ function FilterButton({ label, active, onClick }: { label: string, active: boole
   );
 }
 
-function StatCard({ title, value, icon: Icon, color, active, onClick }: any) {
+function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick, isHighlight }: any) {
   return (
     <Card 
       className={cn(
-        "cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] border border-border shadow-sm",
-        active ? "ring-2 ring-primary bg-card shadow-md" : "bg-card"
+        "cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] border border-border overflow-hidden group",
+        active ? "ring-2 ring-primary bg-card" : "bg-card",
+        isHighlight && "border-emerald-500/50 shadow-emerald-500/10"
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4 sm:p-5 flex flex-col items-center text-center">
-        <div className={cn("w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 shadow-sm", color)}>
-          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-        </div>
-        <div className="space-y-0.5">
-          <p className="text-xl sm:text-2xl font-display font-black text-foreground tracking-tight">{value}</p>
-          <p className="text-[10px] sm:text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
-            {title}
-          </p>
+      <CardContent className="p-0">
+        <div className="flex items-stretch h-full min-h-[110px]">
+          <div className={cn(
+            "w-16 sm:w-20 flex items-center justify-center transition-colors duration-300 group-hover:brightness-95",
+            color
+          )}>
+            <Icon className={cn("w-7 h-7 sm:w-8 sm:h-8", isHighlight ? "text-white" : "text-current")} />
+          </div>
+          <div className="flex-1 p-4 sm:p-5 flex flex-col justify-center bg-card">
+            <p className={cn("text-3xl sm:text-4xl font-display font-black tracking-tighter mb-0.5", valueColor)}>
+              {value}
+            </p>
+            <p className="text-[10px] sm:text-[11px] font-black text-muted-foreground uppercase tracking-wider leading-tight">
+              {title}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
