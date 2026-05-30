@@ -79,7 +79,7 @@ export default function MeetingCard({ meeting, isSoon, isAdmin = false, onEdit, 
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${r.className}`}>{r.label}</span>
             
             {(() => {
-              const combinedStatus = [...(meeting.statusHistory || []), meeting.status].filter(s => s !== "pending");
+              const combinedStatus = Array.from(new Set([...(meeting.statusHistory || []), meeting.status])).filter(s => s !== "pending");
               if (combinedStatus.length === 0) {
                 const config = statusConfig.pending;
                 const Icon = config.icon;
