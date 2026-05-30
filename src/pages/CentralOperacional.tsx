@@ -207,22 +207,53 @@ export default function CentralOperacional() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // Fetch meetings and calls
-      const [m, c, createdCount] = await Promise.all([
-        getMeetings(dateRange.start, dateRange.end),
-        getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z"),
-        supabase
-          .from("meetings")
-          .select("id", { count: 'exact', head: true })
-          .gte("created_at", dateRange.start + "T00:00:00Z")
-          .lte("created_at", dateRange.end + "T23:59:59Z")
-          .then(res => res.count || 0)
-      ]);
-      setMeetings(m);
-      setCalls(c);
-      setCreatedAppointmentsCount(createdCount);
+      // 1. Fetch appointments (meetings) for the period
+      // For "Appointments Created", we count meetings created in the period
+      const { count: createdCount, error: createdError } = await supabase
+        .from("meetings")
+        .select("id", { count: 'exact', head: true })
+        .gte("created_at", dateRange.start + "T00:00:00Z")
+        .lte("created_at", dateRange.end + "T23:59:59Z");
+      
+      if (createdError) throw createdError;
+      setCreatedAppointmentsCount(createdCount || 0);
 
-      // Fetch captured leads sum
+      // For Result cards (Attended, No Show, Negotiations, Sales), we look at meetings
+      // scheduled for the period, regardless of when they were created.
+      const { data: meetingsData, error: meetingsError } = await supabase
+        .from("meetings")
+        .select("*")
+        .gte("date", dateRange.start)
+        .lte("date", dateRange.end);
+      
+      if (meetingsError) throw meetingsError;
+      
+      const mappedMeetings: Meeting[] = (meetingsData || []).map((row) => ({
+        id: row.id,
+        leadName: row.lead_name,
+        phone: row.phone,
+        date: row.date,
+        time: row.time.slice(0, 5),
+        preSeller: row.pre_seller,
+        consultant: row.consultant,
+        downPayment: row.down_payment || "",
+        installment: row.installment || "",
+        restriction: row.restriction as any,
+        notes: row.notes || "",
+        status: (row.status || "pending") as any,
+        markingType: (row.marking_type || "lead_quente") as any,
+        meetingType: (row.meeting_type || "presencial") as any,
+        trigger: (row.trigger || "imovel") as any,
+        city: row.city || "",
+        saleDate: row.sale_date || undefined,
+        userId: row.user_id || null,
+        createdAt: row.created_at || undefined,
+        funnelStage: (row.funnel_stage || "appointment") as any,
+        archived: row.archived || false,
+      }));
+      setMeetings(mappedMeetings);
+
+      // 2. Fetch Manual Data (Leads and Calls) - NOT automatic as per instructions
       const { data: leadsData, error: leadsError } = await supabase
         .from("operational_leads")
         .select("id, amount, source, date, observations, created_by, profiles!operational_leads_created_by_fkey(display_name)")
@@ -233,7 +264,6 @@ export default function CentralOperacional() {
       const totalCaptured = (leadsData as any[]).reduce((acc, l) => acc + l.amount, 0);
       setCapturedLeadsList(leadsData);
 
-      // Fetch daily calls registration
       const { data: dailyCallsData, error: dailyCallsError } = await supabase
         .from("daily_calls")
         .select("id, amount, date, observations, user_id, profiles!daily_calls_profiles_fkey(display_name)")
@@ -243,7 +273,7 @@ export default function CentralOperacional() {
       if (dailyCallsError) throw dailyCallsError;
       setDailyCallsList(dailyCallsData);
 
-      // Fetch distributions
+      // 3. Fetch Distributions
       const { data: distData, error: distError } = await supabase
         .from("leads_distribution")
         .select("amount, user_id, profiles!leads_distribution_user_id_fkey(display_name)")
@@ -251,9 +281,7 @@ export default function CentralOperacional() {
         .lte("date", dateRange.end);
 
       if (distError) throw distError;
-      const totalDistributed = distData.reduce((acc, d) => acc + d.amount, 0);
 
-      // Map distributions to team members for the detailed metrics
       const userMap = new Map<string, any>();
       distData.forEach(d => {
         const userId = d.user_id;
@@ -262,21 +290,18 @@ export default function CentralOperacional() {
           userId,
           displayName: name,
           leadsReceived: 0,
-          callsMade: 0,
-          appointmentsMade: 0,
-          visitsCompleted: 0,
-          negotiationsStarted: 0,
-          salesCompleted: 0,
         };
         userMap.set(userId, { ...existing, leadsReceived: existing.leadsReceived + d.amount });
       });
 
-      // Integrate with existing meetings/calls for other funnel steps
-      // This part simplifies the getFunnelDataRange logic to use our new tables
       setFunnelData({
         totalLeadsCaptured: totalCaptured,
         distribution: Array.from(userMap.values())
       });
+
+      // 4. Individual Calls (Manual as well)
+      const c = await getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z");
+      setCalls(c);
 
     } catch (err) {
       console.error("Error loading operational data:", err);
