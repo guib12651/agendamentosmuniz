@@ -1807,13 +1807,31 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
 }
 
 
-function StatusBadge({ status }: { status: any }) {
-  const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+function StatusBadge({ lead }: { lead: Meeting }) {
+  const combinedStatus = [...(lead.statusHistory || []), lead.status].filter(s => s !== "pending");
+  
+  if (combinedStatus.length === 0) {
+    const config = statusConfig.pending;
+    return (
+      <Badge className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
+        <config.icon className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
+  }
+
   return (
-    <Badge className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
-      <config.icon className="w-3 h-3 mr-1" />
-      {config.label}
-    </Badge>
+    <div className="flex flex-wrap gap-1">
+      {combinedStatus.map((status, idx) => {
+        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
+        return (
+          <Badge key={`${status}-${idx}`} className={cn("border-none shadow-none font-bold uppercase text-[10px] tracking-widest px-2.5 py-1", config.color)}>
+            <config.icon className="w-3 h-3 mr-1" />
+            {config.label}
+          </Badge>
+        );
+      })}
+    </div>
   );
 }
 
