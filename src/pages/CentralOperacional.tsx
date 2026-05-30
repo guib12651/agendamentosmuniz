@@ -638,8 +638,10 @@ export default function CentralOperacional() {
       isMain: true
     });
 
+    const combinedStatus = [...(selectedLead.statusHistory || []), selectedLead.status];
+
     // Visit event
-    if (selectedLead.status === 'compareceu' || selectedLead.status === 'visita_realizada' || selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+    if (combinedStatus.some(s => ['compareceu', 'visita_realizada', 'em_negociacao', 'venda_concluida'].includes(s))) {
       history.push({
         event: "Visita realizada",
         date: selectedLead.date,
@@ -649,17 +651,17 @@ export default function CentralOperacional() {
     }
 
     // Negotiation event
-    if (selectedLead.status === 'em_negociacao' || selectedLead.status === 'venda_concluida') {
+    if (combinedStatus.some(s => ['em_negociacao', 'venda_concluida'].includes(s))) {
       history.push({
         event: "Início da negociação",
-        date: selectedLead.date, // We don't have a specific date for negotiation start, using lead date
+        date: selectedLead.date, 
         icon: Handshake,
         isMain: true
       });
     }
 
     // Sale event
-    if (selectedLead.status === 'venda_concluida') {
+    if (selectedLead.status === 'venda_concluida' || (selectedLead.statusHistory && selectedLead.statusHistory.includes('venda_concluida'))) {
       history.push({
         event: "Venda realizada",
         date: selectedLead.saleDate || selectedLead.date,
