@@ -907,7 +907,40 @@ export default function CentralOperacional() {
               <p className="text-sm text-muted-foreground font-medium">Tudo que a equipe produziu durante o período selecionado.</p>
             </div>
             
-...
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              <StatCard 
+                title="Leads Capturados" 
+                value={stats.captured} 
+                icon={UsersIcon} 
+                color="bg-blue-500/10 text-blue-500" 
+                valueColor="text-blue-500"
+                onClick={() => setIsLeadsListOpen(true)}
+              />
+              <StatCard 
+                title="Ligações" 
+                value={stats.calls} 
+                icon={Phone} 
+                color="bg-amber-500/10 text-amber-500" 
+                valueColor="text-amber-500"
+                onClick={() => setIsCallsListOpen(true)}
+              />
+              <StatCard 
+                title="Agendamentos" 
+                value={stats.appointments} 
+                icon={Calendar} 
+                color="bg-primary/10 text-primary" 
+                valueColor="text-primary"
+                active={selectedStage === 'agendamentos'}
+                onClick={() => setSelectedStage(selectedStage === 'agendamentos' ? null : 'agendamentos')}
+              />
+              <StatCard 
+                title="Conversão (Agt)" 
+                value={`${calculateConversion(stats.calls, stats.appointments)}%`} 
+                icon={TrendingUp} 
+                color="bg-indigo-500/10 text-indigo-500" 
+                valueColor="text-indigo-500"
+              />
+            </div>
           </div>
 
           {/* BLOCO 2: RESULTADO DO PERÍODO */}
