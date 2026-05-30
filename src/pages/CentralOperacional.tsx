@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Meeting, Call } from "@/lib/types";
+import { Meeting, Call, MeetingStatus } from "@/lib/types";
 import { getMeetings, getCalls } from "@/lib/store";
 import { getFunnelDataRange, SalesFunnelData } from "@/lib/funnelStore";
 import { 
