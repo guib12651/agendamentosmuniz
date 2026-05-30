@@ -1735,7 +1735,7 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
       className={cn(
         "cursor-pointer transition-all duration-300 hover:shadow-lg active:scale-[0.98] border border-border overflow-hidden group",
         active ? "ring-2 ring-primary bg-card" : "bg-card",
-        isHighlight && "border-emerald-500/50 shadow-emerald-500/10"
+        isHighlight && "border-success/50 shadow-success/10"
       )}
       onClick={onClick}
     >
