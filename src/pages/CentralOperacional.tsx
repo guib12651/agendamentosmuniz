@@ -731,7 +731,7 @@ export default function CentralOperacional() {
       let newHistory = [...(currentLead.statusHistory || [])];
 
       // Se o status já está no histórico ou é o status atual, removemos
-      if (newHistory.includes(status) || currentLead.status === status) {
+      if (newHistory.includes(status as MeetingStatus) || currentLead.status === status) {
         newHistory = newHistory.filter(s => s !== status);
         if (currentLead.status === status) {
           // Se estamos removendo o status atual, definimos o anterior do histórico como atual
