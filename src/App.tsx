@@ -17,6 +17,7 @@ import Bids from "./pages/Bids.tsx";
 const queryClient = new QueryClient();
 
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
+  console.log("ProtectedRoute check:", { requireAdmin });
   const { session, profile, isAdmin, loading, signOut } = useAuth();
   
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
