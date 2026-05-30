@@ -308,13 +308,13 @@ export default function MeusAgendamentos() {
 
           {isAdmin && (
             <div className="ml-auto min-w-[180px]">
-              <Select value={selectedPreSeller} onValueChange={setSelectedPreSeller}>
+              <Select value={selectedUser} onValueChange={setSelectedUser}>
                 <SelectTrigger className="h-9 text-sm bg-card border-border">
                   <SelectValue placeholder="Usuário" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">Todos os usuários</SelectItem>
-                  {preSellers.map((name) => (
+                  {users.map((name) => (
                     <SelectItem key={name} value={name}>{name}</SelectItem>
                   ))}
                 </SelectContent>
