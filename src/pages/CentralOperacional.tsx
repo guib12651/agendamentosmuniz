@@ -729,16 +729,15 @@ export default function CentralOperacional() {
 
       let newStatus = status as MeetingStatus;
       let newHistory = [...(currentLead.statusHistory || [])];
-      let isRemoving = false;
+      let isAdding = false;
 
       // Se o status já está no histórico ou é o status atual, removemos
       if (newHistory.includes(status as MeetingStatus) || currentLead.status === status) {
-        isRemoving = true;
         newHistory = newHistory.filter(s => s !== status);
         if (currentLead.status === status) {
           // Se estamos removendo o status atual, definimos o anterior do histórico como atual
           newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
-          // E removemos ele do histórico se houver (já foi removido pelo filter acima se estivesse lá, mas garantimos que não duplica)
+          // E removemos ele do histórico se houver (já foi removido pelo filter acima se estivesse lá)
           if (newHistory.length > 0) {
             newHistory = newHistory.slice(0, -1);
           }
@@ -748,6 +747,7 @@ export default function CentralOperacional() {
         }
       } else {
         // Adição normal: move atual para histórico se não for pendente
+        isAdding = true;
         if (currentLead.status !== "pending" && !newHistory.includes(currentLead.status)) {
           newHistory.push(currentLead.status);
         }
@@ -768,7 +768,7 @@ export default function CentralOperacional() {
       loadData();
       
       // Só mostra o modal de parabéns se estiver ADICIONANDO o status de venda
-      if (!isRemoving && newStatus === "venda_concluida" && isAdmin) {
+      if (isAdding && newStatus === "venda_concluida" && isAdmin) {
         setLastSoldMeeting({...currentLead, status: newStatus, statusHistory: newHistory});
         setShowSaleToQuotaModal(true);
       }
