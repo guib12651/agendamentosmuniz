@@ -1813,7 +1813,7 @@ function StatCard({ title, value, icon: Icon, color, valueColor, active, onClick
 
 
 function StatusBadge({ lead, onUpdate }: { lead: Meeting, onUpdate?: (id: string, status: string) => void }) {
-  const combinedStatus = [...(lead.statusHistory || []), lead.status].filter(s => s !== "pending");
+  const combinedStatus = Array.from(new Set([...(lead.statusHistory || []), lead.status])).filter(s => s !== "pending");
   
   if (combinedStatus.length === 0) {
     const config = statusConfig.pending;
