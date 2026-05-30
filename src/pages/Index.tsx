@@ -229,7 +229,7 @@ export default function Index() {
     toast.success("Bloqueio removido.");
   };
 
-  const handleStatusChange = async (id: string, status: string) => {
+  const handleStatusChange = async (id: string, status: MeetingStatus) => {
     const meeting = meetings.find(m => m.id === id);
     if (!meeting) return;
 
