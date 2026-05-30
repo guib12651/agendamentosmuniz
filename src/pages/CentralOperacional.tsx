@@ -1149,7 +1149,7 @@ export default function CentralOperacional() {
                   <InfoItem label="Entrada" value={selectedLead?.downPayment || "-"} />
                   <InfoItem label="Parcela" value={selectedLead?.installment || "-"} />
                   <InfoItem label="Consultor" value={selectedLead?.consultant || "-"} />
-                  <InfoItem label="Pré-vendedor" value={selectedLead?.preSeller || "-"} />
+                  <InfoItem label="Usuário" value={selectedLead?.preSeller || "-"} />
                 </div>
                 {selectedLead?.notes && (
                   <div className="pt-2 border-t border-border">
