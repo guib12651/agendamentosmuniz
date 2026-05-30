@@ -67,8 +67,8 @@ export default function MeusAgendamentos() {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [meetings, setMeetings] = useState<Meeting[]>([]);
-  const [preSellers, setPreSellers] = useState<string[]>([]);
-  const [selectedPreSeller, setSelectedPreSeller] = useState<string>("");
+  const [users, setUsers] = useState<string[]>([]);
+  const [selectedUser, setSelectedUser] = useState<string>("");
 
   // Filters
   const [showFilters, setShowFilters] = useState(false);
