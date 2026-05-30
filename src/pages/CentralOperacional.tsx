@@ -111,6 +111,7 @@ export default function CentralOperacional() {
   const { profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<PeriodType | "today" | "yesterday" | "last7" | "last30">("today");
+  const [autoSelectAgendamentos, setAutoSelectAgendamentos] = useState(false);
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split("T")[0]);
   const [customStart, setCustomStart] = useState(new Date().toISOString().split("T")[0]);
   const [customEnd, setCustomEnd] = useState(new Date().toISOString().split("T")[0]);
@@ -284,8 +285,32 @@ export default function CentralOperacional() {
     // Configura o Realtime para atualizar automaticamente
     const channel = supabase
       .channel('central-operacional-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, () => {
-        console.log("Realtime: meetings changed");
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'meetings' }, (payload) => {
+        console.log("Realtime: new meeting detected", payload.new);
+        const newMeeting = payload.new as Meeting;
+        const today = new Date().toISOString().split("T")[0];
+        
+        // Se a reunião foi marcada para hoje OU criada hoje
+        if (newMeeting.date === today || (newMeeting.createdAt && newMeeting.createdAt.startsWith(today))) {
+          setPeriod("today");
+          setSelectedStage("agendamentos");
+          toast.info(`Novo agendamento: ${newMeeting.leadName}`, {
+            description: `Marcado para as ${newMeeting.time}`,
+            action: {
+              label: "Ver",
+              onClick: () => {
+                setSelectedStage("agendamentos");
+                setSearchTerm(newMeeting.leadName);
+              }
+            }
+          });
+        }
+        loadData();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'meetings' }, () => {
+        loadData();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'meetings' }, () => {
         loadData();
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'calls' }, () => {
