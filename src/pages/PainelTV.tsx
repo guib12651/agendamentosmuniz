@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import confetti from 'canvas-confetti';
 import { 
   Trophy, 
   Users, 
@@ -191,7 +192,15 @@ export default function PainelTV() {
             leadName: newMeeting.lead_name,
             time: newMeeting.time?.slice(0, 5)
           });
-          setTimeout(() => setShowMeetingCelebration(null), 5000);
+          
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#3b82f6', '#60a5fa', '#ffffff']
+          });
+
+          setTimeout(() => setShowMeetingCelebration(null), 7000);
         }
         
         // Sale celebration
@@ -204,7 +213,15 @@ export default function PainelTV() {
               seller: newMeeting.consultant || newMeeting.pre_seller,
               value: newMeeting.down_payment || "N/A"
             });
-            setTimeout(() => setShowSaleCelebration(null), 5000);
+
+            confetti({
+              particleCount: 200,
+              spread: 100,
+              origin: { y: 0.6 },
+              colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
+            });
+
+            setTimeout(() => setShowSaleCelebration(null), 7000);
           }
         }
       })
@@ -258,34 +275,45 @@ export default function PainelTV() {
     )}>
       {/* Sale Celebration Overlay */}
       {showSaleCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
-          <div className="text-center space-y-6 p-12 rounded-3xl border-2 border-success/30 bg-success/5 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-            <div className="inline-flex items-center justify-center p-6 rounded-full bg-success/20 text-success mb-4 animate-bounce">
-              <Sparkles className="size-16" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in zoom-in duration-500">
+          <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-success/50 bg-success/10 shadow-[0_0_100px_rgba(16,185,129,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
+            <div className="absolute inset-0 bg-gradient-to-b from-success/20 to-transparent opacity-50" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center p-8 rounded-full bg-success/20 text-success mb-6 animate-bounce shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                <Trophy className="size-24" />
+              </div>
+              <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
+                Venda Confirmada!
+              </h2>
+              <div className="h-1 w-32 bg-success mx-auto mb-8 rounded-full" />
+              <p className="text-4xl text-success font-black uppercase tracking-[0.3em] mb-2">{showSaleCelebration.seller}</p>
+              <div className="text-7xl font-display font-black text-white drop-shadow-2xl mb-8">
+                {showSaleCelebration.value}
+              </div>
+              <p className="text-3xl font-bold text-white/90 italic drop-shadow-md">🚀 Quebrando recordes!</p>
             </div>
-            <h2 className="text-5xl font-black tracking-tighter sm:text-7xl animate-pulse">🎉 NOVA VENDA!</h2>
-            <p className="text-3xl text-muted-foreground font-medium uppercase tracking-widest">{showSaleCelebration.seller}</p>
-            <div className="text-6xl font-display font-black text-success">
-              {showSaleCelebration.value}
-            </div>
-            <p className="text-2xl font-bold text-white/80 italic">🏆 Parabéns!</p>
           </div>
         </div>
       )}
 
-      {/* Meeting Celebration Overlay */}
       {showMeetingCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
-          <div className="text-center space-y-6 p-12 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 shadow-[0_0_50px_rgba(59,130,246,0.2)]">
-            <div className="inline-flex items-center justify-center p-6 rounded-full bg-blue-500/20 text-blue-400 mb-4 animate-bounce">
-              <Calendar className="size-16" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md animate-in fade-in zoom-in duration-500">
+          <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-blue-500/50 bg-blue-500/10 shadow-[0_0_100px_rgba(59,130,246,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent opacity-50" />
+            <div className="relative z-10">
+              <div className="inline-flex items-center justify-center p-8 rounded-full bg-blue-500/20 text-blue-400 mb-6 animate-bounce shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                <Calendar className="size-24" />
+              </div>
+              <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
+                Novo Agendamento!
+              </h2>
+              <div className="h-1 w-32 bg-blue-500 mx-auto mb-8 rounded-full" />
+              <p className="text-4xl text-blue-400 font-black uppercase tracking-[0.3em] mb-2">{showMeetingCelebration.preSeller}</p>
+              <div className="text-5xl font-display font-black text-white drop-shadow-2xl mb-8">
+                Cliente: {showMeetingCelebration.leadName}
+              </div>
+              <p className="text-3xl font-bold text-white/90 italic drop-shadow-md">🎯 Ótimo trabalho!</p>
             </div>
-            <h2 className="text-5xl font-black tracking-tighter sm:text-7xl animate-pulse text-blue-400 uppercase">🎉 NOVO AGENDAMENTO!</h2>
-            <p className="text-3xl text-muted-foreground font-medium uppercase tracking-widest">{showMeetingCelebration.preSeller}</p>
-            <div className="text-4xl font-display font-black text-white">
-              Cliente: {showMeetingCelebration.leadName}
-            </div>
-            <p className="text-2xl font-bold text-white/80 italic">🏆 Excelente trabalho!</p>
           </div>
         </div>
       )}
