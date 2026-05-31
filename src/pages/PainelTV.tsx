@@ -54,6 +54,7 @@ export default function PainelTV() {
   const [preSellerRanking, setPreSellerRanking] = useState<any[]>([]);
   const [latestSales, setLatestSales] = useState<any[]>([]);
   const [showSaleCelebration, setShowSaleCelebration] = useState<any>(null);
+  const [showMeetingCelebration, setShowMeetingCelebration] = useState<any>(null);
   const [showGoalCelebration, setShowGoalCelebration] = useState(false);
 
   // Update clock
@@ -182,6 +183,17 @@ export default function PainelTV() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, (payload) => {
         loadData();
         
+        // Meeting (Agendamento) celebration
+        if (payload.eventType === 'INSERT') {
+          const newMeeting = payload.new as any;
+          setShowMeetingCelebration({
+            preSeller: newMeeting.pre_seller,
+            leadName: newMeeting.lead_name,
+            time: newMeeting.time?.slice(0, 5)
+          });
+          setTimeout(() => setShowMeetingCelebration(null), 5000);
+        }
+        
         // Sale celebration
         if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
           const newMeeting = payload.new as any;
@@ -257,6 +269,23 @@ export default function PainelTV() {
               {showSaleCelebration.value}
             </div>
             <p className="text-2xl font-bold text-white/80 italic">🏆 Parabéns!</p>
+          </div>
+        </div>
+      )}
+
+      {/* Meeting Celebration Overlay */}
+      {showMeetingCelebration && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in zoom-in duration-500">
+          <div className="text-center space-y-6 p-12 rounded-3xl border-2 border-blue-500/30 bg-blue-500/5 shadow-[0_0_50px_rgba(59,130,246,0.2)]">
+            <div className="inline-flex items-center justify-center p-6 rounded-full bg-blue-500/20 text-blue-400 mb-4 animate-bounce">
+              <Calendar className="size-16" />
+            </div>
+            <h2 className="text-5xl font-black tracking-tighter sm:text-7xl animate-pulse text-blue-400 uppercase">🎉 NOVO AGENDAMENTO!</h2>
+            <p className="text-3xl text-muted-foreground font-medium uppercase tracking-widest">{showMeetingCelebration.preSeller}</p>
+            <div className="text-4xl font-display font-black text-white">
+              Cliente: {showMeetingCelebration.leadName}
+            </div>
+            <p className="text-2xl font-bold text-white/80 italic">🏆 Excelente trabalho!</p>
           </div>
         </div>
       )}
