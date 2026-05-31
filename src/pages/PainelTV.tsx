@@ -277,6 +277,14 @@ export default function PainelTV() {
         {/* Header */}
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/')}
+              className="text-white hover:bg-white/10 -ml-2"
+            >
+              <ArrowLeft className="size-6" />
+            </Button>
             <img src={logo} alt="Muniz" className="h-12 w-12 rounded-xl object-contain bg-white/5 p-1" />
             <div>
               <h1 className="text-2xl font-black tracking-tight text-white uppercase">Muniz Consultorias</h1>
