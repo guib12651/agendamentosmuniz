@@ -196,6 +196,10 @@ export default function PainelTV() {
             time: newMeeting.time?.slice(0, 5) || "--:--"
           });
           
+          // Play celebration sound
+          const audio = new Audio('/sounds/confetti.mp3');
+          audio.play().catch(e => console.log("Audio play failed:", e));
+
           confetti({
             particleCount: 150,
             spread: 70,
