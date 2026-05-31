@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -14,7 +15,8 @@ import {
   Minimize2,
   TrendingUp,
   Clock,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from "lucide-react";
 import { formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 import logo from "@/assets/logo_muniz.png";
@@ -29,6 +31,7 @@ const formatBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
 export default function PainelTV() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const { goal, totalGoal, totalRealized } = usePeriodGoal();
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -274,6 +277,14 @@ export default function PainelTV() {
         {/* Header */}
         <header className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/')}
+              className="text-white hover:bg-white/10 -ml-2"
+            >
+              <ArrowLeft className="size-6" />
+            </Button>
             <img src={logo} alt="Muniz" className="h-12 w-12 rounded-xl object-contain bg-white/5 p-1" />
             <div>
               <h1 className="text-2xl font-black tracking-tight text-white uppercase">Muniz Consultorias</h1>
