@@ -1,0 +1,1 @@
+ALTER TABLE public.meetings REPLICA IDENTITY FULL;
