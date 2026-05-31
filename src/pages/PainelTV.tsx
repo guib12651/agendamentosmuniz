@@ -192,7 +192,15 @@ export default function PainelTV() {
             leadName: newMeeting.lead_name,
             time: newMeeting.time?.slice(0, 5)
           });
-          setTimeout(() => setShowMeetingCelebration(null), 5000);
+          
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#3b82f6', '#60a5fa', '#ffffff']
+          });
+
+          setTimeout(() => setShowMeetingCelebration(null), 7000);
         }
         
         // Sale celebration
@@ -205,7 +213,15 @@ export default function PainelTV() {
               seller: newMeeting.consultant || newMeeting.pre_seller,
               value: newMeeting.down_payment || "N/A"
             });
-            setTimeout(() => setShowSaleCelebration(null), 5000);
+
+            confetti({
+              particleCount: 200,
+              spread: 100,
+              origin: { y: 0.6 },
+              colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
+            });
+
+            setTimeout(() => setShowSaleCelebration(null), 7000);
           }
         }
       })
