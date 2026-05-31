@@ -183,6 +183,17 @@ export default function PainelTV() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, (payload) => {
         loadData();
         
+        // Meeting (Agendamento) celebration
+        if (payload.eventType === 'INSERT') {
+          const newMeeting = payload.new as any;
+          setShowMeetingCelebration({
+            preSeller: newMeeting.pre_seller,
+            leadName: newMeeting.lead_name,
+            time: newMeeting.time?.slice(0, 5)
+          });
+          setTimeout(() => setShowMeetingCelebration(null), 5000);
+        }
+        
         // Sale celebration
         if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
           const newMeeting = payload.new as any;
