@@ -139,6 +139,7 @@ export default function PainelTV() {
           }
         });
         const psRanking = Object.values(preSellers)
+          .filter((ps: any) => ps.name !== "AnaKesia")
           .map((ps: any) => ({
             ...ps,
             conversion: ps.appointments > 0 ? Math.round((ps.present / ps.appointments) * 100) : 0
