@@ -23,7 +23,9 @@ import { toast } from "sonner";
 import { getMeetings } from "@/lib/store";
 import { Meeting } from "@/lib/types";
 
+import { Button } from "@/components/ui/button";
 const formatBRL = (v: number) =>
+
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
 export default function PainelTV() {

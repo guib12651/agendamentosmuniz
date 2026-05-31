@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, MeetingStatus } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -309,7 +309,12 @@ export default function Index() {
                 </DropdownMenuItem>
                 {isAdmin && (
                   <>
+                    <DropdownMenuItem onClick={() => navigate("/painel-tv")}>
+                      <Monitor className="w-4 h-4 mr-2" />
+                      Painel TV
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/quotas")}>
+
                       <FileText className="w-4 h-4 mr-2" />
                       Cotas
                     </DropdownMenuItem>
