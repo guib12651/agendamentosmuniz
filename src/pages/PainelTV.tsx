@@ -54,6 +54,7 @@ export default function PainelTV() {
   const [preSellerRanking, setPreSellerRanking] = useState<any[]>([]);
   const [latestSales, setLatestSales] = useState<any[]>([]);
   const [showSaleCelebration, setShowSaleCelebration] = useState<any>(null);
+  const [showMeetingCelebration, setShowMeetingCelebration] = useState<any>(null);
   const [showGoalCelebration, setShowGoalCelebration] = useState(false);
 
   // Update clock
