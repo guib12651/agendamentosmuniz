@@ -31,6 +31,7 @@ const formatBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
 export default function PainelTV() {
+  const navigate = useNavigate();
   const { isAdmin } = useAuth();
   const { goal, totalGoal, totalRealized } = usePeriodGoal();
   const [currentTime, setCurrentTime] = useState(new Date());
