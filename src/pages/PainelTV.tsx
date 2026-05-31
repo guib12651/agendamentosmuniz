@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -14,7 +15,8 @@ import {
   Minimize2,
   TrendingUp,
   Clock,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from "lucide-react";
 import { formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 import logo from "@/assets/logo_muniz.png";
