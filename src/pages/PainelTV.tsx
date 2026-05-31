@@ -179,18 +179,21 @@ export default function PainelTV() {
     loadData();
     
     // Realtime subscriptions
+    console.log("Setting up real-time subscriptions for Painel TV...");
     const channel = supabase
       .channel('tv-panel-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, (payload) => {
+        console.log("Meeting change detected:", payload.eventType, payload);
         loadData();
         
         // Meeting (Agendamento) celebration
         if (payload.eventType === 'INSERT') {
           const newMeeting = payload.new as any;
+          console.log("New meeting inserted, showing celebration for:", newMeeting.pre_seller);
           setShowMeetingCelebration({
-            preSeller: newMeeting.pre_seller,
-            leadName: newMeeting.lead_name,
-            time: newMeeting.time?.slice(0, 5)
+            preSeller: newMeeting.pre_seller || "Consultor",
+            leadName: newMeeting.lead_name || "Cliente",
+            time: newMeeting.time?.slice(0, 5) || "--:--"
           });
           
           confetti({
@@ -208,9 +211,12 @@ export default function PainelTV() {
           const newMeeting = payload.new as any;
           const oldMeeting = payload.old as any;
           
-          if (newMeeting.status === 'venda_concluida' && (!oldMeeting || oldMeeting.status !== 'venda_concluida')) {
+          const isNewSale = newMeeting.status === 'venda_concluida' && (!oldMeeting || oldMeeting.status !== 'venda_concluida');
+          
+          if (isNewSale) {
+            console.log("New sale detected, showing celebration for:", newMeeting.consultant || newMeeting.pre_seller);
             setShowSaleCelebration({
-              seller: newMeeting.consultant || newMeeting.pre_seller,
+              seller: newMeeting.consultant || newMeeting.pre_seller || "Consultor",
               value: newMeeting.down_payment || "N/A"
             });
 
@@ -225,12 +231,14 @@ export default function PainelTV() {
           }
         }
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, loadData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, loadData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, loadData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goals' }, loadData)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goal_progress' }, loadData)
-      .subscribe();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, () => { console.log("Leads update"); loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, () => { console.log("Calls update"); loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, () => { console.log("Dist update"); loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goals' }, () => { console.log("Goals update"); loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goal_progress' }, () => { console.log("Progress update"); loadData(); })
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
 
     return () => { supabase.removeChannel(channel); };
   }, []);
