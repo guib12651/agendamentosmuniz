@@ -224,6 +224,10 @@ export default function PainelTV() {
               value: newMeeting.down_payment || "N/A"
             });
 
+            // Play celebration sound
+            const audio = new Audio('/sounds/confetti.mp3');
+            audio.play().catch(e => console.log("Audio play failed:", e));
+
             confetti({
               particleCount: 200,
               spread: 100,
