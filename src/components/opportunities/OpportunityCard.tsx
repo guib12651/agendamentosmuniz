@@ -1,0 +1,136 @@
+import React from "react";
+import { Opportunity } from "@/lib/types";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+interface OpportunityCardProps {
+  opportunity: Opportunity;
+  onUpdateStatus: (id: string, status: string) => void;
+  onSchedule: (opportunity: Opportunity) => void;
+  isAdmin: boolean;
+}
+
+const statusConfig = {
+  pending: { label: "Pendente", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
+  contacted: { label: "Atendeu", color: "bg-green-100 text-green-700 border-green-200" },
+  no_answer: { label: "Não Atendeu", color: "bg-red-100 text-red-700 border-red-200" },
+  scheduled: { label: "Agendado", color: "bg-blue-100 text-blue-700 border-blue-200" },
+  converted: { label: "Convertido", color: "bg-purple-100 text-purple-700 border-purple-200" },
+  archived: { label: "Arquivado", color: "bg-gray-100 text-gray-700 border-gray-200" },
+};
+
+export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, isAdmin }: OpportunityCardProps) {
+  const status = statusConfig[opportunity.status] || statusConfig.pending;
+
+  const handleWhatsApp = () => {
+    const phone = opportunity.phone.replace(/\D/g, "");
+    if (!phone) return;
+    window.open(`https://wa.me/55${phone}`, "_blank");
+  };
+
+  return (
+    <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-4 space-y-4">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-full bg-primary/10 text-primary">
+              {opportunity.opportunity_type?.toLowerCase().includes("imóvel") ? (
+                <Building2 className="w-5 h-5" />
+              ) : (
+                <Car className="w-5 h-5" />
+              )}
+            </div>
+            <div>
+              <h3 className="font-bold text-lg leading-tight">{opportunity.lead_name}</h3>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <MapPin className="w-3 h-3" />
+                {opportunity.city}
+              </div>
+            </div>
+          </div>
+          <Badge variant="outline" className={status.color}>
+            {status.label}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-2 gap-y-3 text-sm">
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground">Telefone</span>
+            <span className="font-medium">{opportunity.phone || "N/A"}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground">Recebido em</span>
+            <span className="font-medium">
+              {format(new Date(opportunity.created_at), "dd/MM/yyyy", { locale: ptBR })}
+            </span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground">Carta Desejada</span>
+            <span className="font-medium">R$ {opportunity.desired_value || "0,00"}</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground">Entrada</span>
+            <span className="font-medium">R$ {opportunity.available_down_payment || "0,00"}</span>
+          </div>
+        </div>
+
+        {opportunity.vehicle_or_property && (
+          <div className="bg-muted/30 p-2 rounded text-xs">
+            <span className="font-bold block mb-1">Interesse:</span>
+            {opportunity.vehicle_or_property}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <User className="w-3 h-3" />
+            {isAdmin ? `Resp: ${opportunity.profiles?.display_name || "N/A"}` : "Minha Oportunidade"}
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+            <Clock className="w-3 h-3" />
+            Tentativas: {opportunity.contact_attempts}
+          </div>
+        </div>
+      </CardContent>
+
+      <CardFooter className="p-2 bg-muted/20 grid grid-cols-2 gap-2">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-green-500 hover:bg-green-600 text-white border-none text-xs h-9"
+          onClick={handleWhatsApp}
+        >
+          <MessageSquare className="w-4 h-4 mr-1" /> WhatsApp
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-blue-500 hover:bg-blue-600 text-white border-none text-xs h-9"
+          onClick={() => onUpdateStatus(opportunity.id, "contacted")}
+        >
+          <Check className="w-4 h-4 mr-1" /> Atendeu
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-purple-500 hover:bg-purple-600 text-white border-none text-xs h-9"
+          onClick={() => onSchedule(opportunity)}
+        >
+          <Calendar className="w-4 h-4 mr-1" /> Agendado
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-red-500 hover:bg-red-600 text-white border-none text-xs h-9"
+          onClick={() => onUpdateStatus(opportunity.id, "no_answer")}
+        >
+          <X className="w-4 h-4 mr-1" /> Não Atendeu
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
