@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Opportunity, OpportunityStatus } from "@/lib/types";
-import { Target, Upload, Loader2, LayoutGrid, Users as UsersIcon } from "lucide-react";
+import { Target, Upload, Loader2, LayoutGrid, Users as UsersIcon, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { subDays, startOfDay, isWithinInterval, parseISO } from "date-fns";
+import { addCall } from "@/lib/store";
 
 // Components
 import OpportunityStats from "@/components/opportunities/OpportunityStats";
@@ -17,6 +19,7 @@ import ScheduleModal from "@/components/opportunities/ScheduleModal";
 
 export default function OpportunitiesCenter() {
   const { profile, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -74,19 +77,33 @@ export default function OpportunitiesCenter() {
     const opp = opportunities.find(o => o.id === id);
     if (!opp) return;
 
-    const { error } = await supabase
-      .from("opportunities")
-      .update({ 
-        status, 
-        contact_attempts: opp.contact_attempts + 1,
-        last_contact_date: new Date().toISOString()
-      })
-      .eq("id", id);
+    try {
+      const { error } = await supabase
+        .from("opportunities")
+        .update({ 
+          status, 
+          contact_attempts: opp.contact_attempts + 1,
+          last_contact_date: new Date().toISOString()
+        })
+        .eq("id", id);
 
-    if (error) {
-      toast.error("Erro ao atualizar status.");
-    } else {
+      if (error) throw error;
+
+      // Registrar chamada na Central Operacional se for Atendeu ou Não Atendeu
+      if (status === "contacted" || status === "no_answer") {
+        await addCall({
+          leadName: opp.lead_name,
+          userId: profile?.id || "",
+          callTime: new Date().toISOString(),
+          result: status === "contacted" ? "Atendeu" : "Não Atendeu"
+        });
+      }
+
       toast.success("Status atualizado!");
+      fetchOpportunities();
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      toast.error("Erro ao atualizar status.");
     }
   };
 
@@ -230,6 +247,14 @@ export default function OpportunitiesCenter() {
       <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
         <div className="container py-4 px-4 sm:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate("/dashboard")}
+              className="mr-1"
+            >
+              <ArrowLeft className="w-5 h-5 text-primary" />
+            </Button>
             <div className="p-2 rounded-lg bg-primary text-white">
               <Target className="w-6 h-6" />
             </div>
