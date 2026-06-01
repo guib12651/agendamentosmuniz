@@ -17,10 +17,10 @@ interface OpportunityStatsProps {
 
 export default function OpportunityStats({ stats, onFilterStatus, activeFilter }: OpportunityStatsProps) {
   const cards = [
-    { key: "pending", label: "Não Contatados", color: "text-yellow-600", bg: "bg-yellow-50", border: "border-yellow-100", count: stats.pending },
-    { key: "contacted", label: "Atenderam", color: "text-green-600", bg: "bg-green-50", border: "border-green-100", count: stats.contacted },
-    { key: "no_answer", label: "Não Atenderam", color: "text-red-600", bg: "bg-red-50", border: "border-red-100", count: stats.no_answer },
-    { key: "scheduled", label: "Agendados", color: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100", count: stats.scheduled },
+    { key: "pending", label: "Não Contatados", color: "text-yellow-600", bg: "bg-[#FFF9E6]", border: "border-yellow-200", count: stats.pending },
+    { key: "contacted", label: "Atenderam", color: "text-green-600", bg: "bg-[#F2FAF5]", border: "border-green-200", count: stats.contacted },
+    { key: "no_answer", label: "Não Atenderam", color: "text-red-600", bg: "bg-[#FFF5F5]", border: "border-red-200", count: stats.no_answer },
+    { key: "scheduled", label: "Agendados", color: "text-blue-600", bg: "bg-[#F0F7FF]", border: "border-blue-200", count: stats.scheduled },
   ];
 
   return (
@@ -40,7 +40,7 @@ export default function OpportunityStats({ stats, onFilterStatus, activeFilter }
             <span className={cn("text-xs font-bold uppercase tracking-wider", card.color)}>
               {card.label}
             </span>
-            <span className="text-3xl font-black mt-1">{card.count}</span>
+            <span className="text-3xl font-black mt-1 text-slate-800">{card.count}</span>
           </CardContent>
         </Card>
       ))}

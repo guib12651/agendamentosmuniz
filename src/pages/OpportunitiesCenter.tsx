@@ -90,6 +90,22 @@ export default function OpportunitiesCenter() {
     }
   };
 
+  const handleDeleteOpportunity = async (id: string) => {
+    if (!confirm("Tem certeza que deseja excluir esta oportunidade?")) return;
+
+    const { error } = await supabase
+      .from("opportunities")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      toast.error("Erro ao excluir oportunidade.");
+    } else {
+      toast.success("Oportunidade excluída.");
+      fetchOpportunities();
+    }
+  };
+
   const handleConfirmSchedule = async (id: string, date: string, time: string, notes: string) => {
     const opp = opportunities.find(o => o.id === id);
     if (!opp) return;
@@ -277,6 +293,7 @@ export default function OpportunitiesCenter() {
                     opportunity={opp} 
                     onUpdateStatus={handleUpdateStatus}
                     onSchedule={(o) => { setSelectedOpportunity(o); setIsScheduleOpen(true); }}
+                    onDelete={handleDeleteOpportunity}
                     isAdmin={isAdmin}
                   />
                 ))}

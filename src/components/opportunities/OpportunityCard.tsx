@@ -3,7 +3,7 @@ import { Opportunity } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock } from "lucide-react";
+import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -11,6 +11,7 @@ interface OpportunityCardProps {
   opportunity: Opportunity;
   onUpdateStatus: (id: string, status: string) => void;
   onSchedule: (opportunity: Opportunity) => void;
+  onDelete?: (id: string) => void;
   isAdmin: boolean;
 }
 
@@ -23,7 +24,7 @@ const statusConfig = {
   archived: { label: "Arquivado", color: "bg-gray-100 text-gray-700 border-gray-200" },
 };
 
-export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, isAdmin }: OpportunityCardProps) {
+export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, onDelete, isAdmin }: OpportunityCardProps) {
   const status = statusConfig[opportunity.status] || statusConfig.pending;
 
   const handleWhatsApp = () => {
@@ -33,7 +34,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
   };
 
   return (
-    <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-shadow relative">
       <CardContent className="p-4 space-y-4">
         <div className="flex justify-between items-start gap-2">
           <div className="flex items-center gap-2">
@@ -52,9 +53,21 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
               </div>
             </div>
           </div>
-          <Badge variant="outline" className={status.color}>
-            {status.label}
-          </Badge>
+          <div className="flex flex-col items-end gap-2">
+            <Badge variant="outline" className={status.color}>
+              {status.label}
+            </Badge>
+            {isAdmin && onDelete && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                onClick={() => onDelete(opportunity.id)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-y-3 text-sm">
