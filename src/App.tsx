@@ -14,6 +14,8 @@ import CentralOperacional from "./pages/CentralOperacional.tsx";
 import Quotas from "./pages/Quotas.tsx";
 import Bids from "./pages/Bids.tsx";
 import PainelTV from "./pages/PainelTV.tsx";
+import OpportunitiesCenter from "./pages/OpportunitiesCenter.tsx";
+
 
 
 const queryClient = new QueryClient();
@@ -60,6 +62,8 @@ const App = () => (
             <Route path="/quotas" element={<ProtectedRoute requireAdmin={true}><Quotas /></ProtectedRoute>} />
             <Route path="/lances" element={<ProtectedRoute requireAdmin><Bids /></ProtectedRoute>} />
             <Route path="/painel-tv" element={<ProtectedRoute requireAdmin><PainelTV /></ProtectedRoute>} />
+            <Route path="/central-oportunidades" element={<ProtectedRoute><OpportunitiesCenter /></ProtectedRoute>} />
+
 
             <Route path="*" element={<NotFound />} />
           </Routes>
