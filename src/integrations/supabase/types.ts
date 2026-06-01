@@ -365,62 +365,65 @@ export type Database = {
       }
       opportunities: {
         Row: {
-          assigned_user_id: string | null
-          assigned_user_name: string | null
+          assigned_user_id: string
           available_down_payment: string | null
           city: string | null
+          contact_attempts: number
           created_at: string
-          created_by: string | null
+          created_by: string
           desired_installment: string | null
           desired_value: string | null
           id: string
-          import_source: string | null
-          last_interaction: string | null
+          import_batch_id: string | null
+          last_contact_date: string | null
           lead_name: string | null
           notes: string | null
+          ocr_raw_text: string | null
           opportunity_type: string | null
           phone: string | null
-          status: Database["public"]["Enums"]["opportunity_status"]
+          status: string
           updated_at: string
           vehicle_or_property: string | null
         }
         Insert: {
-          assigned_user_id?: string | null
-          assigned_user_name?: string | null
+          assigned_user_id: string
           available_down_payment?: string | null
           city?: string | null
+          contact_attempts?: number
           created_at?: string
-          created_by?: string | null
+          created_by: string
           desired_installment?: string | null
           desired_value?: string | null
           id?: string
-          import_source?: string | null
-          last_interaction?: string | null
+          import_batch_id?: string | null
+          last_contact_date?: string | null
           lead_name?: string | null
           notes?: string | null
+          ocr_raw_text?: string | null
           opportunity_type?: string | null
           phone?: string | null
-          status?: Database["public"]["Enums"]["opportunity_status"]
+          status?: string
           updated_at?: string
           vehicle_or_property?: string | null
         }
         Update: {
-          assigned_user_id?: string | null
-          assigned_user_name?: string | null
+          assigned_user_id?: string
           available_down_payment?: string | null
           city?: string | null
+          contact_attempts?: number
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           desired_installment?: string | null
           desired_value?: string | null
           id?: string
-          import_source?: string | null
-          last_interaction?: string | null
+          import_batch_id?: string | null
+          last_contact_date?: string | null
           lead_name?: string | null
           notes?: string | null
+          ocr_raw_text?: string | null
           opportunity_type?: string | null
           phone?: string | null
-          status?: Database["public"]["Enums"]["opportunity_status"]
+          status?: string
           updated_at?: string
           vehicle_or_property?: string | null
         }
