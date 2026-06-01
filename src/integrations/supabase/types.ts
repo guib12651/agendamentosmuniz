@@ -363,6 +363,84 @@ export type Database = {
           },
         ]
       }
+      opportunities: {
+        Row: {
+          assigned_user_id: string | null
+          assigned_user_name: string | null
+          available_down_payment: string | null
+          city: string | null
+          created_at: string
+          created_by: string | null
+          desired_installment: string | null
+          desired_value: string | null
+          id: string
+          import_source: string | null
+          last_interaction: string | null
+          lead_name: string | null
+          notes: string | null
+          opportunity_type: string | null
+          phone: string | null
+          status: Database["public"]["Enums"]["opportunity_status"]
+          updated_at: string
+          vehicle_or_property: string | null
+        }
+        Insert: {
+          assigned_user_id?: string | null
+          assigned_user_name?: string | null
+          available_down_payment?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          desired_installment?: string | null
+          desired_value?: string | null
+          id?: string
+          import_source?: string | null
+          last_interaction?: string | null
+          lead_name?: string | null
+          notes?: string | null
+          opportunity_type?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          updated_at?: string
+          vehicle_or_property?: string | null
+        }
+        Update: {
+          assigned_user_id?: string | null
+          assigned_user_name?: string | null
+          available_down_payment?: string | null
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          desired_installment?: string | null
+          desired_value?: string | null
+          id?: string
+          import_source?: string | null
+          last_interaction?: string | null
+          lead_name?: string | null
+          notes?: string | null
+          opportunity_type?: string | null
+          phone?: string | null
+          status?: Database["public"]["Enums"]["opportunity_status"]
+          updated_at?: string
+          vehicle_or_property?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_assigned_user_id_fkey"
+            columns: ["assigned_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       period_goal_progress: {
         Row: {
           amount: number
@@ -714,6 +792,11 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "pre_seller" | "seller" | "consultant"
+      opportunity_status:
+        | "not_contacted"
+        | "answered"
+        | "not_answered"
+        | "scheduled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -842,6 +925,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "pre_seller", "seller", "consultant"],
+      opportunity_status: [
+        "not_contacted",
+        "answered",
+        "not_answered",
+        "scheduled",
+      ],
     },
   },
 } as const
