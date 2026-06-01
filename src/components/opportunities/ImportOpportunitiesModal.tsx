@@ -128,6 +128,7 @@ export default function ImportOpportunitiesModal({ isOpen, onClose, onSuccess }:
         desired_installment: res.desired_installment || "",
         available_down_payment: res.available_down_payment || "",
         notes: res.notes || "",
+        status: "pending",
         import_batch_id: batchId,
         ocr_raw_text: JSON.stringify(res)
       }));
