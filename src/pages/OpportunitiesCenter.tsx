@@ -87,6 +87,7 @@ export default function OpportunitiesCenter() {
       toast.error("Erro ao atualizar status.");
     } else {
       toast.success("Status atualizado!");
+    }
   };
 
   const handleDeleteOpportunity = async (id: string) => {
