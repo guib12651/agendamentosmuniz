@@ -250,7 +250,7 @@ export default function OpportunitiesCenter() {
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={() => navigate("/dashboard")}
+              onClick={() => navigate("/")}
               className="mr-1"
             >
               <ArrowLeft className="w-5 h-5 text-primary" />
