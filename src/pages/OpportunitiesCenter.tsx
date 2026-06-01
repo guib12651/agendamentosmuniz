@@ -180,7 +180,7 @@ export default function OpportunitiesCenter() {
 
   const filteredOpportunities = useMemo(() => {
     return opportunities.filter(opp => {
-      const matchStatus = filterStatus === "all" || opp.status === filterStatus;
+      const matchStatus = filterStatus === "all" || (filterStatus === "pending" ? (opp.status === "pending" || opp.status === "contacted" || opp.status === "no_answer") : opp.status === filterStatus);
       const matchType = filterType === "all" || (opp.opportunity_type || "").toLowerCase().includes(filterType.toLowerCase());
       const matchCity = filterCity === "all" || opp.city === filterCity;
       
