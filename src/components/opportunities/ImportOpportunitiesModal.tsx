@@ -152,7 +152,8 @@ export default function ImportOpportunitiesModal({ isOpen, onClose, onSuccess }:
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !isProcessing && !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-[95vw] max-h-[90vh] overflow-y-auto flex flex-col p-0">
+        <div className="p-6 overflow-y-auto flex-1">
         <DialogHeader>
           <DialogTitle>📤 Importar Oportunidades</DialogTitle>
           <DialogDescription>
@@ -241,7 +242,8 @@ export default function ImportOpportunitiesModal({ isOpen, onClose, onSuccess }:
           </div>
         )}
 
-        <DialogFooter>
+        </div>
+        <DialogFooter className="p-6 pt-2 border-t mt-auto flex-row gap-2 justify-end">
           {currentStep === 1 && (
             <>
               <Button variant="outline" onClick={onClose}>Cancelar</Button>
