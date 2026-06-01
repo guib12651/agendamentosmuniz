@@ -101,3 +101,30 @@ export interface Company {
   name: string;
   createdAt: string;
 }
+
+export type OpportunityStatus = "pending" | "contacted" | "no_answer" | "scheduled" | "converted" | "archived";
+
+export interface Opportunity {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  created_by: string;
+  assigned_user_id: string;
+  lead_name: string;
+  phone: string;
+  city: string;
+  opportunity_type: string;
+  vehicle_or_property: string;
+  desired_value: string;
+  desired_installment: string;
+  available_down_payment: string;
+  notes: string;
+  status: OpportunityStatus;
+  contact_attempts: number;
+  last_contact_date: string | null;
+  import_batch_id: string | null;
+  ocr_raw_text: string | null;
+  profiles?: {
+    display_name: string;
+  };
+}
