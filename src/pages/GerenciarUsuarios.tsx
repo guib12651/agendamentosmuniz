@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2 } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -42,6 +42,9 @@ export default function GerenciarUsuarios() {
   const [creating, setCreating] = useState(false);
   const [showPwd, setShowPwd] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [updatingName, setUpdatingName] = useState(false);
   const [form, setForm] = useState({
     display_name: "",
     username: "",
@@ -118,6 +121,33 @@ export default function GerenciarUsuarios() {
       toast.success("Função atualizada com sucesso!");
       setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
     }
+  };
+
+  const updateUserName = async (userId: string) => {
+    if (!editName.trim()) {
+      toast.error("O nome não pode estar vazio");
+      return;
+    }
+
+    setUpdatingName(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: editName.trim() })
+      .eq("id", userId);
+    setUpdatingName(false);
+
+    if (error) {
+      toast.error("Erro ao atualizar nome");
+    } else {
+      toast.success("Nome atualizado com sucesso!");
+      setUsers(users.map(u => u.id === userId ? { ...u, display_name: editName.trim() } : u));
+      setEditingId(null);
+    }
+  };
+
+  const startEditing = (user: UserProfile) => {
+    setEditingId(user.id);
+    setEditName(user.display_name);
   };
 
   const handleDeleteUser = async (userId: string) => {
@@ -229,8 +259,51 @@ export default function GerenciarUsuarios() {
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center gap-2">
-                          <UserCog className="w-4 h-4 text-muted-foreground" />
-                          {user.display_name}
+                          <UserCog className="w-4 h-4 text-muted-foreground shrink-0" />
+                          {editingId === user.id ? (
+                            <div className="flex items-center gap-1 w-full max-w-[200px]">
+                              <Input
+                                value={editName}
+                                onChange={(e) => setEditName(e.target.value)}
+                                className="h-8 text-xs"
+                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") updateUserName(user.id);
+                                  if (e.key === "Escape") setEditingId(null);
+                                }}
+                              />
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0 text-success hover:text-success hover:bg-success/10 shrink-0"
+                                onClick={() => updateUserName(user.id)}
+                                disabled={updatingName}
+                              >
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                                onClick={() => setEditingId(null)}
+                                disabled={updatingName}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 group">
+                              <span className="truncate">{user.display_name}</span>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => startEditing(user)}
+                              >
+                                <Pencil className="w-3 h-3 text-muted-foreground" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
