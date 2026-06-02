@@ -89,6 +89,10 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
             <span className="text-[10px] uppercase font-bold text-muted-foreground">Entrada</span>
             <span className="font-medium">R$ {opportunity.available_down_payment || "0,00"}</span>
           </div>
+          <div className="flex flex-col">
+            <span className="text-[10px] uppercase font-bold text-muted-foreground">Parcela</span>
+            <span className="font-medium">R$ {opportunity.desired_installment || "0,00"}</span>
+          </div>
         </div>
 
         {opportunity.vehicle_or_property && (
