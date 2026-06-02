@@ -245,28 +245,28 @@ export default function OpportunitiesCenter() {
   return (
     <div className="min-h-screen bg-muted/20 pb-10">
       <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
-        <div className="container py-4 px-4 sm:px-6 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
+        <div className="container py-3 px-3 sm:px-6 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-[200px]">
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={() => navigate("/")}
-              className="mr-1"
+              className="h-8 w-8 sm:h-10 sm:w-10"
             >
-              <ArrowLeft className="w-5 h-5 text-primary" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
             </Button>
-            <div className="p-2 rounded-lg bg-primary text-white">
-              <Target className="w-6 h-6" />
+            <div className="p-1.5 sm:p-2 rounded-lg bg-primary text-white shrink-0">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-primary leading-tight">Central de Oportunidades</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Gerencie leads e acompanhe o fluxo de vendas em tempo real.</p>
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold text-primary leading-tight truncate">Central de Oportunidades</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block">Gerencie leads e acompanhe o fluxo de vendas em tempo real.</p>
             </div>
           </div>
           {isAdmin && (
-            <Button onClick={() => setIsImportOpen(true)} className="flex items-center gap-2">
-              <Upload className="w-4 h-4" /> <span className="hidden sm:inline">Importar Oportunidades</span>
-              <span className="sm:hidden">Importar</span>
+            <Button onClick={() => setIsImportOpen(true)} size="sm" className="flex items-center gap-1.5 sm:gap-2 h-9">
+              <Upload className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+              <span className="text-xs sm:text-sm">Importar <span className="hidden sm:inline">Oportunidades</span></span>
             </Button>
           )}
         </div>
