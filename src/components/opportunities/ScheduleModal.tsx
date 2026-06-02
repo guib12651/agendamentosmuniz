@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Opportunity } from "@/lib/types";
 import MeetingForm from "@/components/MeetingForm";
 import MeetingSuccessModal from "@/components/MeetingSuccessModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface ScheduleModalProps {
   isOpen: boolean;
