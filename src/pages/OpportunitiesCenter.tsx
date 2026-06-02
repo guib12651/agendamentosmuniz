@@ -280,19 +280,21 @@ export default function OpportunitiesCenter() {
         />
 
         <Tabs defaultValue="list" className="w-full">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
-            <TabsList className="grid w-full sm:w-[400px] grid-cols-2">
-              <TabsTrigger value="list" className="flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4" /> Leads
-              </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger value="productivity" className="flex items-center gap-2">
-                  <UsersIcon className="w-4 h-4" /> Produtividade
+          <div className="flex flex-col gap-4 mb-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <TabsList className="grid w-full sm:w-[350px] grid-cols-2">
+                <TabsTrigger value="list" className="flex items-center gap-2 text-xs sm:text-sm">
+                  <LayoutGrid className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Leads
                 </TabsTrigger>
-              )}
-            </TabsList>
+                {isAdmin && (
+                  <TabsTrigger value="productivity" className="flex items-center gap-2 text-xs sm:text-sm">
+                    <UsersIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Produtividade
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            </div>
             
-            <div className="w-full sm:w-auto">
+            <div className="w-full">
               <OpportunityFilters 
                 status={filterStatus} onStatusChange={setFilterStatus}
                 type={filterType} onTypeChange={setFilterType}
