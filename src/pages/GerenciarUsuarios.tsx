@@ -439,6 +439,8 @@ export default function GerenciarUsuarios() {
                   <SelectItem value="pre_seller">Pré-vendedor</SelectItem>
                   <SelectItem value="seller">Vendedor</SelectItem>
                   <SelectItem value="consultant">Consultor</SelectItem>
+                  <SelectItem value="commercial_manager">Gerente Comercial</SelectItem>
+                  <SelectItem value="admin_assistant">Assistente Administrativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
