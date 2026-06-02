@@ -85,6 +85,22 @@ export default function OpportunityFilters({
         </SelectContent>
       </Select>
 
+      {showUserFilter && (
+        <Select value={user} onValueChange={onUserChange}>
+          <SelectTrigger>
+            <SelectValue placeholder="Usuário" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todos os Usuários</SelectItem>
+            {users.map(u => (
+              <SelectItem key={u} value={u}>{u}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+
+
       <Select value={period} onValueChange={onPeriodChange}>
         <SelectTrigger>
           <div className="flex items-center gap-2">
