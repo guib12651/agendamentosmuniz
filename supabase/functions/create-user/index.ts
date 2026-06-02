@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (!["admin", "pre_seller", "seller", "consultant"].includes(role)) {
+    if (!["admin", "pre_seller", "seller", "consultant", "commercial_manager", "admin_assistant"].includes(role)) {
       return new Response(JSON.stringify({ error: "Função inválida" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

@@ -27,7 +27,7 @@ import logo from "@/assets/logo_muniz.png";
 interface UserProfile {
   id: string;
   display_name: string;
-  role: 'admin' | 'pre_seller' | 'seller' | 'consultant';
+  role: 'admin' | 'pre_seller' | 'seller' | 'consultant' | 'commercial_manager' | 'admin_assistant';
   is_blocked: boolean;
   email?: string;
 }
@@ -171,6 +171,8 @@ export default function GerenciarUsuarios() {
       case 'admin': return <Shield className="w-3.5 h-3.5 text-primary" />;
       case 'pre_seller': return <UserCog className="w-3.5 h-3.5 text-blue-500" />;
       case 'seller': return <User className="w-3.5 h-3.5 text-emerald-500" />;
+      case 'commercial_manager': return <User className="w-3.5 h-3.5 text-purple-500" />;
+      case 'admin_assistant': return <User className="w-3.5 h-3.5 text-orange-500" />;
       default: return <User className="w-3.5 h-3.5 text-muted-foreground" />;
     }
   };
@@ -181,6 +183,8 @@ export default function GerenciarUsuarios() {
       case 'pre_seller': return 'Pré-vendedor';
       case 'seller': return 'Vendedor';
       case 'consultant': return 'Consultor';
+      case 'commercial_manager': return 'Gerente Comercial';
+      case 'admin_assistant': return 'Assistente Administrativo';
       default: return role;
     }
   };
@@ -323,6 +327,8 @@ export default function GerenciarUsuarios() {
                             <SelectItem value="pre_seller">Pré-vendedor</SelectItem>
                             <SelectItem value="seller">Vendedor</SelectItem>
                             <SelectItem value="consultant">Consultor</SelectItem>
+                            <SelectItem value="commercial_manager">Gerente Comercial</SelectItem>
+                            <SelectItem value="admin_assistant">Assistente Administrativo</SelectItem>
                           </SelectContent>
                         </Select>
                       </TableCell>
@@ -433,6 +439,8 @@ export default function GerenciarUsuarios() {
                   <SelectItem value="pre_seller">Pré-vendedor</SelectItem>
                   <SelectItem value="seller">Vendedor</SelectItem>
                   <SelectItem value="consultant">Consultor</SelectItem>
+                  <SelectItem value="commercial_manager">Gerente Comercial</SelectItem>
+                  <SelectItem value="admin_assistant">Assistente Administrativo</SelectItem>
                 </SelectContent>
               </Select>
             </div>
