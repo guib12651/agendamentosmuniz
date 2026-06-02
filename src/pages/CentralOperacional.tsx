@@ -1702,7 +1702,7 @@ export default function CentralOperacional() {
                             <p className="text-2xl font-black text-amber-500">{item.amount}</p>
                             <p className="text-xs text-muted-foreground">{item.date.split('-').reverse().join('/')}</p>
                           </div>
-                        <div className="flex gap-1">
+                          <div className="flex gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
