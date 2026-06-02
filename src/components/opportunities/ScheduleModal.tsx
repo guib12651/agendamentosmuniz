@@ -80,8 +80,7 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
             userDisplayName={profile?.displayName || ""}
             isAdmin={isAdmin}
             submitButtonLabel="Enviar reunião no WhatsApp"
-            // We pass null for editMeeting to ensure it's treated as a NEW meeting
-            editMeeting={null}
+            editMeeting={initialMeetingData as any}
           />
         </div>
       </DialogContent>
