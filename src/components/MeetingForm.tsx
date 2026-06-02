@@ -176,6 +176,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
           consultant: form.consultant,
         };
         const { id, userId: _uid, ...rest } = form as any;
+        console.log("Adding meeting with data:", { ...rest, time: form.time });
         await addMeeting({ ...rest, time: form.time }, userId);
         setForm({ ...emptyForm, preSeller: userDisplayName });
         onSave(savedDate, successInfo);
