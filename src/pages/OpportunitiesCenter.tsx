@@ -311,7 +311,7 @@ export default function OpportunitiesCenter() {
                 <p className="text-muted-foreground">Carregando oportunidades...</p>
               </div>
             ) : filteredOpportunities.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {filteredOpportunities.map((opp) => (
                   <OpportunityCard 
                     key={opp.id} 
@@ -332,8 +332,8 @@ export default function OpportunitiesCenter() {
 
           {isAdmin && (
             <TabsContent value="productivity">
-              <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
-                <table className="w-full text-sm text-left">
+              <div className="bg-card rounded-xl border border-border overflow-x-auto shadow-sm">
+                <table className="w-full text-sm text-left min-w-[600px]">
                   <thead className="bg-muted/50 text-muted-foreground font-medium border-b border-border">
                     <tr>
                       <th className="px-4 py-3">Pré-vendedor</th>
