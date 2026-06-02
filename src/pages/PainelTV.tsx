@@ -65,7 +65,9 @@ export default function PainelTV() {
   }, []);
 
   const loadData = async () => {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString('en-CA');
+    const startOfLocalDay = new Date(today + "T00:00:00").toISOString();
+    const endOfLocalDay = new Date(today + "T23:59:59").toISOString();
     
     try {
       // 1. Fetch Meetings
@@ -98,12 +100,16 @@ export default function PainelTV() {
         .eq("date", today);
       stats.distributed = (distData || []).reduce((acc, l) => acc + l.amount, 0);
 
-      // Fetch daily calls
+      // Fetch manual daily calls
       const { data: callsData } = await supabase
         .from("daily_calls")
         .select("amount")
         .eq("date", today);
-      stats.calls = (callsData || []).reduce((acc, l) => acc + l.amount, 0);
+      const manualCalls = (callsData || []).reduce((acc, l) => acc + l.amount, 0);
+
+      // Fetch automatic calls
+      const individualCalls = await getCalls(startOfLocalDay, endOfLocalDay);
+      stats.calls = manualCalls + individualCalls.length;
 
       setDailyStats(stats);
 
