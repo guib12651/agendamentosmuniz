@@ -56,6 +56,9 @@ export default function Index() {
   const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
   const [showQuotaForm, setShowQuotaForm] = useState(false);
   const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  
   
 
 
