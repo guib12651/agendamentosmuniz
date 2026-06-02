@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Opportunity } from "@/lib/types";
+import MeetingForm from "@/components/MeetingForm";
+import MeetingSuccessModal from "@/components/MeetingSuccessModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ScheduleModalProps {
   isOpen: boolean;
@@ -14,64 +13,74 @@ interface ScheduleModalProps {
 }
 
 export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm }: ScheduleModalProps) {
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [time, setTime] = useState("");
-  const [notes, setNotes] = useState("");
+  const { profile, isAdmin } = useAuth();
+  const [successData, setSuccessData] = useState<any>(null);
 
-  const handleConfirm = () => {
-    if (!opportunity) return;
-    onConfirm(opportunity.id, date, time, notes);
-    onClose();
+  if (!opportunity) return null;
+
+  // Initial data for the form based on the opportunity
+  const initialMeetingData = {
+    leadName: opportunity.lead_name,
+    phone: opportunity.phone,
+    date: new Date().toISOString().split("T")[0],
+    time: "",
+    preSeller: profile?.displayName || "",
+    consultant: "",
+    downPayment: opportunity.available_down_payment || "",
+    installment: opportunity.desired_installment || "",
+    restriction: "clean" as const,
+    notes: opportunity.notes || "",
+    status: "pending" as const,
+    markingType: "lead_quente" as const,
+    meetingType: "presencial" as const,
+    trigger: opportunity.opportunity_type?.toLowerCase().includes("imóvel") ? "imovel" as const : "carro" as const,
+    city: opportunity.city || "",
   };
+
+  const handleSave = async (savedDate?: string, data?: any) => {
+    // If the form saved successfully, we call onConfirm to update the opportunity status
+    if (data) {
+      // The onConfirm in OpportunitiesCenter only expects id, date, time, and notes
+      // We'll pass the form data to it.
+      onConfirm(opportunity.id, data.date, data.time, data.notes || "");
+      setSuccessData(data);
+    }
+  };
+
+  if (successData) {
+    return (
+      <MeetingSuccessModal 
+        data={successData} 
+        onClose={() => {
+          setSuccessData(null);
+          onClose();
+        }} 
+      />
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>📅 Agendar Reunião</DialogTitle>
           <DialogDescription>
-            {opportunity ? `Agendando para: ${opportunity.lead_name}` : ""}
+            Agendando para: {opportunity.lead_name}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="date">Data</Label>
-              <Input 
-                id="date" 
-                type="date" 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="time">Horário</Label>
-              <Input 
-                id="time" 
-                type="time" 
-                value={time} 
-                onChange={(e) => setTime(e.target.value)} 
-              />
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="notes">Observação</Label>
-            <Textarea 
-              id="notes" 
-              placeholder="Ex: Cliente prefere atendimento presencial..." 
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="resize-none"
-              rows={3}
-            />
-          </div>
+        <div className="py-2">
+          <MeetingForm 
+            onSave={handleSave}
+            onCancel={onClose}
+            userId={profile?.id || ""}
+            userDisplayName={profile?.displayName || ""}
+            isAdmin={isAdmin}
+            // We pass the partial data as editMeeting to pre-fill the form
+            // But we'll treat it as a new meeting (no id)
+            editMeeting={initialMeetingData as any}
+          />
         </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={handleConfirm} disabled={!date || !time}>Confirmar Agendamento</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
