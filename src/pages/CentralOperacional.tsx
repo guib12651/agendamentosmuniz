@@ -173,7 +173,7 @@ export default function CentralOperacional() {
 
   const dateRange = useMemo(() => {
     if (period === "today") {
-      const today = new Date().toISOString().split("T")[0];
+      const today = new Date().toLocaleDateString('en-CA');
       return { start: today, end: today };
     }
     if (period === "yesterday") {
