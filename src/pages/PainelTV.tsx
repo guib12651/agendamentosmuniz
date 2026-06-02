@@ -23,7 +23,7 @@ import { formatPeriodLabel, usePeriodGoal } from "@/hooks/usePeriodGoal";
 import logo from "@/assets/logo_muniz.png";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { getMeetings } from "@/lib/store";
+import { getMeetings, getCalls } from "@/lib/store";
 import { Meeting } from "@/lib/types";
 
 import { Button } from "@/components/ui/button";
