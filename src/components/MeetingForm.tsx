@@ -61,7 +61,7 @@ const emptyForm = {
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin, submitButtonLabel }: MeetingFormProps) {
-  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
+  const [form, setForm] = useState(editMeeting && editMeeting.id ? { ...editMeeting } : { ...emptyForm, ...editMeeting, preSeller: editMeeting?.preSeller || userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
   
