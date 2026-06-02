@@ -70,6 +70,20 @@ export default function Index() {
 
   useEffect(() => { reload(); }, [reload]);
 
+  // PWA install prompt
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setIsInstalled(true));
+    if ((window as any).matchMedia && (window as any).matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
   // Handle navigation from notifications: ?date=YYYY-MM-DD&meeting=ID
   useEffect(() => {
     const dateParam = searchParams.get("date");
