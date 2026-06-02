@@ -190,7 +190,7 @@ export default function OpportunitiesCenter() {
       const matchType = filterType === "all" || (opp.opportunity_type || "").toLowerCase().includes(filterType.toLowerCase());
       const matchCity = filterCity === "all" || opp.city === filterCity;
       const matchUser = filterUser === "all" || opp.profiles?.display_name === filterUser;
-      
+      const matchSearch = !searchTerm ||
         opp.lead_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         opp.phone.includes(searchTerm) ||
         (opp.city || "").toLowerCase().includes(searchTerm.toLowerCase());
@@ -210,9 +210,9 @@ export default function OpportunitiesCenter() {
         matchPeriod = oppDate >= subDays(now, 30);
       }
 
-      return matchStatus && matchType && matchCity && matchSearch && matchPeriod;
+      return matchStatus && matchType && matchCity && matchUser && matchSearch && matchPeriod;
     });
-  }, [opportunities, filterStatus, filterType, filterCity, searchTerm, filterPeriod]);
+  }, [opportunities, filterStatus, filterType, filterCity, filterUser, searchTerm, filterPeriod]);
 
   const stats = useMemo(() => {
     return {
