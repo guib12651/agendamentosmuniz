@@ -61,7 +61,7 @@ const emptyForm = {
 };
 
 export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin, submitButtonLabel }: MeetingFormProps) {
-  const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
+  const [form, setForm] = useState(editMeeting && editMeeting.id ? { ...editMeeting } : { ...emptyForm, ...editMeeting, preSeller: editMeeting?.preSeller || userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
   
@@ -162,7 +162,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         }
       }
 
-      if (editMeeting) {
+      if (editMeeting && (editMeeting as any).id) {
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
       } else {
@@ -178,7 +178,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         const { id, userId: _uid, ...rest } = form as any;
         console.log("Adding meeting with data:", { ...rest, time: form.time });
         await addMeeting({ ...rest, time: form.time }, userId);
-        setForm({ ...emptyForm, preSeller: userDisplayName });
+        setForm({ ...emptyForm, preSeller: userDisplayName } as any);
         onSave(savedDate, successInfo);
         return;
       }
