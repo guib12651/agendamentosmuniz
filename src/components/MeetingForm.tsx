@@ -162,7 +162,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         }
       }
 
-      if (editMeeting) {
+      if (editMeeting && (editMeeting as any).id) {
         await updateMeeting({ ...form, id: editMeeting.id } as Meeting);
         toast.success("Reunião atualizada!");
       } else {
