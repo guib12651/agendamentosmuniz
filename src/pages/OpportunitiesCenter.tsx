@@ -109,18 +109,62 @@ export default function OpportunitiesCenter() {
   };
 
   const handleDeleteOpportunity = async (id: string) => {
-    if (!confirm("Tem certeza que deseja excluir esta oportunidade?")) return;
+    const opp = opportunities.find(o => o.id === id);
+    if (!opp) return;
 
-    const { error } = await supabase
-      .from("opportunities")
-      .delete()
-      .eq("id", id);
+    if (opp.status === "scheduled") {
+      if (!confirm("Esta oportunidade está agendada. Deseja cancelar o agendamento e retornar o lead para pendente?")) return;
 
-    if (error) {
-      toast.error("Erro ao excluir oportunidade.");
+      try {
+        // Find the meeting associated with this lead
+        const { data: meetings, error: fetchError } = await supabase
+          .from("meetings")
+          .select("id")
+          .eq("lead_name", opp.lead_name)
+          .eq("phone", opp.phone)
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (fetchError) throw fetchError;
+
+        if (meetings && meetings.length > 0) {
+          // Delete the meeting
+          const { error: deleteError } = await supabase
+            .from("meetings")
+            .delete()
+            .eq("id", meetings[0].id);
+          
+          if (deleteError) throw deleteError;
+        }
+
+        // Return opportunity to pending
+        const { error: updateError } = await supabase
+          .from("opportunities")
+          .update({ status: "pending" })
+          .eq("id", id);
+
+        if (updateError) throw updateError;
+
+        toast.success("Agendamento cancelado e lead retornado para pendente.");
+        fetchOpportunities();
+      } catch (error) {
+        console.error("Erro ao cancelar agendamento:", error);
+        toast.error("Erro ao cancelar agendamento.");
+      }
     } else {
-      toast.success("Oportunidade excluída.");
-      fetchOpportunities();
+      if (!confirm("Tem certeza que deseja excluir permanentemente esta oportunidade?")) return;
+
+      const { error } = await supabase
+        .from("opportunities")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        toast.error("Erro ao excluir oportunidade.");
+      } else {
+        toast.success("Oportunidade excluída.");
+        fetchOpportunities();
+      }
     }
   };
 
