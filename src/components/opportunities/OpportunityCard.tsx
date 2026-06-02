@@ -57,12 +57,16 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
             <Badge variant="outline" className={status.color}>
               {status.label}
             </Badge>
-            {isAdmin && onDelete && (
+            {onDelete && (
               <Button 
                 variant="ghost" 
                 size="icon" 
                 className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-50"
-                onClick={() => onDelete(opportunity.id)}
+                onClick={() => {
+                  if (window.confirm("Deseja mesmo excluir o contato?")) {
+                    onDelete(opportunity.id);
+                  }
+                }}
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
