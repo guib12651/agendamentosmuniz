@@ -142,31 +142,10 @@ export default function OpportunitiesCenter() {
 
       if (oppError) throw oppError;
 
-      // 2. Create meeting in Agenda (optional but requested)
-      const { error: meetingError } = await supabase
-        .from("meetings")
-        .insert({
-          lead_name: opp.lead_name,
-          phone: opp.phone,
-          date,
-          time,
-          pre_seller: profile?.displayName || "Desconhecido",
-          consultant: "A definir",
-          status: "pending",
-          marking_type: "lead_quente",
-          meeting_type: "presencial",
-          trigger: opp.opportunity_type?.toLowerCase().includes("imóvel") ? "imovel" : "carro",
-          city: opp.city,
-          notes: `Agendado via Central de Oportunidades. Obs: ${notes}`,
-          user_id: profile?.id,
-          down_payment: opp.available_down_payment,
-          installment: opp.desired_installment,
-          restriction: "clean"
-        });
-
-      if (meetingError) throw meetingError;
-
-      toast.success("Reunião agendada com sucesso!");
+      // 2. Create meeting in Agenda - Now handled inside ScheduleModal via MeetingForm
+      // The onConfirm here only updates the opportunity status to avoid duplication
+      
+      toast.success("Oportunidade atualizada para agendado!");
       fetchOpportunities();
     } catch (error) {
       console.error("Erro ao agendar:", error);
