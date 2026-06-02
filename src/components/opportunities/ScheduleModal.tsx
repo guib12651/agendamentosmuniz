@@ -41,8 +41,15 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
   const handleSave = async (savedDate?: string, data?: any) => {
     if (data) {
       try {
+        // First ensure the opportunity is updated
         await onConfirm(opportunity.id, data.date, data.time, data.notes || "");
-        setSuccessData(data);
+        
+        // Ensure successData includes lead_id if possible for later reference, though not strictly needed for the image
+        setSuccessData({
+          ...data,
+          leadName: opportunity.lead_name, // Ensure we use the most up-to-date name
+          phone: opportunity.phone,
+        });
       } catch (err) {
         console.error("Error confirming schedule:", err);
         toast.error("Erro ao vincular agendamento ao lead.");
