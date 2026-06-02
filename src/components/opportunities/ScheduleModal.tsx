@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Opportunity } from "@/lib/types";
 import MeetingForm from "@/components/MeetingForm";
 import MeetingSuccessModal from "@/components/MeetingSuccessModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 interface ScheduleModalProps {
   isOpen: boolean;
@@ -38,12 +39,14 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
   };
 
   const handleSave = async (savedDate?: string, data?: any) => {
-    // If the form saved successfully, we call onConfirm to update the opportunity status
     if (data) {
-      // The onConfirm in OpportunitiesCenter only expects id, date, time, and notes
-      // We'll pass the form data to it.
-      onConfirm(opportunity.id, data.date, data.time, data.notes || "");
-      setSuccessData(data);
+      try {
+        await onConfirm(opportunity.id, data.date, data.time, data.notes || "");
+        setSuccessData(data);
+      } catch (err) {
+        console.error("Error confirming schedule:", err);
+        toast.error("Erro ao vincular agendamento ao lead.");
+      }
     }
   };
 
