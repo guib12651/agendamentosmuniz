@@ -89,15 +89,15 @@ export default function OpportunitiesCenter() {
 
       if (error) throw error;
 
-      // Registrar chamada na Central Operacional se for Atendeu ou Não Atendeu
-      if (status === "contacted" || status === "no_answer") {
-        await addCall({
-          leadName: opp.lead_name,
-          userId: profile?.id || "",
-          callTime: new Date().toISOString(),
-          result: status === "contacted" ? "Atendeu" : "Não Atendeu"
-        });
-      }
+      // Registrar chamada na Central Operacional sempre que houver contato
+      await addCall({
+        leadName: opp.lead_name,
+        userId: profile?.id || "",
+        callTime: new Date().toISOString(),
+        result: status === "contacted" ? "Atendeu" : 
+                status === "no_answer" ? "Não Atendeu" : 
+                status === "scheduled" ? "Agendou" : "Contato"
+      });
 
       toast.success("Status atualizado!");
       fetchOpportunities();
