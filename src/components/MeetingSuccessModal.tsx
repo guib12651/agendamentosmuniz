@@ -37,6 +37,14 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
   };
 
   const handleShare = useCallback(async () => {
+    const cleanPhone = data.phone.replace(/\D/g, "");
+    const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
+    const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}\n\nEndereço: Rua Bertino Passos, Edifício Viana, 2° andar, sala 202, Centro Jequié-BA.\n\n📍Referências:\nRua da embasa\nEm frente à CVC\nEm cima da loja Bem Vestida.\n\nhttps://maps.app.goo.gl/843aHsLskYHN8BED9?g_st=ipc\n\n*Documentação Necessária*\n\nCPF\nRG\nou CNH\nComprovante de Endereço\n\n*Caso seja casado(a) no civil*\n\nRG\nCPF da(o) esposa(o)\nCertidão de casamento.`;
+    const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
+    
+    // Open WhatsApp immediately
+    window.open(waUrl, "_blank", "noopener,noreferrer");
+
     if (!captureRef.current) return;
     setSharing(true);
     try {
@@ -51,14 +59,10 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
       );
 
       if (!blob) {
-        toast.error("Erro ao gerar imagem.");
+        toast.error("Erro ao gerar imagem de confirmação.");
         return;
       }
 
-      const cleanPhone = data.phone.replace(/\D/g, "");
-      const fullPhone = cleanPhone.startsWith("55") ? cleanPhone : `55${cleanPhone}`;
-      const message = `Olá ${data.leadName}! Segue a confirmação do seu agendamento com a Muniz Consultorias. 📋\n\n📅 Data: ${formatDate(data.date)}\n⏰ Horário: ${data.time}\n📍 Tipo: ${data.meetingType === "presencial" ? "Presencial" : "Online"}\n\nEndereço: Rua Bertino Passos, Edifício Viana, 2° andar, sala 202, Centro Jequié-BA.\n\n📍Referências:\nRua da embasa\nEm frente à CVC\nEm cima da loja Bem Vestida.\n\nhttps://maps.app.goo.gl/843aHsLskYHN8BED9?g_st=ipc\n\n*Documentação Necessária*\n\nCPF\nRG\nou CNH\nComprovante de Endereço\n\n*Caso seja casado(a) no civil*\n\nRG\nCPF da(o) esposa(o)\nCertidão de casamento.`;
-      const waUrl = `https://wa.me/${fullPhone}?text=${encodeURIComponent(message)}`;
       const fileName = `reuniao-${data.leadName.replace(/\s+/g, "-")}.png`;
 
       // Try Web Share API with file (best UX on mobile)
@@ -71,19 +75,15 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
       if (nav.canShare?.({ files: [file] }) && nav.share) {
         try {
           await nav.share({ files: [file], text: message, title: "Agendamento Muniz" });
-          toast.success("Compartilhado com sucesso!");
+          toast.success("Imagem de confirmação pronta para compartilhar!");
           onClose();
           return;
         } catch (err) {
           if ((err as Error).name === "AbortError") {
             return;
           }
-          // fall through to download fallback
         }
       }
-
-      // Fallback: open WhatsApp + trigger download
-      window.open(waUrl, "_blank", "noopener,noreferrer");
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -97,9 +97,9 @@ export default function MeetingSuccessModal({ data, onClose }: MeetingSuccessMod
 
       setTimeout(() => URL.revokeObjectURL(url), 1000);
 
-      toast.success("Salve a imagem e anexe na conversa do WhatsApp.");
+      toast.success("Imagem de confirmação baixada. Envie-a no WhatsApp.");
     } catch (err) {
-      toast.error("Erro ao compartilhar.");
+      toast.error("Erro ao gerar imagem de confirmação.");
       console.error(err);
     } finally {
       setSharing(false);
