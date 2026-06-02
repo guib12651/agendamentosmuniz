@@ -179,13 +179,18 @@ export default function OpportunitiesCenter() {
     return uniqueCities.sort();
   }, [opportunities]);
 
+  const users = useMemo(() => {
+    const uniqueUsers = Array.from(new Set(opportunities.map((o: any) => o.profiles?.display_name).filter(Boolean)));
+    return uniqueUsers.sort();
+  }, [opportunities]);
+
   const filteredOpportunities = useMemo(() => {
-    return opportunities.filter(opp => {
+    return opportunities.filter((opp: any) => {
       const matchStatus = filterStatus === "all" || opp.status === filterStatus;
       const matchType = filterType === "all" || (opp.opportunity_type || "").toLowerCase().includes(filterType.toLowerCase());
       const matchCity = filterCity === "all" || opp.city === filterCity;
+      const matchUser = filterUser === "all" || opp.profiles?.display_name === filterUser;
       
-      const matchSearch = !searchTerm || 
         opp.lead_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         opp.phone.includes(searchTerm) ||
         (opp.city || "").toLowerCase().includes(searchTerm.toLowerCase());
