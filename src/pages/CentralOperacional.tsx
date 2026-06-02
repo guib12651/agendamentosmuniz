@@ -1806,6 +1806,7 @@ export default function CentralOperacional() {
                     )}
                   </TableBody>
                 </Table>
+                </div>
               </div>
             </div>
           </ScrollArea>
