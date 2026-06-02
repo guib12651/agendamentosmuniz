@@ -292,15 +292,15 @@ export default function GerenciarUsuarios() {
                               </Button>
                             </div>
                           ) : (
-                            <div className="flex items-center gap-2 group">
+                            <div className="flex items-center gap-2">
                               <span className="truncate">{user.display_name}</span>
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                className="h-7 w-7 p-0 hover:bg-muted"
                                 onClick={() => startEditing(user)}
                               >
-                                <Pencil className="w-3 h-3 text-muted-foreground" />
+                                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
                               </Button>
                             </div>
                           )}
