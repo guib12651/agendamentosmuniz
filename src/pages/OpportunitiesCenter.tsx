@@ -33,6 +33,7 @@ export default function OpportunitiesCenter() {
   const [filterType, setFilterType] = useState("all");
   const [filterCity, setFilterCity] = useState("all");
   const [filterPeriod, setFilterPeriod] = useState("all");
+  const [filterUser, setFilterUser] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
