@@ -179,7 +179,7 @@ export default function CentralOperacional() {
     if (period === "yesterday") {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
-      const yStr = yesterday.toISOString().split("T")[0];
+      const yStr = yesterday.toLocaleDateString('en-CA');
       return { start: yStr, end: yStr };
     }
     if (period === "last7") {
