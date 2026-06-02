@@ -1618,16 +1618,90 @@ export default function CentralOperacional() {
             <p className="text-xs sm:text-sm text-muted-foreground">{dateRange.start.split('-').reverse().join('/')} - {dateRange.end.split('-').reverse().join('/')}</p>
           </div>
           <ScrollArea className="h-full">
-            <div className="p-4 sm:p-6 pb-24 sm:pb-12">
-              <div className="sm:hidden space-y-4">
-                {dailyCallsList.map((item, idx) => (
-                  <Card key={idx} className="bg-muted/30 border-border">
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="text-2xl font-black text-amber-500">{item.amount}</p>
-                          <p className="text-xs text-muted-foreground">{item.date.split('-').reverse().join('/')}</p>
+            <div className="p-4 sm:p-6 pb-24 sm:pb-12 space-y-8">
+              {/* Individual Calls Section */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+                  <CheckCircle2 className="w-4 h-4 text-primary" /> Ligações Automáticas (OCR/Oportunidades)
+                </h4>
+                
+                <div className="sm:hidden space-y-4">
+                  {calls.map((item, idx) => (
+                    <Card key={idx} className="bg-primary/5 border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="font-bold text-foreground">{item.leadName}</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {new Date(item.callTime).toLocaleString('pt-BR')}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                            {item.result}
+                          </Badge>
                         </div>
+                        <div className="text-sm">
+                          <p className="text-[10px] uppercase font-bold text-muted-foreground">Responsável</p>
+                          <p className="font-medium text-xs">{item.userDisplayName || "N/A"}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                  {calls.length === 0 && (
+                    <div className="text-center py-6 text-xs text-muted-foreground italic">Nenhuma ligação automática no período.</div>
+                  )}
+                </div>
+
+                <div className="hidden sm:block overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-border hover:bg-transparent">
+                        <TableHead className="font-bold">Lead</TableHead>
+                        <TableHead className="font-bold">Data/Hora</TableHead>
+                        <TableHead className="font-bold">Resultado</TableHead>
+                        <TableHead className="font-bold">Responsável</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {calls.map((item, idx) => (
+                        <TableRow key={idx} className="border-border hover:bg-primary/5">
+                          <TableCell className="font-bold">{item.leadName}</TableCell>
+                          <TableCell className="text-muted-foreground text-xs">
+                            {new Date(item.callTime).toLocaleString('pt-BR')}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                              {item.result}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="font-medium text-xs">{item.userDisplayName || "N/A"}</TableCell>
+                        </TableRow>
+                      ))}
+                      {calls.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center py-6 text-sm text-muted-foreground italic">Nenhuma ligação automática no período.</TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Manual Daily Calls Section */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+                  <Phone className="w-4 h-4 text-amber-500" /> Registros Manuais (Lote)
+                </h4>
+                
+                <div className="sm:hidden space-y-4">
+                  {dailyCallsList.map((item, idx) => (
+                    <Card key={idx} className="bg-muted/30 border-border">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <p className="text-2xl font-black text-amber-500">{item.amount}</p>
+                            <p className="text-xs text-muted-foreground">{item.date.split('-').reverse().join('/')}</p>
+                          </div>
                         <div className="flex gap-1">
                           <Button
                             variant="ghost"
