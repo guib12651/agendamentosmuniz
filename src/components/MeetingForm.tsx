@@ -152,7 +152,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
         const slotsForTime = (slotData || []).filter(
           (s: { slot_time: string }) => s.slot_time.startsWith(form.time)
         );
-        const maxAllowed = editMeeting ? 1 : 2;
+        const maxAllowed = 2;
         if (slotsForTime.length >= maxAllowed) {
           await refreshSlots();
           setForm(f => ({ ...f, time: "" }));
