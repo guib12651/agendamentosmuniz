@@ -15,6 +15,10 @@ interface OpportunityFiltersProps {
   search: string;
   onSearchChange: (val: string) => void;
   cities: string[];
+  user?: string;
+  onUserChange?: (val: string) => void;
+  users?: string[];
+  showUserFilter?: boolean;
 }
 
 export default function OpportunityFilters({
@@ -23,10 +27,13 @@ export default function OpportunityFilters({
   city, onCityChange,
   period, onPeriodChange,
   search, onSearchChange,
-  cities
+  cities,
+  user = "all", onUserChange,
+  users = [],
+  showUserFilter = false,
 }: OpportunityFiltersProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 bg-card p-3 sm:p-4 rounded-xl border border-border shadow-sm">
+    <div className={`grid grid-cols-1 sm:grid-cols-2 ${showUserFilter ? "lg:grid-cols-6" : "lg:grid-cols-5"} gap-2 sm:gap-3 bg-card p-3 sm:p-4 rounded-xl border border-border shadow-sm`}>
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input 
