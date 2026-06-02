@@ -30,6 +30,10 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
+self.addEventListener('fetch', (event) => {
+  event.respondWith(fetch(event.request));
+});
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = (event.notification.data && event.notification.data.url) || '/';
