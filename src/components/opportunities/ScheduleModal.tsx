@@ -29,7 +29,7 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
     downPayment: opportunity.available_down_payment || "",
     installment: opportunity.desired_installment || "",
     restriction: "clean" as const,
-    notes: opportunity.notes || "",
+    notes: "", // Deixado vazio conforme solicitado para remover informações de data/hora automática
     status: "pending" as const,
     markingType: "lead_quente" as const,
     meetingType: "presencial" as const,
