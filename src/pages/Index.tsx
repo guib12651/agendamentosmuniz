@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, MeetingStatus } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,9 @@ export default function Index() {
   const [showSaleToQuotaModal, setShowSaleToQuotaModal] = useState(false);
   const [showQuotaForm, setShowQuotaForm] = useState(false);
   const [lastSoldMeeting, setLastSoldMeeting] = useState<Meeting | null>(null);
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  
   
 
 
@@ -66,6 +69,20 @@ export default function Index() {
   }, []);
 
   useEffect(() => { reload(); }, [reload]);
+
+  // PWA install prompt
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("appinstalled", () => setIsInstalled(true));
+    if ((window as any).matchMedia && (window as any).matchMedia("(display-mode: standalone)").matches) {
+      setIsInstalled(true);
+    }
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
 
   // Handle navigation from notifications: ?date=YYYY-MM-DD&meeting=ID
   useEffect(() => {
@@ -277,6 +294,24 @@ export default function Index() {
             </Button>
             
             <NotificationBell userId={profile?.id} />
+
+            {installPrompt && !isInstalled && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 w-9 p-0"
+                title="Instalar app"
+                onClick={async () => {
+                  if (!installPrompt) return;
+                  await installPrompt.prompt();
+                  const { outcome } = await installPrompt.userChoice;
+                  if (outcome === "accepted") setIsInstalled(true);
+                  setInstallPrompt(null);
+                }}
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
