@@ -307,7 +307,9 @@ export default function CentralOperacional() {
       });
 
       // 4. Individual Calls (Manual as well)
-      const c = await getCalls(dateRange.start + "T00:00:00Z", dateRange.end + "T23:59:59Z");
+      const startOfLocalDay = new Date(dateRange.start + "T00:00:00");
+      const endOfLocalDay = new Date(dateRange.end + "T23:59:59");
+      const c = await getCalls(startOfLocalDay.toISOString(), endOfLocalDay.toISOString());
       setCalls(c);
 
     } catch (err) {
