@@ -19,6 +19,7 @@ interface MeetingFormProps {
   userId: string;
   userDisplayName: string;
   isAdmin: boolean;
+  submitButtonLabel?: string;
 }
 
 const markingTypeLabels: Record<MarkingType, string> = {
@@ -59,7 +60,7 @@ const emptyForm = {
   city: "",
 };
 
-export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin }: MeetingFormProps) {
+export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlots, userId, userDisplayName, isAdmin, submitButtonLabel }: MeetingFormProps) {
   const [form, setForm] = useState(editMeeting ? { ...editMeeting } : { ...emptyForm, preSeller: userDisplayName });
   const [saving, setSaving] = useState(false);
   const [dateSlots, setDateSlots] = useState<TimeSlotInfo[]>(occupiedSlots || []);
@@ -334,7 +335,7 @@ export default function MeetingForm({ onSave, editMeeting, onCancel, occupiedSlo
       </div>
       <div className="flex gap-2">
         <Button type="submit" className="flex-1 h-12 sm:h-10 text-base sm:text-sm" disabled={saving}>
-          {saving ? "Salvando..." : editMeeting ? "Salvar alterações" : "Agendar Reunião"}
+          {saving ? "Salvando..." : submitButtonLabel || (editMeeting ? "Salvar alterações" : "Agendar Reunião")}
         </Button>
         {onCancel && <Button type="button" variant="outline" onClick={onCancel} className="h-12 sm:h-10">Cancelar</Button>}
       </div>

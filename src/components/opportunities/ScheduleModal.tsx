@@ -76,6 +76,7 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
             userId={profile?.id || ""}
             userDisplayName={profile?.displayName || ""}
             isAdmin={isAdmin}
+            submitButtonLabel="Enviar reunião no WhatsApp"
             // We pass the partial data as editMeeting to pre-fill the form
             // But we'll treat it as a new meeting (no id)
             editMeeting={initialMeetingData as any}
