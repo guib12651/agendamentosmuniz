@@ -34,8 +34,8 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
   };
 
   return (
-    <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-shadow relative">
-      <CardContent className="p-4 space-y-4">
+    <Card className="overflow-hidden border-border shadow-sm hover:shadow-md transition-shadow relative w-full">
+      <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
         <div className="flex justify-between items-start gap-2">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-full bg-primary/10 text-primary">
@@ -46,7 +46,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
               )}
             </div>
             <div>
-              <h3 className="font-bold text-lg leading-tight">{opportunity.lead_name}</h3>
+              <h3 className="font-bold text-base sm:text-lg leading-tight truncate max-w-[120px] sm:max-w-none">{opportunity.lead_name}</h3>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <MapPin className="w-3 h-3" />
                 {opportunity.city}
@@ -110,11 +110,11 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         </div>
       </CardContent>
 
-      <CardFooter className="p-2 bg-muted/20 grid grid-cols-2 gap-2">
+      <CardFooter className="p-1.5 sm:p-2 bg-muted/20 grid grid-cols-2 gap-1.5 sm:gap-2">
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-green-500 hover:bg-green-600 text-white border-none text-xs h-9"
+          className="bg-green-500 hover:bg-green-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={handleWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> WhatsApp
@@ -122,7 +122,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-blue-500 hover:bg-blue-600 text-white border-none text-xs h-9"
+          className="bg-blue-500 hover:bg-blue-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={() => onUpdateStatus(opportunity.id, "contacted")}
         >
           <Check className="w-4 h-4 mr-1" /> Atendeu
@@ -130,7 +130,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-purple-500 hover:bg-purple-600 text-white border-none text-xs h-9"
+          className="bg-purple-500 hover:bg-purple-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={() => onSchedule(opportunity)}
         >
           <Calendar className="w-4 h-4 mr-1" /> Agendado
@@ -138,7 +138,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-red-500 hover:bg-red-600 text-white border-none text-xs h-9"
+          className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={() => onUpdateStatus(opportunity.id, "no_answer")}
         >
           <X className="w-4 h-4 mr-1" /> Não Atendeu

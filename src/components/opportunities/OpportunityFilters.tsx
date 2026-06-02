@@ -26,7 +26,7 @@ export default function OpportunityFilters({
   cities
 }: OpportunityFiltersProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 bg-card p-4 rounded-xl border border-border shadow-sm">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 sm:gap-3 bg-card p-3 sm:p-4 rounded-xl border border-border shadow-sm">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input 
