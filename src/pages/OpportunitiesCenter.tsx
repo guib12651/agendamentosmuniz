@@ -308,6 +308,9 @@ export default function OpportunitiesCenter() {
                 period={filterPeriod} onPeriodChange={setFilterPeriod}
                 search={searchTerm} onSearchChange={setSearchTerm}
                 cities={cities}
+                user={filterUser} onUserChange={setFilterUser}
+                users={users}
+                showUserFilter={isAdmin}
               />
             </div>
           </div>
