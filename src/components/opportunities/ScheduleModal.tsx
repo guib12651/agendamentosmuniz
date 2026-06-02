@@ -39,12 +39,14 @@ export default function ScheduleModal({ isOpen, opportunity, onClose, onConfirm 
   };
 
   const handleSave = async (savedDate?: string, data?: any) => {
-    // If the form saved successfully, we call onConfirm to update the opportunity status
     if (data) {
-      // The onConfirm in OpportunitiesCenter only expects id, date, time, and notes
-      // We'll pass the form data to it.
-      onConfirm(opportunity.id, data.date, data.time, data.notes || "");
-      setSuccessData(data);
+      try {
+        await onConfirm(opportunity.id, data.date, data.time, data.notes || "");
+        setSuccessData(data);
+      } catch (err) {
+        console.error("Error confirming schedule:", err);
+        toast.error("Erro ao vincular agendamento ao lead.");
+      }
     }
   };
 
