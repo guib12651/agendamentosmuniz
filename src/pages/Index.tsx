@@ -295,6 +295,24 @@ export default function Index() {
             
             <NotificationBell userId={profile?.id} />
 
+            {installPrompt && !isInstalled && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 w-9 p-0"
+                title="Instalar app"
+                onClick={async () => {
+                  if (!installPrompt) return;
+                  await installPrompt.prompt();
+                  const { outcome } = await installPrompt.userChoice;
+                  if (outcome === "accepted") setIsInstalled(true);
+                  setInstallPrompt(null);
+                }}
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            )}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button size="sm" variant="outline" className="h-9 w-9 p-0" title="Menu">
