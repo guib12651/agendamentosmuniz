@@ -198,13 +198,14 @@ export default function GerenciarUsuarios() {
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: signedData, error: signedError } = await supabase.storage
         .from('user-avatars')
-        .getPublicUrl(filePath);
+        .createSignedUrl(filePath, 315360000); // 10 anos de expiração
 
-      // Limpar qualquer parâmetro de query que possa vir na URL (como tokens de bucket privado)
-      const cleanUrl = publicUrl.split('?')[0];
-      console.log("Avatar Public URL (cleaned):", cleanUrl);
+      if (signedError) throw signedError;
+
+      const cleanUrl = signedData.signedUrl;
+      console.log("Avatar Signed URL:", cleanUrl);
 
       if (userId) {
         // Atualizar usuário existente
