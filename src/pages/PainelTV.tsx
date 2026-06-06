@@ -327,8 +327,19 @@ export default function PainelTV() {
           <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-success/50 bg-success/10 shadow-[0_0_100px_rgba(16,185,129,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
             <div className="absolute inset-0 bg-gradient-to-b from-success/20 to-transparent opacity-50" />
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center p-8 rounded-full bg-success/20 text-success mb-6 animate-bounce shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-                <Trophy className="size-24" />
+              <div className="flex flex-col items-center mb-6">
+                {showSaleCelebration.avatar_url ? (
+                  <UserAvatar 
+                    avatarUrl={showSaleCelebration.avatar_url} 
+                    displayName={showSaleCelebration.seller} 
+                    size="tv" 
+                    className="border-8 border-success shadow-[0_0_50px_rgba(16,185,129,0.6)] mb-6 animate-bounce"
+                  />
+                ) : (
+                  <div className="inline-flex items-center justify-center p-8 rounded-full bg-success/20 text-success mb-6 animate-bounce shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                    <Trophy className="size-24" />
+                  </div>
+                )}
               </div>
               <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
                 Venda Confirmada!
@@ -349,8 +360,19 @@ export default function PainelTV() {
           <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-blue-500/50 bg-blue-500/10 shadow-[0_0_100px_rgba(59,130,246,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent opacity-50" />
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center p-8 rounded-full bg-blue-500/20 text-blue-400 mb-6 animate-bounce shadow-[0_0_30px_rgba(59,130,246,0.5)]">
-                <Calendar className="size-24" />
+              <div className="flex flex-col items-center mb-6">
+                {showMeetingCelebration.avatar_url ? (
+                  <UserAvatar 
+                    avatarUrl={showMeetingCelebration.avatar_url} 
+                    displayName={showMeetingCelebration.preSeller} 
+                    size="tv" 
+                    className="border-8 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.6)] mb-6 animate-bounce"
+                  />
+                ) : (
+                  <div className="inline-flex items-center justify-center p-8 rounded-full bg-blue-500/20 text-blue-400 mb-6 animate-bounce shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                    <Calendar className="size-24" />
+                  </div>
+                )}
               </div>
               <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
                 Novo Agendamento!
@@ -508,9 +530,12 @@ export default function PainelTV() {
                 {latestSales.length > 0 ? latestSales.map((sale, i) => (
                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-success/10 flex items-center justify-center text-success font-black">
-                        {sale.consultant?.charAt(0) || sale.seller?.charAt(0)}
-                      </div>
+                      <UserAvatar 
+                        avatarUrl={sale.avatar_url} 
+                        displayName={sale.consultant || sale.seller} 
+                        size="sm" 
+                        className="border-primary/20"
+                      />
                       <div>
                         <p className="font-bold text-white">{sale.consultant || sale.seller}</p>
                         <p className="text-xs text-muted-foreground uppercase tracking-widest">Cliente: {sale.client}</p>
