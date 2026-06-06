@@ -38,10 +38,11 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className }: U
       {avatarUrl ? (
         <img
           key={avatarUrl}
-          src={`${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${Date.now()}`}
+          src={avatarUrl}
           alt={displayName || "Avatar"}
           className="h-full w-full object-cover"
           onError={(e) => {
+            console.error("UserAvatar: Image failed to load:", avatarUrl);
             (e.target as HTMLImageElement).style.display = 'none';
           }}
         />
