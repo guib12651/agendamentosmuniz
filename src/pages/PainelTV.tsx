@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getMeetings, getCalls } from "@/lib/store";
 import { Meeting } from "@/lib/types";
+import { UserAvatar } from "@/components/UserAvatar";
 
 import { Button } from "@/components/ui/button";
 const formatBRL = (v: number) =>
@@ -70,6 +71,16 @@ export default function PainelTV() {
     const endOfLocalDay = new Date(today + "T23:59:59").toISOString();
     
     try {
+      // Fetch profiles to get avatars
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url");
+      
+      const avatarMap: Record<string, string> = {};
+      profilesData?.forEach(p => {
+        if (p.avatar_url) avatarMap[p.display_name] = p.avatar_url;
+      });
+
       // 1. Fetch Meetings
       const m = await getMeetings(today, today);
       setMeetings(m);
@@ -131,7 +142,11 @@ export default function PainelTV() {
           sellers[x.consultant] = (sellers[x.consultant] || 0) + 1;
         });
         const sRanking = Object.entries(sellers)
-          .map(([name, sales]) => ({ name, sales }))
+          .map(([name, sales]) => ({ 
+            name, 
+            sales,
+            avatar_url: avatarMap[name]
+          }))
           .sort((a, b) => b.sales - a.sales)
           .slice(0, 5);
         setSellerRanking(sRanking);
@@ -140,7 +155,7 @@ export default function PainelTV() {
         const preSellers: Record<string, any> = {};
         monthMeetings.forEach(x => {
           const name = x.pre_seller;
-          if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0 };
+          if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0, avatar_url: avatarMap[name] };
           preSellers[name].appointments += 1;
           if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
             preSellers[name].present += 1;
@@ -171,7 +186,8 @@ export default function PainelTV() {
           consultant: s.consultant,
           client: s.lead_name,
           value: s.down_payment || "N/A",
-          time: s.time.slice(0, 5)
+          time: s.time.slice(0, 5),
+          avatar_url: avatarMap[s.consultant || s.pre_seller]
         })));
       }
 
@@ -196,10 +212,15 @@ export default function PainelTV() {
         if (payload.eventType === 'INSERT') {
           const newMeeting = payload.new as any;
           console.log("New meeting inserted, showing celebration for:", newMeeting.pre_seller);
-          setShowMeetingCelebration({
-            preSeller: newMeeting.pre_seller || "Consultor",
-            leadName: newMeeting.lead_name || "Cliente",
-            time: newMeeting.time?.slice(0, 5) || "--:--"
+          
+          // Get avatar for pre-seller
+          supabase.from('profiles').select('avatar_url').eq('display_name', newMeeting.pre_seller).single().then(({ data }) => {
+            setShowMeetingCelebration({
+              preSeller: newMeeting.pre_seller || "Consultor",
+              leadName: newMeeting.lead_name || "Cliente",
+              time: newMeeting.time?.slice(0, 5) || "--:--",
+              avatar_url: data?.avatar_url
+            });
           });
           
           // Play celebration sound
@@ -225,9 +246,14 @@ export default function PainelTV() {
           
           if (isNewSale) {
             console.log("New sale detected, showing celebration for:", newMeeting.consultant || newMeeting.pre_seller);
-            setShowSaleCelebration({
-              seller: newMeeting.consultant || newMeeting.pre_seller || "Consultor",
-              value: newMeeting.down_payment || "N/A"
+            const sellerName = newMeeting.consultant || newMeeting.pre_seller || "Consultor";
+            
+            supabase.from('profiles').select('avatar_url').eq('display_name', sellerName).single().then(({ data }) => {
+              setShowSaleCelebration({
+                seller: sellerName,
+                value: newMeeting.down_payment || "N/A",
+                avatar_url: data?.avatar_url
+              });
             });
 
             // Play celebration sound
@@ -301,8 +327,19 @@ export default function PainelTV() {
           <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-success/50 bg-success/10 shadow-[0_0_100px_rgba(16,185,129,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
             <div className="absolute inset-0 bg-gradient-to-b from-success/20 to-transparent opacity-50" />
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center p-8 rounded-full bg-success/20 text-success mb-6 animate-bounce shadow-[0_0_30px_rgba(16,185,129,0.5)]">
-                <Trophy className="size-24" />
+              <div className="flex flex-col items-center mb-6">
+                {showSaleCelebration.avatar_url ? (
+                  <UserAvatar 
+                    avatarUrl={showSaleCelebration.avatar_url} 
+                    displayName={showSaleCelebration.seller} 
+                    size="tv" 
+                    className="border-8 border-success shadow-[0_0_50px_rgba(16,185,129,0.6)] mb-6 animate-bounce"
+                  />
+                ) : (
+                  <div className="inline-flex items-center justify-center p-8 rounded-full bg-success/20 text-success mb-6 animate-bounce shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                    <Trophy className="size-24" />
+                  </div>
+                )}
               </div>
               <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
                 Venda Confirmada!
@@ -323,8 +360,19 @@ export default function PainelTV() {
           <div className="text-center space-y-8 p-16 rounded-[40px] border-4 border-blue-500/50 bg-blue-500/10 shadow-[0_0_100px_rgba(59,130,246,0.4)] relative overflow-hidden max-w-4xl w-full mx-4">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent opacity-50" />
             <div className="relative z-10">
-              <div className="inline-flex items-center justify-center p-8 rounded-full bg-blue-500/20 text-blue-400 mb-6 animate-bounce shadow-[0_0_30px_rgba(59,130,246,0.5)]">
-                <Calendar className="size-24" />
+              <div className="flex flex-col items-center mb-6">
+                {showMeetingCelebration.avatar_url ? (
+                  <UserAvatar 
+                    avatarUrl={showMeetingCelebration.avatar_url} 
+                    displayName={showMeetingCelebration.preSeller} 
+                    size="tv" 
+                    className="border-8 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.6)] mb-6 animate-bounce"
+                  />
+                ) : (
+                  <div className="inline-flex items-center justify-center p-8 rounded-full bg-blue-500/20 text-blue-400 mb-6 animate-bounce shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+                    <Calendar className="size-24" />
+                  </div>
+                )}
               </div>
               <h2 className="text-6xl font-black tracking-tighter sm:text-8xl animate-pulse text-white mb-4 uppercase">
                 Novo Agendamento!
@@ -482,9 +530,12 @@ export default function PainelTV() {
                 {latestSales.length > 0 ? latestSales.map((sale, i) => (
                   <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:bg-white/[0.04] transition-colors">
                     <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-full bg-success/10 flex items-center justify-center text-success font-black">
-                        {sale.consultant?.charAt(0) || sale.seller?.charAt(0)}
-                      </div>
+                      <UserAvatar 
+                        avatarUrl={sale.avatar_url} 
+                        displayName={sale.consultant || sale.seller} 
+                        size="sm" 
+                        className="border-primary/20"
+                      />
                       <div>
                         <p className="font-bold text-white">{sale.consultant || sale.seller}</p>
                         <p className="text-xs text-muted-foreground uppercase tracking-widest">Cliente: {sale.client}</p>
@@ -516,13 +567,14 @@ export default function PainelTV() {
               </div>
               <div className="space-y-3">
                 {sellerRanking.length > 0 ? sellerRanking.map((s, i) => (
-                  <RankingItem 
-                    key={i} 
-                    position={i + 1} 
-                    name={s.name} 
-                    value={`${s.sales} vendas`} 
-                    isTop3={i < 3}
-                  />
+                    <RankingItem 
+                      key={i} 
+                      position={i + 1} 
+                      name={s.name} 
+                      value={`${s.sales} vendas`} 
+                      isTop3={i < 3}
+                      avatar_url={s.avatar_url}
+                    />
                 )) : <div className="text-center text-sm text-muted-foreground py-4 italic">Sem dados no mês</div>}
               </div>
             </div>
@@ -539,6 +591,12 @@ export default function PainelTV() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black text-muted-foreground w-4">{i + 1}º</span>
+                        <UserAvatar 
+                          avatarUrl={ps.avatar_url} 
+                          displayName={ps.name} 
+                          size="sm" 
+                          className="w-6 h-6 border-primary/20"
+                        />
                         <span className="font-bold text-white">{ps.name}</span>
                       </div>
                       <div className="text-right">
@@ -578,7 +636,7 @@ function StatItem({ label, value, icon, color = "text-white/90" }: any) {
   );
 }
 
-function RankingItem({ position, name, value, isTop3 }: any) {
+function RankingItem({ position, name, value, isTop3, avatar_url }: any) {
   const medals = ["🥇", "🥈", "🥉"];
   return (
     <div className={cn(
@@ -587,6 +645,12 @@ function RankingItem({ position, name, value, isTop3 }: any) {
     )}>
       <div className="flex items-center gap-3">
         <span className="text-xl">{isTop3 ? medals[position - 1] : `${position}º`}</span>
+        <UserAvatar 
+          avatarUrl={avatar_url} 
+          displayName={name} 
+          size="sm" 
+          className="w-8 h-8 border-primary/20"
+        />
         <span className={cn("font-bold truncate max-w-[120px]", isTop3 ? "text-amber-400" : "text-white")}>{name}</span>
       </div>
       <span className="font-black text-white/90 tabular-nums">{value}</span>

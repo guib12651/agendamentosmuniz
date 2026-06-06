@@ -6,11 +6,12 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X, Camera, ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { UserAvatar } from "@/components/UserAvatar";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -30,6 +31,7 @@ interface UserProfile {
   role: 'admin' | 'pre_seller' | 'seller' | 'consultant' | 'commercial_manager' | 'admin_assistant';
   is_blocked: boolean;
   email?: string;
+  avatar_url?: string | null;
 }
 
 export default function GerenciarUsuarios() {
@@ -50,7 +52,9 @@ export default function GerenciarUsuarios() {
     username: "",
     password: "",
     role: "pre_seller" as UserProfile['role'],
+    avatar_url: "" as string | null,
   });
+  const [uploadingAvatar, setUploadingAvatar] = useState<string | null>(null);
 
   const handleCreate = async () => {
     const username = form.username.toLowerCase().trim().replace(/\s+/g, "");
@@ -70,7 +74,7 @@ export default function GerenciarUsuarios() {
     }
     toast.success("Usuário criado com sucesso!");
     setCreateOpen(false);
-    setForm({ display_name: "", username: "", password: "", role: "pre_seller" });
+    setForm({ display_name: "", username: "", password: "", role: "pre_seller", avatar_url: null });
     fetchUsers();
   };
 
@@ -78,7 +82,7 @@ export default function GerenciarUsuarios() {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, role, is_blocked")
+      .select("id, display_name, role, is_blocked, avatar_url")
       .order("display_name");
 
     if (error) {
@@ -164,6 +168,80 @@ export default function GerenciarUsuarios() {
 
     toast.success("Usuário excluído com sucesso!");
     fetchUsers();
+  };
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>, userId?: string) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Formato inválido. Envie uma imagem JPG, PNG ou WEBP.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Envie uma imagem de até 5MB.");
+      return;
+    }
+
+    const targetId = userId || 'new-user';
+    setUploadingAvatar(targetId);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${targetId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('user-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-avatars')
+        .getPublicUrl(filePath);
+
+      if (userId) {
+        // Atualizar usuário existente
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', userId);
+
+        if (updateError) throw updateError;
+        
+        setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: publicUrl } : u));
+        toast.success("Foto atualizada com sucesso.");
+      } else {
+        // Apenas atualizar o formulário de criação
+        setForm(prev => ({ ...prev, avatar_url: publicUrl }));
+        toast.success("Foto adicionada com sucesso.");
+      }
+    } catch (error: any) {
+      console.error("Erro no upload:", error);
+      toast.error("Não foi possível atualizar a foto. Tente novamente.");
+    } finally {
+      setUploadingAvatar(null);
+    }
+  };
+
+  const removeAvatar = async (userId: string) => {
+    if (!window.confirm("Deseja remover a foto deste usuário?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: null } : u));
+      toast.success("Foto removida com sucesso.");
+    } catch (error) {
+      toast.error("Erro ao remover foto.");
+    }
   };
 
   const getRoleIcon = (role: string) => {
@@ -262,8 +340,41 @@ export default function GerenciarUsuarios() {
                   filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <UserCog className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="flex items-center gap-3">
+                          <div className="relative group">
+                            <UserAvatar 
+                              avatarUrl={user.avatar_url} 
+                              displayName={user.display_name} 
+                              size="sm" 
+                              className="border-2 border-primary/10"
+                            />
+                            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                              <label htmlFor={`avatar-upload-${user.id}`} className="cursor-pointer">
+                                {uploadingAvatar === user.id ? (
+                                  <Loader2 className="w-3 h-3 text-white animate-spin" />
+                                ) : (
+                                  <Camera className="w-3 h-3 text-white" />
+                                )}
+                              </label>
+                              <input 
+                                id={`avatar-upload-${user.id}`}
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => handleAvatarUpload(e, user.id)}
+                                disabled={uploadingAvatar === user.id}
+                              />
+                            </div>
+                            {user.avatar_url && (
+                                <button 
+                                  onClick={() => removeAvatar(user.id)}
+                                  className="absolute -top-1 -right-1 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Remover foto"
+                                >
+                                  <X className="w-2 h-2" />
+                                </button>
+                            )}
+                          </div>
                           {editingId === user.id ? (
                             <div className="flex items-center gap-1 w-full max-w-[200px]">
                               <Input
@@ -393,7 +504,49 @@ export default function GerenciarUsuarios() {
           <DialogHeader>
             <DialogTitle>Novo Usuário</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2 mb-2">
+              <Label>Foto do usuário</Label>
+              <div className="relative group">
+                <UserAvatar 
+                  avatarUrl={form.avatar_url} 
+                  displayName={form.display_name} 
+                  size="lg" 
+                  className="border-2 border-primary/20"
+                />
+                <label 
+                  htmlFor="avatar-upload-new" 
+                  className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer text-white text-[10px] font-medium"
+                >
+                  {uploadingAvatar === 'new-user' ? (
+                    <Loader2 className="w-5 h-5 animate-spin mb-1" />
+                  ) : (
+                    <>
+                      <ImagePlus className="w-5 h-5 mb-1" />
+                      <span>{form.avatar_url ? 'Trocar' : 'Adicionar'}</span>
+                    </>
+                  )}
+                </label>
+                <input 
+                  id="avatar-upload-new"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => handleAvatarUpload(e)}
+                  disabled={uploadingAvatar === 'new-user'}
+                />
+                {form.avatar_url && (
+                  <button 
+                    onClick={() => setForm(prev => ({ ...prev, avatar_url: null }))}
+                    className="absolute -top-1 -right-1 bg-destructive text-white rounded-full p-1 shadow-sm hover:bg-destructive/90 transition-colors"
+                    title="Remover foto"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-1">
               <Label>Nome de exibição</Label>
               <Input

@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { UserAvatar } from "@/components/UserAvatar";
 import MeetingForm from "@/components/MeetingForm";
 import MeetingSuccessModal from "@/components/MeetingSuccessModal";
 import BlockForm from "@/components/BlockForm";
@@ -280,7 +281,12 @@ export default function Index() {
       <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between gap-2 py-3 px-3 sm:px-6">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <img src={logo} alt="Muniz Consultorias" className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg shrink-0" />
+            <UserAvatar 
+              avatarUrl={profile?.avatarUrl} 
+              displayName={profile?.displayName} 
+              size="sm" 
+              className="sm:w-10 sm:h-10 shrink-0 border-2 border-primary/20"
+            />
             <div className="min-w-0">
               <h1 className="text-sm sm:text-lg font-display font-bold text-primary leading-tight truncate">Muniz Consultorias</h1>
               <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
