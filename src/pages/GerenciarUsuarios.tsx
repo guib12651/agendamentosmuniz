@@ -170,6 +170,80 @@ export default function GerenciarUsuarios() {
     fetchUsers();
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>, userId?: string) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error("Formato inválido. Envie uma imagem JPG, PNG ou WEBP.");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Imagem muito grande. Envie uma imagem de até 5MB.");
+      return;
+    }
+
+    const targetId = userId || 'new-user';
+    setUploadingAvatar(targetId);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${targetId}-${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('user-avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-avatars')
+        .getPublicUrl(filePath);
+
+      if (userId) {
+        // Atualizar usuário existente
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', userId);
+
+        if (updateError) throw updateError;
+        
+        setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: publicUrl } : u));
+        toast.success("Foto atualizada com sucesso.");
+      } else {
+        // Apenas atualizar o formulário de criação
+        setForm(prev => ({ ...prev, avatar_url: publicUrl }));
+        toast.success("Foto adicionada com sucesso.");
+      }
+    } catch (error: any) {
+      console.error("Erro no upload:", error);
+      toast.error("Não foi possível atualizar a foto. Tente novamente.");
+    } finally {
+      setUploadingAvatar(null);
+    }
+  };
+
+  const removeAvatar = async (userId: string) => {
+    if (!window.confirm("Deseja remover a foto deste usuário?")) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: null } : u));
+      toast.success("Foto removida com sucesso.");
+    } catch (error) {
+      toast.error("Erro ao remover foto.");
+    }
+  };
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'admin': return <Shield className="w-3.5 h-3.5 text-primary" />;
@@ -266,8 +340,41 @@ export default function GerenciarUsuarios() {
                   filteredUsers.map((user) => (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          <UserCog className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <div className="flex items-center gap-3">
+                          <div className="relative group">
+                            <UserAvatar 
+                              avatarUrl={user.avatar_url} 
+                              displayName={user.display_name} 
+                              size="sm" 
+                              className="border-2 border-primary/10"
+                            />
+                            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer">
+                              <label htmlFor={`avatar-upload-${user.id}`} className="cursor-pointer">
+                                {uploadingAvatar === user.id ? (
+                                  <Loader2 className="w-3 h-3 text-white animate-spin" />
+                                ) : (
+                                  <Camera className="w-3 h-3 text-white" />
+                                )}
+                              </label>
+                              <input 
+                                id={`avatar-upload-${user.id}`}
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => handleAvatarUpload(e, user.id)}
+                                disabled={uploadingAvatar === user.id}
+                              />
+                            </div>
+                            {user.avatar_url && (
+                                <button 
+                                  onClick={() => removeAvatar(user.id)}
+                                  className="absolute -top-1 -right-1 bg-destructive text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  title="Remover foto"
+                                >
+                                  <X className="w-2 h-2" />
+                                </button>
+                            )}
+                          </div>
                           {editingId === user.id ? (
                             <div className="flex items-center gap-1 w-full max-w-[200px]">
                               <Input
