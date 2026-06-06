@@ -504,7 +504,49 @@ export default function GerenciarUsuarios() {
           <DialogHeader>
             <DialogTitle>Novo Usuário</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
+            <div className="flex flex-col items-center gap-2 mb-2">
+              <Label>Foto do usuário</Label>
+              <div className="relative group">
+                <UserAvatar 
+                  avatarUrl={form.avatar_url} 
+                  displayName={form.display_name} 
+                  size="lg" 
+                  className="border-2 border-primary/20"
+                />
+                <label 
+                  htmlFor="avatar-upload-new" 
+                  className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity cursor-pointer text-white text-[10px] font-medium"
+                >
+                  {uploadingAvatar === 'new-user' ? (
+                    <Loader2 className="w-5 h-5 animate-spin mb-1" />
+                  ) : (
+                    <>
+                      <ImagePlus className="w-5 h-5 mb-1" />
+                      <span>{form.avatar_url ? 'Trocar' : 'Adicionar'}</span>
+                    </>
+                  )}
+                </label>
+                <input 
+                  id="avatar-upload-new"
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={(e) => handleAvatarUpload(e)}
+                  disabled={uploadingAvatar === 'new-user'}
+                />
+                {form.avatar_url && (
+                  <button 
+                    onClick={() => setForm(prev => ({ ...prev, avatar_url: null }))}
+                    className="absolute -top-1 -right-1 bg-destructive text-white rounded-full p-1 shadow-sm hover:bg-destructive/90 transition-colors"
+                    title="Remover foto"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-1">
               <Label>Nome de exibição</Label>
               <Input
