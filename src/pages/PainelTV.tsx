@@ -203,7 +203,7 @@ export default function PainelTV() {
           });
           
           // Play celebration sound
-          const audio = new Audio('/sounds/celebration_v2.mp3');
+          const audio = new Audio('/sounds/tv_panel_celebration.mp3');
           audio.play().catch(e => console.log("Audio play failed:", e));
 
           confetti({
@@ -231,7 +231,7 @@ export default function PainelTV() {
             });
 
             // Play celebration sound
-            const audio = new Audio('/sounds/celebration_v2.mp3');
+            const audio = new Audio('/sounds/tv_panel_celebration.mp3');
             audio.play().catch(e => console.log("Audio play failed:", e));
 
             confetti({
