@@ -6,11 +6,12 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X, Camera, ImagePlus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { UserAvatar } from "@/components/UserAvatar";
 import { 
   AlertDialog, 
   AlertDialogAction, 
@@ -30,6 +31,7 @@ interface UserProfile {
   role: 'admin' | 'pre_seller' | 'seller' | 'consultant' | 'commercial_manager' | 'admin_assistant';
   is_blocked: boolean;
   email?: string;
+  avatar_url?: string | null;
 }
 
 export default function GerenciarUsuarios() {
@@ -50,7 +52,9 @@ export default function GerenciarUsuarios() {
     username: "",
     password: "",
     role: "pre_seller" as UserProfile['role'],
+    avatar_url: "" as string | null,
   });
+  const [uploadingAvatar, setUploadingAvatar] = useState<string | null>(null);
 
   const handleCreate = async () => {
     const username = form.username.toLowerCase().trim().replace(/\s+/g, "");
@@ -70,7 +74,7 @@ export default function GerenciarUsuarios() {
     }
     toast.success("Usuário criado com sucesso!");
     setCreateOpen(false);
-    setForm({ display_name: "", username: "", password: "", role: "pre_seller" });
+    setForm({ display_name: "", username: "", password: "", role: "pre_seller", avatar_url: null });
     fetchUsers();
   };
 
@@ -78,7 +82,7 @@ export default function GerenciarUsuarios() {
     setLoading(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("id, display_name, role, is_blocked")
+      .select("id, display_name, role, is_blocked, avatar_url")
       .order("display_name");
 
     if (error) {
