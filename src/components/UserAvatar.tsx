@@ -37,11 +37,11 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className }: U
     >
       {avatarUrl ? (
         <img
-          src={avatarUrl}
+          key={avatarUrl}
+          src={`${avatarUrl}${avatarUrl.includes('?') ? '&' : '?'}v=${Date.now()}`}
           alt={displayName || "Avatar"}
           className="h-full w-full object-cover"
           onError={(e) => {
-            // Se a imagem falhar, podemos tentar limpar a URL para mostrar as iniciais
             (e.target as HTMLImageElement).style.display = 'none';
           }}
         />

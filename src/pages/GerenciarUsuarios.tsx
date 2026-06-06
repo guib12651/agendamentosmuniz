@@ -192,7 +192,7 @@ export default function GerenciarUsuarios() {
       const fileName = `${targetId}-${Date.now()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('user-avatars')
         .upload(filePath, file, { upsert: true });
 
