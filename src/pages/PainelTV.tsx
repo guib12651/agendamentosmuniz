@@ -71,6 +71,16 @@ export default function PainelTV() {
     const endOfLocalDay = new Date(today + "T23:59:59").toISOString();
     
     try {
+      // Fetch profiles to get avatars
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url");
+      
+      const avatarMap: Record<string, string> = {};
+      profilesData?.forEach(p => {
+        if (p.avatar_url) avatarMap[p.display_name] = p.avatar_url;
+      });
+
       // 1. Fetch Meetings
       const m = await getMeetings(today, today);
       setMeetings(m);
@@ -132,7 +142,11 @@ export default function PainelTV() {
           sellers[x.consultant] = (sellers[x.consultant] || 0) + 1;
         });
         const sRanking = Object.entries(sellers)
-          .map(([name, sales]) => ({ name, sales }))
+          .map(([name, sales]) => ({ 
+            name, 
+            sales,
+            avatar_url: avatarMap[name]
+          }))
           .sort((a, b) => b.sales - a.sales)
           .slice(0, 5);
         setSellerRanking(sRanking);
@@ -141,7 +155,7 @@ export default function PainelTV() {
         const preSellers: Record<string, any> = {};
         monthMeetings.forEach(x => {
           const name = x.pre_seller;
-          if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0 };
+          if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0, avatar_url: avatarMap[name] };
           preSellers[name].appointments += 1;
           if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
             preSellers[name].present += 1;
@@ -172,7 +186,8 @@ export default function PainelTV() {
           consultant: s.consultant,
           client: s.lead_name,
           value: s.down_payment || "N/A",
-          time: s.time.slice(0, 5)
+          time: s.time.slice(0, 5),
+          avatar_url: avatarMap[s.consultant || s.pre_seller]
         })));
       }
 
@@ -197,10 +212,15 @@ export default function PainelTV() {
         if (payload.eventType === 'INSERT') {
           const newMeeting = payload.new as any;
           console.log("New meeting inserted, showing celebration for:", newMeeting.pre_seller);
-          setShowMeetingCelebration({
-            preSeller: newMeeting.pre_seller || "Consultor",
-            leadName: newMeeting.lead_name || "Cliente",
-            time: newMeeting.time?.slice(0, 5) || "--:--"
+          
+          // Get avatar for pre-seller
+          supabase.from('profiles').select('avatar_url').eq('display_name', newMeeting.pre_seller).single().then(({ data }) => {
+            setShowMeetingCelebration({
+              preSeller: newMeeting.pre_seller || "Consultor",
+              leadName: newMeeting.lead_name || "Cliente",
+              time: newMeeting.time?.slice(0, 5) || "--:--",
+              avatar_url: data?.avatar_url
+            });
           });
           
           // Play celebration sound
@@ -226,9 +246,14 @@ export default function PainelTV() {
           
           if (isNewSale) {
             console.log("New sale detected, showing celebration for:", newMeeting.consultant || newMeeting.pre_seller);
-            setShowSaleCelebration({
-              seller: newMeeting.consultant || newMeeting.pre_seller || "Consultor",
-              value: newMeeting.down_payment || "N/A"
+            const sellerName = newMeeting.consultant || newMeeting.pre_seller || "Consultor";
+            
+            supabase.from('profiles').select('avatar_url').eq('display_name', sellerName).single().then(({ data }) => {
+              setShowSaleCelebration({
+                seller: sellerName,
+                value: newMeeting.down_payment || "N/A",
+                avatar_url: data?.avatar_url
+              });
             });
 
             // Play celebration sound
