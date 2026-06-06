@@ -567,13 +567,14 @@ export default function PainelTV() {
               </div>
               <div className="space-y-3">
                 {sellerRanking.length > 0 ? sellerRanking.map((s, i) => (
-                  <RankingItem 
-                    key={i} 
-                    position={i + 1} 
-                    name={s.name} 
-                    value={`${s.sales} vendas`} 
-                    isTop3={i < 3}
-                  />
+                    <RankingItem 
+                      key={i} 
+                      position={i + 1} 
+                      name={s.name} 
+                      value={`${s.sales} vendas`} 
+                      isTop3={i < 3}
+                      avatar_url={s.avatar_url}
+                    />
                 )) : <div className="text-center text-sm text-muted-foreground py-4 italic">Sem dados no mês</div>}
               </div>
             </div>
@@ -590,6 +591,12 @@ export default function PainelTV() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-black text-muted-foreground w-4">{i + 1}º</span>
+                        <UserAvatar 
+                          avatarUrl={ps.avatar_url} 
+                          displayName={ps.name} 
+                          size="sm" 
+                          className="w-6 h-6 border-primary/20"
+                        />
                         <span className="font-bold text-white">{ps.name}</span>
                       </div>
                       <div className="text-right">
@@ -629,7 +636,7 @@ function StatItem({ label, value, icon, color = "text-white/90" }: any) {
   );
 }
 
-function RankingItem({ position, name, value, isTop3 }: any) {
+function RankingItem({ position, name, value, isTop3, avatar_url }: any) {
   const medals = ["🥇", "🥈", "🥉"];
   return (
     <div className={cn(
@@ -638,6 +645,12 @@ function RankingItem({ position, name, value, isTop3 }: any) {
     )}>
       <div className="flex items-center gap-3">
         <span className="text-xl">{isTop3 ? medals[position - 1] : `${position}º`}</span>
+        <UserAvatar 
+          avatarUrl={avatar_url} 
+          displayName={name} 
+          size="sm" 
+          className="w-8 h-8 border-primary/20"
+        />
         <span className={cn("font-bold truncate max-w-[120px]", isTop3 ? "text-amber-400" : "text-white")}>{name}</span>
       </div>
       <span className="font-black text-white/90 tabular-nums">{value}</span>
