@@ -8,6 +8,7 @@ interface UserProfile {
   displayName: string;
   role: "admin" | "pre_seller" | "seller";
   is_blocked: boolean;
+  avatarUrl?: string | null;
 }
 
 interface AuthContextType {
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         displayName: data.display_name,
         role: data.role as "admin" | "pre_seller" | "seller",
         is_blocked: !!data.is_blocked,
+        avatarUrl: data.avatar_url,
       });
     }
   };
