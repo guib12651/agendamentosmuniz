@@ -202,6 +202,9 @@ export default function GerenciarUsuarios() {
         .from('user-avatars')
         .getPublicUrl(filePath);
 
+      // Verify if publicUrl contains a token (private bucket)
+      console.log("Avatar Public URL:", publicUrl);
+
       if (userId) {
         // Atualizar usuário existente
         const { error: updateError } = await supabase
