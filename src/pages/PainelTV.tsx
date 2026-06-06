@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { getMeetings, getCalls } from "@/lib/store";
 import { Meeting } from "@/lib/types";
+import { UserAvatar } from "@/components/UserAvatar";
 
 import { Button } from "@/components/ui/button";
 const formatBRL = (v: number) =>
