@@ -1,0 +1,1 @@
+CREATE POLICY "Acesso público para leitura de avatares" ON storage.objects FOR SELECT USING (bucket_id = 'user-avatars');
