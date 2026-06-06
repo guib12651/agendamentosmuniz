@@ -25,6 +25,7 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className }: U
     tv: "w-32 h-32 text-4xl",
   };
 
+  const [imgError, setImgError] = useState(false);
   const initials = displayName ? getInitials(displayName) : "?";
 
   return (
@@ -35,15 +36,15 @@ export function UserAvatar({ avatarUrl, displayName, size = "md", className }: U
         className
       )}
     >
-      {avatarUrl ? (
+      {avatarUrl && !imgError ? (
         <img
           key={avatarUrl}
           src={avatarUrl}
           alt={displayName || "Avatar"}
           className="h-full w-full object-cover"
-          onError={(e) => {
+          onError={() => {
             console.error("UserAvatar: Image failed to load:", avatarUrl);
-            (e.target as HTMLImageElement).style.display = 'none';
+            setImgError(true);
           }}
         />
       ) : (
