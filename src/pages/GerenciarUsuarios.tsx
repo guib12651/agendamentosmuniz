@@ -202,23 +202,24 @@ export default function GerenciarUsuarios() {
         .from('user-avatars')
         .getPublicUrl(filePath);
 
-      // Verify if publicUrl contains a token (private bucket)
-      console.log("Avatar Public URL:", publicUrl);
+      // Limpar qualquer parâmetro de query que possa vir na URL (como tokens de bucket privado)
+      const cleanUrl = publicUrl.split('?')[0];
+      console.log("Avatar Public URL (cleaned):", cleanUrl);
 
       if (userId) {
         // Atualizar usuário existente
         const { error: updateError } = await supabase
           .from('profiles')
-          .update({ avatar_url: publicUrl })
+          .update({ avatar_url: cleanUrl })
           .eq('id', userId);
 
         if (updateError) throw updateError;
         
-        setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: publicUrl } : u));
+        setUsers(users.map(u => u.id === userId ? { ...u, avatar_url: cleanUrl } : u));
         toast.success("Foto atualizada com sucesso.");
       } else {
         // Apenas atualizar o formulário de criação
-        setForm(prev => ({ ...prev, avatar_url: publicUrl }));
+        setForm(prev => ({ ...prev, avatar_url: cleanUrl }));
         toast.success("Foto adicionada com sucesso.");
       }
     } catch (error: any) {
