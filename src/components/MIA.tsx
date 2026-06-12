@@ -19,6 +19,9 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { detectIntention, getMiaResponse } from "@/lib/miaService";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { Settings as SettingsIcon } from "lucide-react";
+
 
 interface Message {
   id: string;
@@ -41,7 +44,9 @@ const QUICK_BUTTONS = [
 
 export const MIA: React.FC = () => {
   const { profile, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -124,25 +129,34 @@ export const MIA: React.FC = () => {
     utterance.lang = "pt-BR";
     utterance.rate = 1.1;
     
-    // Tenta selecionar uma voz feminina em pt-BR
+    // Check for user-selected voice
+    const storedVoiceURI = localStorage.getItem('mia_selected_voice_uri');
     const voices = window.speechSynthesis.getVoices();
-    const femaleVoice = voices.find(v => 
-      v.lang.includes('pt-BR') && 
-      (v.name.toLowerCase().includes('female') || 
-       v.name.toLowerCase().includes('feminina') || 
-       v.name.toLowerCase().includes('maria') || 
-       v.name.toLowerCase().includes('luciana') || 
-       v.name.toLowerCase().includes('google português do brasil'))
-    );
     
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    if (storedVoiceURI) {
+      const selectedVoice = voices.find(v => v.voiceURI === storedVoiceURI);
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+    } else {
+      // Fallback to default female logic if no specific voice selected
+      const femaleVoice = voices.find(v => 
+        v.lang.includes('pt-BR') && 
+        (v.name.toLowerCase().includes('female') || 
+         v.name.toLowerCase().includes('feminina') || 
+         v.name.toLowerCase().includes('maria') || 
+         v.name.toLowerCase().includes('luciana') || 
+         v.name.toLowerCase().includes('google português do brasil'))
+      );
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
     }
     
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-
     utterance.onerror = () => setIsSpeaking(false);
+
     
     speechRef.current = utterance;
     window.speechSynthesis.speak(utterance);
@@ -208,6 +222,18 @@ export const MIA: React.FC = () => {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate("/settings");
+                    }}
+                    className="h-8 w-8 p-0 rounded-full text-muted-foreground"
+                    title="Configurações de voz"
+                  >
+                    <SettingsIcon className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
                     className={cn(
                       "h-8 w-8 p-0 rounded-full",
@@ -217,6 +243,7 @@ export const MIA: React.FC = () => {
                   >
                     {isVoiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
                   </Button>
+
                   <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="h-8 w-8 p-0 rounded-full">
                     <X className="w-4 h-4" />
                   </Button>

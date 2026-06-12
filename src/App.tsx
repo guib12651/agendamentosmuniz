@@ -15,7 +15,9 @@ import Quotas from "./pages/Quotas.tsx";
 import Bids from "./pages/Bids.tsx";
 import PainelTV from "./pages/PainelTV.tsx";
 import OpportunitiesCenter from "./pages/OpportunitiesCenter.tsx";
+import Settings from "./pages/Settings.tsx";
 import { MIA } from "./components/MIA";
+
 
 
 
@@ -67,6 +69,8 @@ const App = () => (
             <Route path="/lances" element={<ProtectedRoute requireAdmin><Bids /></ProtectedRoute>} />
             <Route path="/painel-tv" element={<ProtectedRoute requireAdmin><PainelTV /></ProtectedRoute>} />
             <Route path="/central-oportunidades" element={<ProtectedRoute><OpportunitiesCenter /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
 
 
             <Route path="*" element={<NotFound />} />
