@@ -304,7 +304,7 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
       }
 
       case "USERS": {
-        const [mSales, pSales] = await Promise.all([
+        const [mSales, pSales, profilesResult] = await Promise.all([
           supabase.from("meetings").select("consultant").eq("status", "venda_concluida").gte("date", startDay).lte("date", endDay),
           supabase.from("production_sales").select("user_id").gte("production_date", startDay).lte("production_date", endDay),
           supabase.from("profiles").select("id, display_name")
@@ -312,7 +312,7 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
         
         const counts: Record<string, number> = {};
         mSales.data?.forEach(s => { counts[s.consultant || ""] = (counts[s.consultant || ""] || 0) + 1; });
-        const pMap = (pSales[2] as any)?.data?.reduce((acc: any, p: any) => ({ ...acc, [p.id]: p.display_name }), {});
+        const pMap = (profilesResult.data || []).reduce((acc: any, p: any) => ({ ...acc, [p.id]: p.display_name }), {});
         pSales.data?.forEach(s => { const name = pMap[s.user_id] || ""; counts[name] = (counts[name] || 0) + 1; });
 
         const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
