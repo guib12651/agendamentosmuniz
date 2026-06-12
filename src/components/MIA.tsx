@@ -1,26 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Bot, 
-  Sparkles, 
-  MessageCircle, 
   X, 
   Send, 
   Volume2, 
   VolumeX, 
-  Play, 
-  Square,
-  ChevronRight,
   Loader2,
-  Brain
+  Brain,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { detectDomain, getMiaResponse } from "@/lib/miaService";
+import { fetchData } from "@/services/api";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Settings as SettingsIcon } from "lucide-react";
+import { MIAOptions } from "./mia/MIAOptions";
+import { DataDisplay } from "./mia/DataDisplay";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
 interface Message {
@@ -74,6 +73,8 @@ export const MIA: React.FC = () => {
 
   if (!isAdmin) return null;
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
@@ -87,6 +88,7 @@ export const MIA: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsTyping(true);
+    setError(null);
     
     // Cancel ongoing speech if any
     if (window.speechSynthesis.speaking) {
@@ -94,20 +96,25 @@ export const MIA: React.FC = () => {
       setIsSpeaking(false);
     }
 
-    const responseText = await getMiaResponse(text, profile?.id || "", profile?.displayName || "Admin");
+    try {
+      const result = await fetchData(text, profile?.id || "", profile?.displayName || "Admin");
+      
+      const miaMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: result.text,
+        sender: "mia",
+        timestamp: result.timestamp
+      };
 
-    const miaMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: responseText,
-      sender: "mia",
-      timestamp: new Date()
-    };
-
-    setIsTyping(false);
-    setMessages(prev => [...prev, miaMessage]);
-
-    if (isVoiceEnabled) {
-      speakText(responseText);
+      setMessages(prev => [...prev, miaMessage]);
+      if (isVoiceEnabled) {
+        speakText(result.text);
+      }
+    } catch (err) {
+      setError("Houve um erro ao processar sua solicitação. Por favor, tente novamente.");
+      console.error(err);
+    } finally {
+      setIsTyping(false);
     }
   };
 
@@ -255,74 +262,41 @@ export const MIA: React.FC = () => {
 
               {/* Chat Area */}
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/30">
-                {messages.length === 0 && (
+                {error && (
+                  <Alert variant="destructive" className="mb-4 animate-in fade-in slide-in-from-top-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Erro</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                {messages.length === 0 && !isTyping && (
                   <div className="space-y-6 py-6">
                     <div className="bg-card p-4 rounded-2xl border border-border shadow-sm">
                       <p className="text-sm font-medium mb-3">Como posso ajudar você hoje, {profile?.displayName.split(" ")[0]}?</p>
                       <p className="text-xs text-muted-foreground mb-4">Pergunte qualquer coisa sobre a operação da Muniz.</p>
-                      <div className="grid grid-cols-1 gap-2">
-                        {QUICK_BUTTONS.map((btn) => (
-                          <Button
-                            key={btn}
-                            variant="outline"
-                            className="justify-start text-left h-auto py-2.5 px-3 text-xs bg-background/50 border-primary/10 hover:border-primary/30 hover:bg-primary/5 transition-all"
-                            onClick={() => handleSend(btn)}
-                          >
-                            <ChevronRight className="w-3 h-3 mr-2 text-primary" />
-                            {btn}
-                          </Button>
-                        ))}
-                      </div>
+                      <MIAOptions 
+                        options={QUICK_BUTTONS} 
+                        onOptionClick={handleSend}
+                        disabled={isTyping} 
+                      />
                     </div>
                   </div>
                 )}
 
                 {messages.map((msg) => (
-                  <div
+                  <DataDisplay
                     key={msg.id}
-                    className={cn(
-                      "flex flex-col max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300",
-                      msg.sender === "user" ? "ml-auto items-end" : "items-start"
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "p-3 rounded-2xl text-sm shadow-sm whitespace-pre-wrap",
-                        msg.sender === "user"
-
-                          ? "bg-primary text-primary-foreground rounded-tr-none"
-                          : "bg-card border border-border text-foreground rounded-tl-none"
-                      )}
-                    >
-                      {msg.text}
-                    </div>
-                    {msg.sender === "mia" && (
-                      <div className="flex items-center gap-2 mt-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary"
-                          onClick={() => speakText(msg.text)}
-                        >
-                          <Play className="w-3 h-3 mr-1" /> Ouvir
-                        </Button>
-                        {isSpeaking && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 px-2 text-[10px] text-destructive"
-                            onClick={stopSpeaking}
-                          >
-                            <Square className="w-3 h-3 mr-1" /> Parar
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                    text={msg.text}
+                    sender={msg.sender}
+                    onSpeak={msg.sender === "mia" ? speakText : undefined}
+                    onStop={msg.sender === "mia" ? stopSpeaking : undefined}
+                    isSpeaking={isSpeaking}
+                  />
                 ))}
                 
                 {isTyping && (
-                  <div className="flex items-start max-w-[85%]">
+                  <div className="flex items-start max-w-[85%] animate-in fade-in duration-300">
                     <div className="bg-card border border-border p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       <span className="text-xs text-muted-foreground">MIA está analisando a operação...</span>
