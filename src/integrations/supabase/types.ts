@@ -566,6 +566,39 @@ export type Database = {
         }
         Relationships: []
       }
+      production_sales: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_name: string
+          production_date: string
+          quantity: number
+          total_price: number | null
+          unit_price: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_name: string
+          production_date: string
+          quantity: number
+          total_price?: number | null
+          unit_price: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_name?: string
+          production_date?: string
+          quantity?: number
+          total_price?: number | null
+          unit_price?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
