@@ -297,7 +297,7 @@ export const MIA: React.FC = () => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Pergunte aqui..."
-                    className="pr-12 h-11 rounded-full border-border bg-slate-50 focus-visible:ring-primary"
+                    className="pr-12 h-11 rounded-full border-border bg-slate-50 text-slate-900 focus-visible:ring-primary placeholder:text-slate-400"
                   />
                   <Button
                     type="submit"
