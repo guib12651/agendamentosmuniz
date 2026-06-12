@@ -124,8 +124,24 @@ export const MIA: React.FC = () => {
     utterance.lang = "pt-BR";
     utterance.rate = 1.1;
     
+    // Tenta selecionar uma voz feminina em pt-BR
+    const voices = window.speechSynthesis.getVoices();
+    const femaleVoice = voices.find(v => 
+      v.lang.includes('pt-BR') && 
+      (v.name.toLowerCase().includes('female') || 
+       v.name.toLowerCase().includes('feminina') || 
+       v.name.toLowerCase().includes('maria') || 
+       v.name.toLowerCase().includes('luciana') || 
+       v.name.toLowerCase().includes('google português do brasil'))
+    );
+    
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+    
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
+
     utterance.onerror = () => setIsSpeaking(false);
     
     speechRef.current = utterance;
