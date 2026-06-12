@@ -69,7 +69,7 @@ const parsePeriod = (query: string): DateRange => {
     return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth), label: "no mês passado" };
   }
 
-  if (q.includes("este mês") || q.includes("esse mês") || q.includes("no mês") || q.includes("no mes")) {
+  if (q.includes("mês") || q.includes("mes")) {
     return { start: startOfMonth(now), end: endOfMonth(now), label: "neste mês" };
   }
 
@@ -94,6 +94,11 @@ const parsePeriod = (query: string): DateRange => {
       end: new Date(year, m2, d2, 23, 59, 59), 
       label: `entre ${dateRangeMatch[1]}/${dateRangeMatch[2]} e ${dateRangeMatch[4]}/${dateRangeMatch[5]}` 
     };
+  }
+
+  // Default to month for sales/goals if no specific period is mentioned
+  if (detectDomain(query) === "SALES" || detectDomain(query) === "GOALS") {
+    return { start: startOfMonth(now), end: endOfMonth(now), label: "neste mês" };
   }
 
   // Default to today

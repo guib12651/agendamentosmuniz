@@ -287,8 +287,9 @@ export const MIA: React.FC = () => {
                   >
                     <div
                       className={cn(
-                        "p-3 rounded-2xl text-sm shadow-sm",
+                        "p-3 rounded-2xl text-sm shadow-sm whitespace-pre-wrap",
                         msg.sender === "user"
+
                           ? "bg-primary text-primary-foreground rounded-tr-none"
                           : "bg-card border border-border text-foreground rounded-tl-none"
                       )}
