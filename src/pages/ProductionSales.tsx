@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ProductionSalesForm } from "@/components/ProductionSalesForm";
 import { ProductionSalesList } from "@/components/ProductionSalesList";
 import { ProductionSalesChart } from "@/components/ProductionSalesChart";
@@ -9,14 +9,55 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, Package, PlusCircle, TrendingUp } from "lucide-react";
+import { ArrowLeft, Package, PlusCircle, TrendingUp, DollarSign, ListOrdered } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 export default function ProductionSales() {
   const navigate = useNavigate();
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [salesData, setSalesData] = useState<any[]>([]);
+  const [totalSales, setTotalSales] = useState(0);
+  const [totalByItem, setTotalByItem] = useState<Record<string, number>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchSalesData = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("production_sales")
+        .select("*")
+        .order("production_date", { ascending: false });
+
+      if (error) throw error;
+      
+      const sales = data || [];
+      setSalesData(sales);
+      
+      const total = sales.reduce((acc, sale) => acc + Number(sale.total_price), 0);
+      setTotalSales(total);
+      
+      const byItem = sales.reduce((acc, sale) => {
+        const item = sale.product_name;
+        acc[item] = (acc[item] || 0) + Number(sale.total_price);
+        return acc;
+      }, {} as Record<string, number>);
+      setTotalByItem(byItem);
+      
+    } catch (error: any) {
+      toast.error("Erro ao carregar dados de vendas: " + error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSalesData();
+  }, [refreshTrigger]);
 
   const handleRefresh = () => {
     setRefreshTrigger((prev) => prev + 1);
@@ -34,6 +75,37 @@ export default function ProductionSales() {
             <p className="text-muted-foreground">Gerencie e analise suas vendas de produtos fabricados.</p>
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-primary/10 shadow-sm">
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <DollarSign className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Faturamento Total</p>
+              <h3 className="text-2xl font-bold">
+                {new Intl.NumberFormat("pt-BR", {
+                  style: "currency",
+                  currency: "BRL",
+                }).format(totalSales)}
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-primary/10 shadow-sm">
+          <CardContent className="pt-6 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 shrink-0">
+              <ListOrdered className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Produtos Diferentes</p>
+              <h3 className="text-2xl font-bold">{Object.keys(totalByItem).length}</h3>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -74,7 +146,28 @@ export default function ProductionSales() {
                   <CardDescription>Lista de todas as vendas cadastradas recentemente.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ProductionSalesList refreshTrigger={refreshTrigger} />
+                  <div className="grid grid-cols-1 gap-6">
+                    <ProductionSalesList refreshTrigger={refreshTrigger} />
+                    
+                    {Object.keys(totalByItem).length > 0 && (
+                      <div className="mt-4 pt-6 border-t">
+                        <h4 className="font-semibold mb-4 text-sm uppercase tracking-wider text-muted-foreground">Total por Produto</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {Object.entries(totalByItem).map(([item, total]) => (
+                            <div key={item} className="flex justify-between items-center p-3 rounded-lg bg-slate-50 border text-sm">
+                              <span className="font-medium">{item}</span>
+                              <span className="font-bold text-primary">
+                                {new Intl.NumberFormat("pt-BR", {
+                                  style: "currency",
+                                  currency: "BRL",
+                                }).format(total)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
