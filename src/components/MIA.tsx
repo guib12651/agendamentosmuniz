@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { detectIntention, getMiaResponse } from "@/lib/miaService";
+import { detectDomain, getMiaResponse } from "@/lib/miaService";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Settings as SettingsIcon } from "lucide-react";
@@ -35,11 +35,15 @@ const QUICK_BUTTONS = [
   "Resumo da semana",
   "Vendas do mês",
   "Ranking de vendas",
-  "Agenda de hoje",
   "Faltas de hoje",
-  "Oportunidades paradas",
+  "Oportunidades pendentes",
+  "Negociações abertas",
   "Meta do mês",
-  "Gargalos da operação"
+  "Gargalos da operação",
+  "Melhor usuário da semana",
+  "Clientes para recuperar",
+  "Cotas e lances",
+  "Linha do tempo do dia"
 ];
 
 export const MIA: React.FC = () => {
@@ -90,8 +94,7 @@ export const MIA: React.FC = () => {
       setIsSpeaking(false);
     }
 
-    const intention = detectIntention(text);
-    const responseText = await getMiaResponse(intention, profile?.displayName || "Admin", text);
+    const responseText = await getMiaResponse(text, profile?.id || "", profile?.displayName || "Admin");
 
     const miaMessage: Message = {
       id: (Date.now() + 1).toString(),

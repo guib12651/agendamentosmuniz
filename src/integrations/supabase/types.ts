@@ -286,6 +286,56 @@ export type Database = {
         }
         Relationships: []
       }
+      mia_usage_logs: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          detected_domain: string | null
+          detected_intent: string | null
+          error_message: string | null
+          filters_used: Json | null
+          id: string
+          question: string
+          response_summary: string | null
+          success: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          detected_domain?: string | null
+          detected_intent?: string | null
+          error_message?: string | null
+          filters_used?: Json | null
+          id?: string
+          question: string
+          response_summary?: string | null
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          detected_domain?: string | null
+          detected_intent?: string | null
+          error_message?: string | null
+          filters_used?: Json | null
+          id?: string
+          question?: string
+          response_summary?: string | null
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mia_usage_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
