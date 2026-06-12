@@ -57,6 +57,7 @@ export const MIA: React.FC = () => {
     return localStorage.getItem("mia_voice_enabled") === "true";
   });
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
@@ -73,7 +74,6 @@ export const MIA: React.FC = () => {
 
   if (!isAdmin) return null;
 
-  const [error, setError] = useState<string | null>(null);
 
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
