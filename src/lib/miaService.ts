@@ -120,7 +120,7 @@ const logMiaUsage = async (userId: string, question: string, intent: string, dom
 };
 
 export const getMiaResponse = async (queryText: string, userId: string, userName: string): Promise<string> => {
-  const firstName = userName.split(" ")[0] || "Olá";
+  const firstName = (userName && userName !== "Admin") ? userName.split(" ")[0] : "Olá";
   const now = new Date();
   const domain = detectDomain(queryText);
   const period = parsePeriod(queryText);
