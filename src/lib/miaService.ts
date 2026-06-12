@@ -49,7 +49,7 @@ export const detectIntention = (query: string): MiaIntention => {
   return "UNKNOWN";
 };
 
-export const getMiaResponse = async (intention: MiaIntention, userName: string): Promise<string> => {
+export const getMiaResponse = async (intention: MiaIntention, userName: string, queryText?: string): Promise<string> => {
   const firstName = userName.split(" ")[0];
   const today = format(new Date(), "yyyy-MM-dd");
   const now = new Date();
@@ -262,42 +262,50 @@ export const getMiaResponse = async (intention: MiaIntention, userName: string):
       }
 
       case "LIGACOES": {
-        // Extração de datas
         let startDate = today;
         let endDate = today;
         let isCustomRange = false;
 
-        // Tentar extrair datas no formato DD/MM ou DD/MM/AAAA
-        const dateMatches = userName.split("|")[1]?.match(/(\d{1,2})\/(\d{1,2})(\/(\d{4}))?/g);
-        // O userName original não tem o query, vamos precisar passar o query de alguma forma ou extrair aqui.
-        // Como o getMiaResponse não recebe a query original, vamos precisar ajustar a assinatura ou usar um truque.
-        // Na verdade, o userName é passado como profile?.displayName || "Admin".
-        // Vou assumir que o sistema detectou e o problema é a lógica fixa de hoje.
-        
-        // Vamos tentar detectar se há datas na query (que não temos aqui, oops).
-        // Melhor: Ajustar getMiaResponse para receber a query original também.
-        
+        if (queryText) {
+          const dateMatches = queryText.match(/(\d{1,2})\/(\d{1,2})(\/(\d{4}))?/g);
+          if (dateMatches && dateMatches.length >= 1) {
+            isCustomRange = true;
+            const currentYear = new Date().getFullYear();
+            const parseDateStr = (dateStr: string) => {
+              const parts = dateStr.split("/");
+              const day = parts[0].padStart(2, "0");
+              const month = parts[1].padStart(2, "0");
+              const year = parts[2] || currentYear.toString();
+              return `${year}-${month}-${day}`;
+            };
+            startDate = parseDateStr(dateMatches[0]);
+            endDate = dateMatches.length >= 2 ? parseDateStr(dateMatches[1]) : startDate;
+          }
+        }
+
         const { data: calls } = await supabase
           .from("calls")
-          .select("id, consultant")
-          .gte("call_time", `${today}T00:00:00`)
-          .lte("call_time", `${today}T23:59:59`);
+          .select("id, user_id, profiles(display_name)")
+          .gte("call_time", `${startDate}T00:00:00`)
+          .lte("call_time", `${endDate}T23:59:59`);
 
         const count = calls?.length || 0;
-        if (count === 0) return `${firstName}, não registramos nenhuma ligação hoje até o momento.`;
+        const periodText = isCustomRange 
+          ? (startDate === endDate ? `no dia ${startDate.split("-").reverse().slice(0, 2).join("/")}` : `entre ${startDate.split("-").reverse().slice(0, 2).join("/")} e ${endDate.split("-").reverse().slice(0, 2).join("/")}`)
+          : "hoje";
 
-        // Quem mais ligou
+        if (count === 0) return `${firstName}, não registramos nenhuma ligação ${periodText}.`;
+
         const ranking: Record<string, number> = {};
-        calls?.forEach(c => {
-          if (c.consultant) {
-            ranking[c.consultant] = (ranking[c.consultant] || 0) + 1;
-          }
+        calls?.forEach((c: any) => {
+          const name = c.profiles?.display_name || "Desconhecido";
+          ranking[name] = (ranking[name] || 0) + 1;
         });
 
         const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
         const topCaller = sorted.length > 0 ? sorted[0] : null;
 
-        let response = `${firstName}, foram realizadas ${count} ligação${count !== 1 ? 'es' : ''} hoje pela equipe.`;
+        let response = `${firstName}, foram realizadas ${count} ligação${count !== 1 ? 'es' : ''} ${periodText} pela equipe.`;
         if (topCaller) {
           response += ` Quem mais ligou foi ${topCaller[0]} com ${topCaller[1]} chamadas.`;
         }
