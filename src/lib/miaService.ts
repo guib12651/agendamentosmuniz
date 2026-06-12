@@ -359,6 +359,50 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
         break;
       }
 
+      case "CALLS": {
+        const { data: calls } = await supabase.from("calls").select("*, profiles(display_name)").gte("call_time", startStr).lte("call_time", endStr);
+        const count = calls?.length || 0;
+        if (count === 0) {
+          response = `${firstName}, não encontrei registros de ligações ${period.label}.`;
+        } else {
+          const ranking: Record<string, number> = {};
+          calls?.forEach((c: any) => { const name = c.profiles?.display_name || "Desconhecido"; ranking[name] = (ranking[name] || 0) + 1; });
+          const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
+          const rankingText = sorted.slice(0, 5).map(([name, val]) => `- ${name}: ${val} ligações`).join("\n");
+          response = `${firstName}, foram realizadas ${count} ligações ${period.label}.\n\nTop produtividade:\n${rankingText}`;
+        }
+        break;
+      }
+
+      case "CUSTOMER_JOURNEY": {
+        const nameMatch = queryText.match(/com\s+([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i) || queryText.match(/de\s+([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i);
+        const clientName = nameMatch ? nameMatch[1].trim() : "";
+        if (!clientName) {
+          response = `${firstName}, qual o nome do cliente que você deseja consultar?`;
+        } else {
+          const [opps, meetings] = await Promise.all([
+            supabase.from("opportunities").select("*").ilike("lead_name", `%${clientName}%`),
+            supabase.from("meetings").select("*").ilike("lead_name", `%${clientName}%`)
+          ]);
+          if ((!opps.data || opps.data.length === 0) && (!meetings.data || meetings.data.length === 0)) {
+            response = `${firstName}, não encontrei nenhum registro para o cliente "${clientName}".`;
+          } else {
+            const m = meetings.data?.[0];
+            const o = opps.data?.[0];
+            const name = m?.lead_name || o?.lead_name;
+            response = `${firstName}, encontrei registros de ${name}:\n`;
+            if (o) response += `- Oportunidade criada em: ${format(parseISO(o.created_at), "dd/MM/yyyy")}\n`;
+            if (m) {
+              response += `- Agendamento: ${format(parseISO(`${m.date}T${m.time}`), "dd/MM/yyyy HH:mm")}\n`;
+              response += `- Status: ${m.status.replace(/_/g, " ")}\n`;
+              response += `- Consultor: ${m.consultant || "Não atribuído"}\n`;
+            }
+          }
+        }
+        break;
+      }
+
+
       default:
         response = `${firstName}, ainda não encontrei dados estruturados suficientes para responder isso com precisão. Em que mais posso ajudar?`;
     }
