@@ -15,15 +15,17 @@ const VoiceSelector = () => {
   useEffect(() => {
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
-      // Filter for relevant voices or just show all
-      setVoices(availableVoices);
+      // Filtrar apenas vozes brasileiras (pt-BR)
+      const brVoices = availableVoices.filter(v => v.lang.includes('pt-BR'));
+      setVoices(brVoices);
+
       
       const storedVoice = localStorage.getItem('mia_selected_voice_uri');
       if (storedVoice) {
         setSelectedVoice(storedVoice);
       } else {
         // Try to find a default female Portuguese voice if nothing is stored
-        const defaultFemale = availableVoices.find(v => 
+        const defaultFemale = brVoices.find(v => 
           v.lang.includes('pt-BR') && 
           (v.name.toLowerCase().includes('female') || 
            v.name.toLowerCase().includes('feminina') || 
@@ -50,7 +52,7 @@ const VoiceSelector = () => {
 
   return (
     <div className="space-y-2">
-      <Label htmlFor="voice-select" className="text-sm font-medium">Selecione a Voz da MIA</Label>
+      <Label htmlFor="voice-select" className="text-sm font-medium">Selecione a Voz Brasileira da MIA</Label>
       <Select value={selectedVoice} onValueChange={handleVoiceChange}>
         <SelectTrigger id="voice-select" className="w-full bg-background">
           <SelectValue placeholder="Selecione uma voz..." />
@@ -59,7 +61,7 @@ const VoiceSelector = () => {
           {voices.length > 0 ? (
             voices.map((voice) => (
               <SelectItem key={voice.voiceURI} value={voice.voiceURI}>
-                {voice.name} ({voice.lang})
+                {voice.name.replace('Google ', '').replace('Microsoft ', '')} (Brasil)
               </SelectItem>
             ))
           ) : (
