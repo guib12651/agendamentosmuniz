@@ -85,6 +85,7 @@ import { Textarea } from "@/components/ui/textarea";
 import SaleToQuotaModal from "@/components/SaleToQuotaModal";
 import QuotaForm from "@/components/QuotaForm";
 import TimelineSheet from "@/components/TimelineSheet";
+import CallDetails from "@/components/CallDetails";
 
 const leadSources = [
   "Instagram",
@@ -574,10 +575,39 @@ export default function CentralOperacional() {
     ).length;
     const sales = activeMeetings.filter(m => m.status === 'venda_concluida').length;
 
+    // Detalhamento de ligações por usuário
+    const callsByUserMap = new Map<string, { userName: string, automatic: number, manual: number }>();
+    
+    // Contabiliza automáticas
+    calls.forEach(c => {
+      const userId = c.userId || "unknown";
+      const name = c.userDisplayName || "Desconhecido";
+      const existing = callsByUserMap.get(userId) || { userName: name, automatic: 0, manual: 0 };
+      existing.automatic += 1;
+      callsByUserMap.set(userId, existing);
+    });
+
+    // Contabiliza manuais
+    dailyCallsList.forEach(c => {
+      const userId = c.user_id || "unknown";
+      const name = c.profiles?.display_name || "Desconhecido";
+      const existing = callsByUserMap.get(userId) || { userName: name, automatic: 0, manual: 0 };
+      existing.manual += c.amount;
+      callsByUserMap.set(userId, existing);
+    });
+
+    const callsDetails = Array.from(callsByUserMap.values()).map(d => ({
+      userName: d.userName,
+      totalCalls: d.automatic + d.manual,
+      automaticCalls: d.automatic,
+      manualCalls: d.manual
+    })).sort((a, b) => b.totalCalls - a.totalCalls);
+
     return {
       captured: totalLeads,
       distributed,
       calls: callsMade,
+      callsDetails,
       appointments,
       attended,
       noShow,
@@ -1621,6 +1651,11 @@ export default function CentralOperacional() {
           </div>
           <ScrollArea className="h-full">
             <div className="p-4 sm:p-6 pb-24 sm:pb-12 space-y-8">
+              {/* Call Details by User Section */}
+              <div className="space-y-4">
+                <CallDetails details={stats.callsDetails} total={stats.calls} />
+              </div>
+
               {/* Individual Calls Section */}
               <div className="space-y-4">
                 <h4 className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
