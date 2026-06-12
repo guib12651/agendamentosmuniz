@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { ProductionSalesForm } from "@/components/ProductionSalesForm";
 import { ProductionSalesList } from "@/components/ProductionSalesList";
 import { ProductionSalesChart } from "@/components/ProductionSalesChart";
