@@ -15,6 +15,8 @@ import Quotas from "./pages/Quotas.tsx";
 import Bids from "./pages/Bids.tsx";
 import PainelTV from "./pages/PainelTV.tsx";
 import OpportunitiesCenter from "./pages/OpportunitiesCenter.tsx";
+import { MIA } from "./components/MIA";
+
 
 
 
@@ -52,7 +54,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <MIA />
           <Routes>
+
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/fechamentos" element={<ProtectedRoute><Fechamentos /></ProtectedRoute>} />
