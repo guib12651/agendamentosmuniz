@@ -111,7 +111,7 @@ export const detectDomain = (query: string): MiaDomain => {
   
   if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente") || q.includes("jornada do cliente")) return "CUSTOMER_JOURNEY";
   if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo") || q.includes("problema")) return "BOTTLENECKS";
-  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario")) return "SALES";
+  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario") || q.includes("faturamento") || q.includes("produção")) return "SALES";
   if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião") || q.includes("linha do tempo")) return "APPOINTMENTS";
   if (q.includes("falta") || q.includes("compareceu") || q.includes("não compareceu") || q.includes("presença") || q.includes("recuperar")) return "ATTENDANCE";
   if (q.includes("ligação") || q.includes("chamada") || q.includes("ligou")) return "CALLS";
@@ -119,7 +119,7 @@ export const detectDomain = (query: string): MiaDomain => {
   if (q.includes("meta") || q.includes("objetivo") || q.includes("bater")) return "GOALS";
   if (q.includes("cota")) return "QUOTAS";
   if (q.includes("lance")) return "BIDS";
-  if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é")) return "USERS";
+  if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é") || q.includes("consultor")) return "USERS";
   if (q.includes("produção") || q.includes("venda de produção") || q.includes("produto fabricado")) return "PRODUCTION_SALES";
   if (q.includes("hoje") || q.includes("resumo") || q.includes("operação") || q.includes("aconteceu")) return "OPERATION";
 
