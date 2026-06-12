@@ -73,6 +73,8 @@ export const MIA: React.FC = () => {
 
   if (!isAdmin) return null;
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSend = async (text: string) => {
     if (!text.trim()) return;
 
@@ -86,6 +88,7 @@ export const MIA: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setInput("");
     setIsTyping(true);
+    setError(null);
     
     // Cancel ongoing speech if any
     if (window.speechSynthesis.speaking) {
@@ -93,20 +96,25 @@ export const MIA: React.FC = () => {
       setIsSpeaking(false);
     }
 
-    const responseText = await getMiaResponse(text, profile?.id || "", profile?.displayName || "Admin");
+    try {
+      const result = await fetchData(text, profile?.id || "", profile?.displayName || "Admin");
+      
+      const miaMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: result.text,
+        sender: "mia",
+        timestamp: result.timestamp
+      };
 
-    const miaMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: responseText,
-      sender: "mia",
-      timestamp: new Date()
-    };
-
-    setIsTyping(false);
-    setMessages(prev => [...prev, miaMessage]);
-
-    if (isVoiceEnabled) {
-      speakText(responseText);
+      setMessages(prev => [...prev, miaMessage]);
+      if (isVoiceEnabled) {
+        speakText(result.text);
+      }
+    } catch (err) {
+      setError("Houve um erro ao processar sua solicitação. Por favor, tente novamente.");
+      console.error(err);
+    } finally {
+      setIsTyping(false);
     }
   };
 
