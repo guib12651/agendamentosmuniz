@@ -188,7 +188,7 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
           const ranking: Record<string, number> = {};
           mSales.forEach(s => { ranking[s.consultant || "Sem consultor"] = (ranking[s.consultant || "Sem consultor"] || 0) + 1; });
           
-          const profileMap = (production[2].data || []).reduce((acc: any, p) => ({ ...acc, [p.id]: p.display_name }), {});
+          const profileMap = (profilesResult.data || []).reduce((acc: any, p) => ({ ...acc, [p.id]: p.display_name }), {});
           pSales.forEach(s => {
             const name = profileMap[s.user_id] || "Usuário";
             ranking[name] = (ranking[name] || 0) + 1;
