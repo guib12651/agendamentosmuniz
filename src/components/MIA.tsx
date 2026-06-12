@@ -1,26 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Bot, 
-  Sparkles, 
-  MessageCircle, 
   X, 
   Send, 
   Volume2, 
   VolumeX, 
-  Play, 
-  Square,
-  ChevronRight,
   Loader2,
-  Brain
+  Brain,
+  AlertCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { detectDomain, getMiaResponse } from "@/lib/miaService";
+import { fetchData } from "@/services/api";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { Settings as SettingsIcon } from "lucide-react";
+import { MIAOptions } from "./mia/MIAOptions";
+import { DataDisplay } from "./mia/DataDisplay";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 
 interface Message {
