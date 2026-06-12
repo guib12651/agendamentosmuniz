@@ -103,18 +103,18 @@ const parsePeriod = (query: string): DateRange => {
 export const detectDomain = (query: string): MiaDomain => {
   const q = query.toLowerCase();
   
-  if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente")) return "CUSTOMER_JOURNEY";
-  if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo")) return "BOTTLENECKS";
-  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu")) return "SALES";
-  if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião")) return "APPOINTMENTS";
-  if (q.includes("falta") || q.includes("compareceu") || q.includes("não compareceu") || q.includes("presença")) return "ATTENDANCE";
+  if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente") || q.includes("jornada do cliente")) return "CUSTOMER_JOURNEY";
+  if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo") || q.includes("problema")) return "BOTTLENECKS";
+  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario")) return "SALES";
+  if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião") || q.includes("linha do tempo")) return "APPOINTMENTS";
+  if (q.includes("falta") || q.includes("compareceu") || q.includes("não compareceu") || q.includes("presença") || q.includes("recuperar")) return "ATTENDANCE";
   if (q.includes("ligação") || q.includes("chamada") || q.includes("ligou")) return "CALLS";
   if (q.includes("oportunidade") || q.includes("lead")) return "OPPORTUNITIES";
   if (q.includes("meta") || q.includes("objetivo") || q.includes("bater")) return "GOALS";
   if (q.includes("cota")) return "QUOTAS";
   if (q.includes("lance")) return "BIDS";
   if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é")) return "USERS";
-  if (q.includes("hoje") || q.includes("resumo") || q.includes("operação")) return "OPERATION";
+  if (q.includes("hoje") || q.includes("resumo") || q.includes("operação") || q.includes("aconteceu")) return "OPERATION";
 
   return "UNKNOWN";
 };
@@ -180,14 +180,35 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
             
             response = `${firstName}, ${period.label} tivemos um total de ${sales} venda${sales !== 1 ? 's' : ''}.\n\nRanking de Vendas:\n${rankingText}`;
             if (sorted.length > 0) {
-              response += `\n\nO destaque vai para ${sorted[0][0]}, parabéns pelo resultado!`;
+              const best = sorted[0][0];
+              if (qIncludes(queryText, ["melhor"])) {
+                response = `${firstName}, o melhor desempenho ${period.label} foi de ${best}, com ${sorted[0][1]} vendas. Excelente trabalho!`;
+              } else {
+                response += `\n\nO destaque vai para ${best}, parabéns pelo resultado!`;
+              }
             }
           }
-        } else if (domain === "ATTENDANCE" || qIncludes(queryText, ["falta", "compareceu"])) {
-          const attendanceRate = total > 0 ? ((attended / total) * 100).toFixed(1) : 0;
-          response = `${firstName}, ${period.label} tivemos ${total} agendamentos no total.\n- Comparecimentos: ${attended}\n- Faltas: ${noShow}\n- Taxa de Presença: ${attendanceRate}%`;
-          if (noShow > attended && noShow > 0) {
-            response += `\n\nPonto de atenção: O número de faltas está alto (${noShow}). Recomendo revisar o processo de confirmação.`;
+        } else if (domain === "ATTENDANCE" || qIncludes(queryText, ["falta", "compareceu", "recuperar"])) {
+          if (qIncludes(queryText, ["recuperar"])) {
+            const recoveryList = data.filter(m => m.status === "nao_compareceu").slice(0, 5).map(m => `- ${m.lead_name} (${m.phone || 'Sem telefone'})`).join("\n");
+            if (recoveryList) {
+              response = `${firstName}, identifiquei ${noShow} clientes que faltaram ${period.label}. Aqui estão os principais para recuperação:\n\n${recoveryList}\n\nRecomendo entrar em contato imediatamente.`;
+            } else {
+              response = `${firstName}, não encontrei clientes com falta ${period.label} para recuperação.`;
+            }
+          } else {
+            const attendanceRate = total > 0 ? ((attended / total) * 100).toFixed(1) : 0;
+            response = `${firstName}, ${period.label} tivemos ${total} agendamentos no total.\n- Comparecimentos: ${attended}\n- Faltas: ${noShow}\n- Taxa de Presença: ${attendanceRate}%`;
+            if (noShow > attended && noShow > 0) {
+              response += `\n\nPonto de atenção: O número de faltas está alto (${noShow}). Recomendo revisar o processo de confirmação.`;
+            }
+          }
+        } else if (qIncludes(queryText, ["linha do tempo", "agenda"])) {
+          const timeline = data.sort((a, b) => (a.time || "").localeCompare(b.time || "")).slice(0, 8).map(m => `${m.time?.slice(0, 5)} - ${m.lead_name} (${m.status.replace(/_/g, " ")})`).join("\n");
+          if (timeline) {
+            response = `${firstName}, aqui está a linha do tempo ${period.label}:\n\n${timeline}${total > 8 ? `\n...e mais ${total - 8} eventos.` : ""}`;
+          } else {
+            response = `${firstName}, não encontrei eventos na agenda ${period.label}.`;
           }
         } else {
           // Operation Summary
