@@ -1651,6 +1651,11 @@ export default function CentralOperacional() {
           </div>
           <ScrollArea className="h-full">
             <div className="p-4 sm:p-6 pb-24 sm:pb-12 space-y-8">
+              {/* Call Details by User Section */}
+              <div className="space-y-4">
+                <CallDetails details={stats.callsDetails} total={stats.calls} />
+              </div>
+
               {/* Individual Calls Section */}
               <div className="space-y-4">
                 <h4 className="text-sm font-bold flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
