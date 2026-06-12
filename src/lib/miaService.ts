@@ -111,7 +111,7 @@ export const detectDomain = (query: string): MiaDomain => {
   
   if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente") || q.includes("jornada do cliente")) return "CUSTOMER_JOURNEY";
   if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo") || q.includes("problema")) return "BOTTLENECKS";
-  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario")) return "SALES";
+  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario") || q.includes("faturamento") || q.includes("produção")) return "SALES";
   if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião") || q.includes("linha do tempo")) return "APPOINTMENTS";
   if (q.includes("falta") || q.includes("compareceu") || q.includes("não compareceu") || q.includes("presença") || q.includes("recuperar")) return "ATTENDANCE";
   if (q.includes("ligação") || q.includes("chamada") || q.includes("ligou")) return "CALLS";
@@ -119,7 +119,7 @@ export const detectDomain = (query: string): MiaDomain => {
   if (q.includes("meta") || q.includes("objetivo") || q.includes("bater")) return "GOALS";
   if (q.includes("cota")) return "QUOTAS";
   if (q.includes("lance")) return "BIDS";
-  if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é")) return "USERS";
+  if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é") || q.includes("consultor")) return "USERS";
   if (q.includes("produção") || q.includes("venda de produção") || q.includes("produto fabricado")) return "PRODUCTION_SALES";
   if (q.includes("hoje") || q.includes("resumo") || q.includes("operação") || q.includes("aconteceu")) return "OPERATION";
 
@@ -174,25 +174,56 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
         const newOpps = opps.data?.length || 0;
 
         if (domain === "SALES" || qIncludes(queryText, ["venda", "ranking"])) {
-          if (sales === 0) {
+          // Combinar vendas de reuniões e vendas de produção
+          const [productionSales] = await Promise.all([
+            supabase.from("production_sales").select("*").gte("production_date", startDay).lte("production_date", endDay)
+          ]);
+
+          const pData = productionSales.data || [];
+          const meetingSales = data.filter(m => m.status === "venda_concluida");
+          
+          const totalSalesCount = meetingSales.length + pData.length;
+          const totalValue = pData.reduce((acc, s) => acc + Number(s.total_price), 0);
+
+          if (totalSalesCount === 0) {
             response = `${firstName}, não encontrei vendas registradas ${period.label}.`;
           } else {
             const ranking: Record<string, number> = {};
-            data.filter(m => m.status === "venda_concluida").forEach(s => {
+            const valueRanking: Record<string, number> = {};
+
+            // Ranking de reuniões (consultores)
+            meetingSales.forEach(s => {
               const name = s.consultant || "Sem consultor";
               ranking[name] = (ranking[name] || 0) + 1;
             });
+
+            // Ranking de produção (usuários que lançaram)
+            // Aqui precisamos dos nomes dos usuários para a produção
+            const { data: profiles } = await supabase.from("profiles").select("id, display_name");
+            const profileMap = (profiles || []).reduce((acc: any, p) => ({ ...acc, [p.id]: p.display_name }), {});
+
+            pData.forEach(s => {
+              const name = profileMap[s.user_id] || "Usuário";
+              ranking[name] = (ranking[name] || 0) + 1;
+              valueRanking[name] = (valueRanking[name] || 0) + Number(s.total_price);
+            });
+
             const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
             const rankingText = sorted.map(([name, count], i) => `${i + 1}º ${name} (${count} venda${count !== 1 ? 's' : ''})`).join("\n");
             
-            response = `${firstName}, ${period.label} tivemos um total de ${sales} venda${sales !== 1 ? 's' : ''}.\n\nRanking de Vendas:\n${rankingText}`;
+            response = `${firstName}, ${period.label} tivemos um total de ${totalSalesCount} venda${totalSalesCount !== 1 ? 's' : ''}.`;
+            
+            if (totalValue > 0) {
+              response += `\nO valor total em produção foi de ${new Intl.NumberFormat("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              }).format(totalValue)}.`;
+            }
+
+            response += `\n\nRanking Geral:\n${rankingText}`;
+            
             if (sorted.length > 0) {
-              const best = sorted[0][0];
-              if (qIncludes(queryText, ["melhor"])) {
-                response = `${firstName}, o melhor desempenho ${period.label} foi de ${best}, com ${sorted[0][1]} vendas. Excelente trabalho!`;
-              } else {
-                response += `\n\nO destaque vai para ${best}, parabéns pelo resultado!`;
-              }
+              response += `\n\nO destaque vai para ${sorted[0][0]}, parabéns pelo resultado!`;
             }
           }
         } else if (domain === "ATTENDANCE" || qIncludes(queryText, ["falta", "compareceu", "recuperar"])) {
