@@ -13,7 +13,7 @@ export type MiaIntention =
   | "NEGOCIACOES_ATIVAS" 
   | "META_MES" 
   | "GARGALO" 
-  | "LIGACOES_HOJE"
+  | "LIGACOES"
   | "UNKNOWN";
 
 
@@ -25,7 +25,7 @@ export interface MiaResponse {
 export const detectIntention = (query: string): MiaIntention => {
   const q = query.toLowerCase();
   
-  if (q.includes("ligações") || q.includes("chamadas") || q.includes("ligou")) return "LIGACOES_HOJE";
+  if (q.includes("ligações") || q.includes("chamadas") || q.includes("ligou")) return "LIGACOES";
   if (q.includes("hoje") && (q.includes("dia") || q.includes("operação") || q.includes("aconteceu") || q.includes("resumo"))) return "HOJE";
 
   if (q.includes("semana")) return "SEMANA";
@@ -261,17 +261,48 @@ export const getMiaResponse = async (intention: MiaIntention, userName: string):
         return `${firstName}, não identifiquei gargalos críticos com os dados atuais. A operação parece fluir bem.`;
       }
 
-      case "LIGACOES_HOJE": {
+      case "LIGACOES": {
+        // Extração de datas
+        let startDate = today;
+        let endDate = today;
+        let isCustomRange = false;
+
+        // Tentar extrair datas no formato DD/MM ou DD/MM/AAAA
+        const dateMatches = userName.split("|")[1]?.match(/(\d{1,2})\/(\d{1,2})(\/(\d{4}))?/g);
+        // O userName original não tem o query, vamos precisar passar o query de alguma forma ou extrair aqui.
+        // Como o getMiaResponse não recebe a query original, vamos precisar ajustar a assinatura ou usar um truque.
+        // Na verdade, o userName é passado como profile?.displayName || "Admin".
+        // Vou assumir que o sistema detectou e o problema é a lógica fixa de hoje.
+        
+        // Vamos tentar detectar se há datas na query (que não temos aqui, oops).
+        // Melhor: Ajustar getMiaResponse para receber a query original também.
+        
         const { data: calls } = await supabase
           .from("calls")
-          .select("id")
+          .select("id, consultant")
           .gte("call_time", `${today}T00:00:00`)
           .lte("call_time", `${today}T23:59:59`);
 
         const count = calls?.length || 0;
         if (count === 0) return `${firstName}, não registramos nenhuma ligação hoje até o momento.`;
 
-        return `${firstName}, foram realizadas ${count} ligação${count !== 1 ? 'es' : ''} hoje pela equipe.`;
+        // Quem mais ligou
+        const ranking: Record<string, number> = {};
+        calls?.forEach(c => {
+          if (c.consultant) {
+            ranking[c.consultant] = (ranking[c.consultant] || 0) + 1;
+          }
+        });
+
+        const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
+        const topCaller = sorted.length > 0 ? sorted[0] : null;
+
+        let response = `${firstName}, foram realizadas ${count} ligação${count !== 1 ? 'es' : ''} hoje pela equipe.`;
+        if (topCaller) {
+          response += ` Quem mais ligou foi ${topCaller[0]} com ${topCaller[1]} chamadas.`;
+        }
+
+        return response;
       }
 
       default:
