@@ -28,6 +28,7 @@ export type MiaDomain =
   | "USERS"
   | "BOTTLENECKS"
   | "CUSTOMER_JOURNEY"
+  | "PRODUCTION_SALES"
   | "UNKNOWN";
 
 export interface MiaResponse {
@@ -119,6 +120,7 @@ export const detectDomain = (query: string): MiaDomain => {
   if (q.includes("cota")) return "QUOTAS";
   if (q.includes("lance")) return "BIDS";
   if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é")) return "USERS";
+  if (q.includes("produção") || q.includes("venda de produção") || q.includes("produto fabricado")) return "PRODUCTION_SALES";
   if (q.includes("hoje") || q.includes("resumo") || q.includes("operação") || q.includes("aconteceu")) return "OPERATION";
 
   return "UNKNOWN";
@@ -384,6 +386,31 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
         response = `${firstName}, encontrei ${qCount} cotas ativas no sistema e ${bCount} lances registrados.`;
         if (pendingBids > 0) {
           response += `\n\nExistem ${pendingBids} lances pendentes que precisam de validação.`;
+        }
+        break;
+      }
+
+      case "PRODUCTION_SALES": {
+        const { data: pSales } = await supabase
+          .from("production_sales")
+          .select("*")
+          .gte("production_date", startDay)
+          .lte("production_date", endDay);
+
+        const count = pSales?.length || 0;
+        const totalValue = pSales?.reduce((acc, s) => acc + Number(s.total_price), 0) || 0;
+
+        if (count === 0) {
+          response = `${firstName}, não encontrei vendas por produção registradas ${period.label}.`;
+        } else {
+          response = `${firstName}, ${period.label} foram registradas ${count} vendas por produção, totalizando ${new Intl.NumberFormat("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          }).format(totalValue)}.`;
+          
+          if (totalValue > 5000) {
+            response += "\n\nExcelente volume de produção! O ritmo está muito bom.";
+          }
         }
         break;
       }
