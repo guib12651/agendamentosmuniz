@@ -91,7 +91,7 @@ export const MIA: React.FC = () => {
     }
 
     const intention = detectIntention(text);
-    const responseText = await getMiaResponse(intention, profile?.displayName || "Admin");
+    const responseText = await getMiaResponse(intention, profile?.displayName || "Admin", text);
 
     const miaMessage: Message = {
       id: (Date.now() + 1).toString(),
