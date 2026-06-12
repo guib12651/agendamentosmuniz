@@ -36,10 +36,14 @@ const QUICK_BUTTONS = [
   "Vendas do mês",
   "Ranking de vendas",
   "Faltas de hoje",
-  "Oportunidades paradas",
+  "Oportunidades pendentes",
+  "Negociações abertas",
   "Meta do mês",
   "Gargalos da operação",
-  "Jornada do cliente"
+  "Melhor usuário da semana",
+  "Clientes para recuperar",
+  "Cotas e lances",
+  "Linha do tempo do dia"
 ];
 
 export const MIA: React.FC = () => {
