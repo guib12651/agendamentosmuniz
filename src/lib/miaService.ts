@@ -13,7 +13,9 @@ export type MiaIntention =
   | "NEGOCIACOES_ATIVAS" 
   | "META_MES" 
   | "GARGALO" 
+  | "LIGACOES_HOJE"
   | "UNKNOWN";
+
 
 export interface MiaResponse {
   text: string;
@@ -23,7 +25,9 @@ export interface MiaResponse {
 export const detectIntention = (query: string): MiaIntention => {
   const q = query.toLowerCase();
   
+  if (q.includes("ligações") || q.includes("chamadas") || q.includes("ligou")) return "LIGACOES_HOJE";
   if (q.includes("hoje") && (q.includes("dia") || q.includes("operação") || q.includes("aconteceu") || q.includes("resumo"))) return "HOJE";
+
   if (q.includes("semana")) return "SEMANA";
   if (q.includes("vendas") && (q.includes("mês") || q.includes("quanto") || q.includes("total"))) return "VENDAS_MES";
   if (q.includes("ranking") && q.includes("vendas")) return "RANKING_VENDAS";
@@ -257,7 +261,21 @@ export const getMiaResponse = async (intention: MiaIntention, userName: string):
         return `${firstName}, não identifiquei gargalos críticos com os dados atuais. A operação parece fluir bem.`;
       }
 
+      case "LIGACOES_HOJE": {
+        const { data: calls } = await supabase
+          .from("calls")
+          .select("id")
+          .gte("call_time", `${today}T00:00:00`)
+          .lte("call_time", `${today}T23:59:59`);
+
+        const count = calls?.length || 0;
+        if (count === 0) return `${firstName}, não registramos nenhuma ligação hoje até o momento.`;
+
+        return `${firstName}, foram realizadas ${count} ligação${count !== 1 ? 'es' : ''} hoje pela equipe.`;
+      }
+
       default:
+
         return `${firstName}, ainda não consigo responder essa pergunta. Por enquanto, posso ajudar com resumo do dia, resumo da semana, vendas, ranking, agenda, faltas, oportunidades, metas e gargalos.`;
     }
   } catch (error) {
