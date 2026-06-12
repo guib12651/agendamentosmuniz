@@ -16,6 +16,7 @@ import Bids from "./pages/Bids.tsx";
 import PainelTV from "./pages/PainelTV.tsx";
 import OpportunitiesCenter from "./pages/OpportunitiesCenter.tsx";
 import Settings from "./pages/Settings.tsx";
+import ProductionSales from "./pages/ProductionSales.tsx";
 import { MIA } from "./components/MIA";
 
 
@@ -73,6 +74,7 @@ const App = () => (
 
 
 
+            <Route path="/production-sales" element={<ProtectedRoute><ProductionSales /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
