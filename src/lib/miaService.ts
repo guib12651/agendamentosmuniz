@@ -70,14 +70,17 @@ export const getMiaResponse = async (intention: MiaIntention, userName: string):
         const totalCalls = calls.data?.length || 0;
         const newMeetings = createdMeetings.data?.length || 0;
 
-        let response = `${firstName}, hoje a operação registrou ${totalCalls > 0 ? totalCalls + " ligações, " : ""}${newMeetings} agendamentos criados e ${totalMeetings} reuniões marcadas. `;
-        response += `Tivemos ${attended} comparecimentos, ${noShow} faltas e ${sales} venda${sales !== 1 ? 's' : ''}. `;
+        let response = `${firstName}, hoje a operação registrou ${totalCalls > 0 ? totalCalls + " ligações, " : ""}${newMeetings} agendamento${newMeetings !== 1 ? 's' : ''} criado${newMeetings !== 1 ? 's' : ''} e ${totalMeetings} reuni${totalMeetings !== 1 ? 'ões' : 'ão'} marcada${totalMeetings !== 1 ? 's' : ''}. `;
+        response += `Tivemos ${attended} comparecimento${attended !== 1 ? 's' : ''}, ${noShow} falta${noShow !== 1 ? 's' : ''} e ${sales} venda${sales !== 1 ? 's' : ''}. `;
         
         if (noShow > attended && noShow > 0) {
-          response += "O principal ponto de atenção é o alto índice de faltas hoje.";
+          response += "O principal ponto de atenção é que o índice de faltas está superior ao de comparecimentos hoje.";
         } else if (sales > 0) {
-          response += "O destaque do dia é a venda realizada!";
+          response += "O grande destaque do dia é que já batemos vendas!";
+        } else if (totalMeetings > 0 && attended === 0 && noShow === 0) {
+          response += "Ainda estamos aguardando os primeiros atendimentos do dia.";
         }
+
         
         return response;
       }
