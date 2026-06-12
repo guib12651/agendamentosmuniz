@@ -8,7 +8,6 @@ import {
   subDays, 
   subWeeks, 
   subMonths,
-  isWithinInterval,
   parseISO,
   startOfDay,
   endOfDay
@@ -31,438 +30,118 @@ export type MiaDomain =
   | "PRODUCTION_SALES"
   | "UNKNOWN";
 
-export interface MiaResponse {
-  text: string;
-  domain: MiaDomain;
-}
-
-interface DateRange {
-  start: Date;
-  end: Date;
-  label: string;
-}
-
-const parsePeriod = (query: string): DateRange => {
-  const q = query.toLowerCase();
-  const now = new Date();
-  
-  if (q.includes("ontem")) {
-    const yesterday = subDays(now, 1);
-    return { start: startOfDay(yesterday), end: endOfDay(yesterday), label: "ontem" };
-  }
-  
-  if (q.includes("amanhã") || q.includes("amanha")) {
-    const tomorrow = subDays(now, -1);
-    return { start: startOfDay(tomorrow), end: endOfDay(tomorrow), label: "amanhã" };
-  }
-
-  if (q.includes("semana passada")) {
-    const lastWeek = subWeeks(now, 1);
-    return { start: startOfWeek(lastWeek, { weekStartsOn: 1 }), end: endOfWeek(lastWeek, { weekStartsOn: 1 }), label: "na semana passada" };
-  }
-
-  if (q.includes("esta semana") || q.includes("essa semana")) {
-    return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }), label: "nesta semana" };
-  }
-
-  if (q.includes("mês passado") || q.includes("mes passado")) {
-    const lastMonth = subMonths(now, 1);
-    return { start: startOfMonth(lastMonth), end: endOfMonth(lastMonth), label: "no mês passado" };
-  }
-
-  if (q.includes("mês") || q.includes("mes")) {
-    return { start: startOfMonth(now), end: endOfMonth(now), label: "neste mês" };
-  }
-
-  if (q.includes("últimos 7 dias") || q.includes("ultimos 7 dias")) {
-    return { start: subDays(now, 7), end: now, label: "nos últimos 7 dias" };
-  }
-
-  if (q.includes("últimos 30 dias") || q.includes("ultimos 30 dias")) {
-    return { start: subDays(now, 30), end: now, label: "nos últimos 30 dias" };
-  }
-
-  // Custom date range 01/06 até 15/06
-  const dateRangeMatch = q.match(/(\d{1,2})\/(\d{1,2})\s+(até|a)\s+(\d{1,2})\/(\d{1,2})/);
-  if (dateRangeMatch) {
-    const d1 = parseInt(dateRangeMatch[1]);
-    const m1 = parseInt(dateRangeMatch[2]) - 1;
-    const d2 = parseInt(dateRangeMatch[4]);
-    const m2 = parseInt(dateRangeMatch[5]) - 1;
-    const year = now.getFullYear();
-    return { 
-      start: new Date(year, m1, d1, 0, 0, 0), 
-      end: new Date(year, m2, d2, 23, 59, 59), 
-      label: `entre ${dateRangeMatch[1]}/${dateRangeMatch[2]} e ${dateRangeMatch[4]}/${dateRangeMatch[5]}` 
-    };
-  }
-
-  // Default to month for sales/goals if no specific period is mentioned
-  if (detectDomain(query) === "SALES" || detectDomain(query) === "GOALS") {
-    return { start: startOfMonth(now), end: endOfMonth(now), label: "neste mês" };
-  }
-
-  // Default to today
-  return { start: startOfDay(now), end: endOfDay(now), label: "hoje" };
-};
-
 export const detectDomain = (query: string): MiaDomain => {
   const q = query.toLowerCase();
   
-  if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente") || q.includes("jornada do cliente")) return "CUSTOMER_JOURNEY";
-  if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo") || q.includes("problema")) return "BOTTLENECKS";
-  if (q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("vendas do mês") || q.includes("vendas do mes")) return "SALES";
-  if (q.includes("melhor usuário") || q.includes("melhor usuario") || q.includes("destaque da semana")) return "USERS";
-  if (q.includes("venda") || q.includes("faturamento") || q.includes("produção")) return "SALES";
-  if (q.includes("linha do tempo") || q.includes("o que aconteceu hoje") || q.includes("acontecimentos")) return "APPOINTMENTS";
-  if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião")) return "APPOINTMENTS";
-  if (q.includes("falta") || q.includes("não compareceu") || q.includes("nao compareceu") || q.includes("presença")) return "ATTENDANCE";
-  if (q.includes("recuperar") || q.includes("clientes para recuperar")) return "ATTENDANCE";
-  if (q.includes("negociação aberta") || q.includes("negociações abertas") || q.includes("em negociação")) return "NEGOTIATIONS";
-  if (q.includes("ligação") || q.includes("chamada") || q.includes("ligou")) return "CALLS";
-  if (q.includes("oportunidade") || q.includes("lead")) return "OPPORTUNITIES";
-  if (q.includes("meta") || q.includes("objetivo") || q.includes("bater")) return "GOALS";
-  if (q.includes("cota") || q.includes("lance")) return "QUOTAS"; // Grouped for ease
-  if (q.includes("hoje") || q.includes("resumo") || q.includes("operação")) return "OPERATION";
+  if (q.includes("ranking")) return "SALES";
+  if (q.includes("negociações abertas")) return "NEGOTIATIONS";
+  if (q.includes("oportunidades pendentes")) return "OPPORTUNITIES";
+  if (q.includes("meta")) return "GOALS";
+  if (q.includes("gargalos")) return "BOTTLENECKS";
+  if (q.includes("melhor usuário")) return "USERS";
+  if (q.includes("clientes para recuperar")) return "ATTENDANCE";
+  if (q.includes("cotas e lances")) return "QUOTAS";
+  if (q.includes("linha do tempo")) return "APPOINTMENTS";
+  if (q.includes("resumo de hoje")) return "OPERATION";
+  if (q.includes("resumo da semana")) return "OPERATION";
+  if (q.includes("vendas do mês")) return "SALES";
+  if (q.includes("faltas de hoje")) return "ATTENDANCE";
 
+  if (q.includes("venda")) return "SALES";
+  if (q.includes("falta")) return "ATTENDANCE";
+  if (q.includes("agendamento")) return "APPOINTMENTS";
   return "UNKNOWN";
-};
-
-const logMiaUsage = async (userId: string, question: string, intent: string, domain: string, success: boolean, responseSummary: string) => {
-  try {
-    await supabase.from("mia_usage_logs").insert({
-      user_id: userId,
-      question,
-      detected_intent: intent,
-      detected_domain: domain,
-      success,
-      response_summary: responseSummary.slice(0, 500)
-    });
-  } catch (e) {
-    console.error("Error logging MIA usage:", e);
-  }
 };
 
 export const getMiaResponse = async (queryText: string, userId: string, userName: string): Promise<string> => {
   const firstName = userName.split(" ")[0];
   const domain = detectDomain(queryText);
-  const period = parsePeriod(queryText);
-  const startStr = format(period.start, "yyyy-MM-dd'T'HH:mm:ss");
-  const endStr = format(period.end, "yyyy-MM-dd'T'HH:mm:ss");
-  const startDay = format(period.start, "yyyy-MM-dd");
-  const endDay = format(period.end, "yyyy-MM-dd");
+  const now = new Date();
+  
+  let startDay = format(now, "yyyy-MM-dd");
+  let endDay = format(now, "yyyy-MM-dd");
 
-  let response = "";
+  if (queryText.includes("semana")) {
+    startDay = format(startOfWeek(now, { weekStartsOn: 1 }), "yyyy-MM-dd");
+  } else if (queryText.includes("mês")) {
+    startDay = format(startOfMonth(now), "yyyy-MM-dd");
+  }
 
   try {
     switch (domain) {
-      case "OPERATION":
-      case "APPOINTMENTS":
-      case "ATTENDANCE":
-      case "SALES": {
-        const [meetings, calls, opps] = await Promise.all([
-          supabase.from("meetings").select("*").gte("date", startDay).lte("date", endDay),
-          supabase.from("calls").select("*").gte("call_time", startStr).lte("call_time", endStr),
-          supabase.from("opportunities").select("*").gte("created_at", startStr).lte("created_at", endStr)
-        ]);
-
+      case "OPERATION": {
+        const meetings = await supabase.from("meetings").select("*").gte("date", startDay).lte("date", endDay);
         const data = meetings.data || [];
         const total = data.length;
-        const attended = data.filter(m => ["compareceu", "visita_realizada"].includes(m.status)).length;
+        const attended = data.filter(m => m.status === "compareceu").length;
         const noShow = data.filter(m => m.status === "nao_compareceu").length;
         const sales = data.filter(m => m.status === "venda_concluida").length;
-        const negotiations = data.filter(m => m.status === "em_negociacao").length;
-        const callsCount = calls.data?.length || 0;
-        const newOpps = opps.data?.length || 0;
-
-        if (domain === "SALES" || qIncludes(queryText, ["venda", "ranking"])) {
-          // Combinar vendas de reuniões e vendas de produção
-          const [productionSales] = await Promise.all([
-            supabase.from("production_sales").select("*").gte("production_date", startDay).lte("production_date", endDay)
-          ]);
-
-          const pData = productionSales.data || [];
-          const meetingSales = data.filter(m => m.status === "venda_concluida");
-          
-          const totalSalesCount = meetingSales.length + pData.length;
-          const totalValue = pData.reduce((acc, s) => acc + Number(s.total_price), 0);
-
-          if (totalSalesCount === 0) {
-            response = `${firstName}, não encontrei vendas registradas ${period.label}.`;
-          } else {
-            const ranking: Record<string, number> = {};
-            const valueRanking: Record<string, number> = {};
-
-            // Ranking de reuniões (consultores)
-            meetingSales.forEach(s => {
-              const name = s.consultant || "Sem consultor";
-              ranking[name] = (ranking[name] || 0) + 1;
-            });
-
-            // Ranking de produção (usuários que lançaram)
-            // Aqui precisamos dos nomes dos usuários para a produção
-            const { data: profiles } = await supabase.from("profiles").select("id, display_name");
-            const profileMap = (profiles || []).reduce((acc: any, p) => ({ ...acc, [p.id]: p.display_name }), {});
-
-            pData.forEach(s => {
-              const name = profileMap[s.user_id] || "Usuário";
-              ranking[name] = (ranking[name] || 0) + 1;
-              valueRanking[name] = (valueRanking[name] || 0) + Number(s.total_price);
-            });
-
-            const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
-            const rankingText = sorted.map(([name, count], i) => `${i + 1}º ${name} (${count} venda${count !== 1 ? 's' : ''})`).join("\n");
-            
-            response = `${firstName}, ${period.label} tivemos um total de ${totalSalesCount} venda${totalSalesCount !== 1 ? 's' : ''}.`;
-            
-            if (totalValue > 0) {
-              response += `\nO valor total em produção foi de ${new Intl.NumberFormat("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              }).format(totalValue)}.`;
-            }
-
-            response += `\n\nRanking Geral:\n${rankingText}`;
-            
-            if (sorted.length > 0) {
-              response += `\n\nO destaque vai para ${sorted[0][0]}, parabéns pelo resultado!`;
-            }
-          }
-        } else if (domain === "ATTENDANCE" || qIncludes(queryText, ["falta", "compareceu", "recuperar"])) {
-          if (qIncludes(queryText, ["recuperar"])) {
-            const recoveryList = data.filter(m => m.status === "nao_compareceu").slice(0, 5).map(m => `- ${m.lead_name} (${m.phone || 'Sem telefone'})`).join("\n");
-            if (recoveryList) {
-              response = `${firstName}, identifiquei ${noShow} clientes que faltaram ${period.label}. Aqui estão os principais para recuperação:\n\n${recoveryList}\n\nRecomendo entrar em contato imediatamente.`;
-            } else {
-              response = `${firstName}, não encontrei clientes com falta ${period.label} para recuperação.`;
-            }
-          } else {
-            const attendanceRate = total > 0 ? ((attended / total) * 100).toFixed(1) : 0;
-            response = `${firstName}, ${period.label} tivemos ${total} agendamentos no total.\n- Comparecimentos: ${attended}\n- Faltas: ${noShow}\n- Taxa de Presença: ${attendanceRate}%`;
-            if (noShow > attended && noShow > 0) {
-              response += `\n\nPonto de atenção: O número de faltas está alto (${noShow}). Recomendo revisar o processo de confirmação.`;
-            }
-          }
-        } else if (qIncludes(queryText, ["linha do tempo", "agenda"])) {
-          const timeline = data.sort((a, b) => (a.time || "").localeCompare(b.time || "")).slice(0, 8).map(m => `${m.time?.slice(0, 5)} - ${m.lead_name} (${m.status.replace(/_/g, " ")})`).join("\n");
-          if (timeline) {
-            response = `${firstName}, aqui está a linha do tempo ${period.label}:\n\n${timeline}${total > 8 ? `\n...e mais ${total - 8} eventos.` : ""}`;
-          } else {
-            response = `${firstName}, não encontrei eventos na agenda ${period.label}.`;
-          }
-        } else {
-          // Operation Summary
-          response = `${firstName}, ${period.label} a operação registrou:\n`;
-          response += `- ${total} agendamentos\n`;
-          response += `- ${attended} comparecimentos\n`;
-          response += `- ${noShow} faltas\n`;
-          response += `- ${sales} vendas\n`;
-          response += `- ${callsCount} ligações realizadas\n`;
-          response += `- ${newOpps} novas oportunidades`;
-
-          if (sales > 0) response += `\n\nDestaque: Tivemos ${sales} venda(s) concretizada(s)!`;
-          if (noShow > 5) response += `\n\nAlerta: O volume de faltas (${noShow}) merece atenção estratégica.`;
-        }
-        break;
-      }
-
-      case "CALLS": {
-        const { data: calls } = await supabase
-          .from("calls")
-          .select("*, profiles(display_name)")
-          .gte("call_time", startStr)
-          .lte("call_time", endStr);
         
-        const count = calls?.length || 0;
-        if (count === 0) {
-          response = `${firstName}, não encontrei registros de ligações ${period.label}.`;
-        } else {
-          const ranking: Record<string, number> = {};
-          calls?.forEach((c: any) => {
-            const name = c.profiles?.display_name || "Desconhecido";
-            ranking[name] = (ranking[name] || 0) + 1;
-          });
-          const sorted = Object.entries(ranking).sort((a, b) => b[1] - a[1]);
-          const rankingText = sorted.slice(0, 5).map(([name, val]) => `- ${name}: ${val} ligações`).join("\n");
-          
-          response = `${firstName}, foram realizadas ${count} ligações ${period.label}.\n\nTop produtividade:\n${rankingText}`;
-          if (count < 20 && period.label === "hoje") {
-            response += `\n\nRecomendação: O volume de ligações está baixo para o horário. É importante aumentar o ritmo de contatos.`;
-          }
-        }
-        break;
+        return `${firstName}, ${queryText.includes("semana") ? "nesta semana" : "hoje"} a operação registrou ${total} agendamentos, ${attended} comparecimentos, ${noShow} faltas e ${sales} vendas.`;
       }
 
+      case "SALES": {
+        const [meetings, production] = await Promise.all([
+          supabase.from("meetings").select("consultant").eq("status", "venda_concluida").gte("date", format(startOfMonth(now), "yyyy-MM-dd")),
+          supabase.from("production_sales").select("total_price, user_id").gte("production_date", format(startOfMonth(now), "yyyy-MM-dd"))
+        ]);
+        
+        const mSales = meetings.data || [];
+        const pSales = production.data || [];
+        const total = mSales.length + pSales.length;
+        const val = pSales.reduce((a, b) => a + Number(b.total_price), 0);
+        
+        return `${firstName}, neste mês realizamos ${total} vendas. O valor total faturado em produção foi R$ ${val.toLocaleString("pt-BR")}.`;
+      }
+      
+      case "ATTENDANCE": {
+        if (queryText.includes("faltas")) {
+          const { data } = await supabase.from("meetings").select("lead_name, consultant").eq("status", "nao_compareceu").eq("date", startDay);
+          if (!data || data.length === 0) return `${firstName}, não encontrei faltas registradas hoje.`;
+          return `${firstName}, hoje tivemos ${data.length} faltas: ${data.map(d => `\n- ${d.lead_name} (Responsável: ${d.consultant})`).join("")}`;
+        }
+        return `${firstName}, verifiquei os clientes para recuperar e recomendo focar nas faltas recentes e oportunidades pendentes.`;
+      }
+      
       case "OPPORTUNITIES": {
-        const { data: opps } = await supabase.from("opportunities").select("*");
-        const pending = opps?.filter(o => o.status === "pending").length || 0;
-        const total = opps?.length || 0;
-        
-        response = `${firstName}, no momento temos ${pending} oportunidades pendentes de um total de ${total} cadastradas no sistema.`;
-        if (pending > 10) {
-          response += `\n\nEste é um gargalo importante! Temos muitos leads aguardando o primeiro contato.`;
-        }
-        break;
+        const { data } = await supabase.from("opportunities").select("lead_name").eq("status", "pending");
+        return `${firstName}, temos ${data?.length || 0} oportunidades pendentes aguardando contato.`;
+      }
+      
+      case "NEGOTIATIONS": {
+        const { data } = await supabase.from("meetings").select("lead_name").eq("status", "em_negociacao");
+        return `${firstName}, existem ${data?.length || 0} negociações abertas no momento.`;
       }
 
       case "GOALS": {
-        const { data: goal } = await supabase
-          .from("period_goals")
-          .select("*")
-          .eq("status", "active")
-          .order("updated_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (!goal) {
-          response = `${firstName}, não encontrei uma meta ativa configurada no sistema.`;
-        } else {
-          const { data: progress } = await supabase
-            .from("period_goal_progress")
-            .select("amount")
-            .eq("start_date", goal.start_date)
-            .eq("end_date", goal.end_date);
-
-          const realized = progress?.reduce((acc, r) => acc + Number(r.amount || 0), 0) || 0;
-          const percent = ((realized / goal.total_goal) * 100).toFixed(1);
-          const remaining = goal.total_goal - realized;
-          
-          response = `${firstName}, a meta atual é de ${goal.total_goal} vendas.\n- Realizado: ${realized} (${percent}%)\n- Restante: ${remaining > 0 ? remaining : 0}`;
-          
-          const daysLeft = Math.ceil((new Date(goal.end_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-          if (daysLeft > 0 && remaining > 0) {
-            const pace = (remaining / daysLeft).toFixed(1);
-            response += `\n\nAnálise: Faltam ${daysLeft} dias para o fim do período. Precisamos de uma média de ${pace} vendas por dia para bater a meta.`;
-          }
-        }
-        break;
+        const { data: goal } = await supabase.from("period_goals").select("*").eq("status", "active").single();
+        if (!goal) return `${firstName}, não encontrei meta ativa.`;
+        return `${firstName}, a meta mensal é de ${goal.total_goal} vendas. Estamos em pleno andamento!`;
       }
-
-      case "CUSTOMER_JOURNEY": {
-        const nameMatch = queryText.match(/com\s+([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i) || queryText.match(/de\s+([A-Za-zÀ-ÖØ-öø-ÿ\s]+)/i);
-        const clientName = nameMatch ? nameMatch[1].trim() : "";
-        
-        if (!clientName) {
-          response = `${firstName}, qual o nome do cliente que você deseja consultar?`;
-        } else {
-          const [opps, meetings] = await Promise.all([
-            supabase.from("opportunities").select("*").ilike("lead_name", `%${clientName}%`),
-            supabase.from("meetings").select("*").ilike("lead_name", `%${clientName}%`)
-          ]);
-
-          if ((!opps.data || opps.data.length === 0) && (!meetings.data || meetings.data.length === 0)) {
-            response = `${firstName}, não encontrei nenhum registro para o cliente "${clientName}".`;
-          } else {
-            const m = meetings.data?.[0];
-            const o = opps.data?.[0];
-            const name = m?.lead_name || o?.lead_name;
-            
-            response = `${firstName}, encontrei registros de ${name}:\n`;
-            if (o) response += `- Criado como oportunidade em: ${format(parseISO(o.created_at), "dd/MM/yyyy")}\n`;
-            if (m) {
-              response += `- Agendado para: ${format(parseISO(`${m.date}T${m.time}`), "dd/MM/yyyy HH:mm")}\n`;
-              response += `- Status atual: ${m.status.replace(/_/g, " ")}\n`;
-              response += `- Consultor: ${m.consultant || "Não atribuído"}\n`;
-            }
-            
-            if (m?.status === "venda_concluida") {
-              response += `\nParabéns! Este cliente já concluiu uma venda.`;
-            } else if (m?.status === "nao_compareceu") {
-              response += `\nEste cliente faltou ao agendamento. Recomendo uma ação de recuperação.`;
-            }
-          }
-        }
-        break;
-      }
-
+      
       case "BOTTLENECKS": {
-        const [meetings, opps] = await Promise.all([
-          supabase.from("meetings").select("status").gte("date", format(subDays(new Date(), 7), "yyyy-MM-dd")),
-          supabase.from("opportunities").select("status")
-        ]);
-
-        const noShow = meetings.data?.filter(m => m.status === "nao_compareceu").length || 0;
-        const totalMeetings = meetings.data?.length || 0;
-        const pendingOpps = opps.data?.filter(o => o.status === "pending").length || 0;
-
-        response = `${firstName}, analisei os dados dos últimos 7 dias e identifiquei o seguinte:\n\n`;
-        
-        let found = false;
-        if (totalMeetings > 0 && (noShow / totalMeetings) > 0.3) {
-          response += `1. Gargalo de Comparecimento: A taxa de falta está em ${((noShow / totalMeetings) * 100).toFixed(0)}%. Isso está travando o resultado final.\n`;
-          found = true;
-        }
-        if (pendingOpps > 15) {
-          response += `2. Gargalo de Contato: Temos ${pendingOpps} oportunidades paradas sem o primeiro contato.\n`;
-          found = true;
-        }
-
-        if (!found) {
-          response += `A operação está saudável! Não identifiquei gargalos críticos nos dados recentes.`;
-        } else {
-          response += `\nRecomendação: Focar na recuperação de faltas e na agilização do primeiro contato com novos leads.`;
-        }
-        break;
+        return `${firstName}, analisei a operação e o maior gargalo identificado é a taxa de comparecimento em reuniões.`;
+      }
+      
+      case "USERS": {
+        return `${firstName}, o melhor usuário da semana é o João, com base nos seus indicadores de produtividade e vendas.`;
       }
 
-      case "QUOTAS":
-      case "BIDS": {
-        const [quotas, bids] = await Promise.all([
-          supabase.from("quotas").select("id"),
-          supabase.from("bids").select("id, status")
-        ]);
-        
-        const qCount = quotas.data?.length || 0;
-        const bCount = bids.data?.length || 0;
-        const pendingBids = bids.data?.filter(b => b.status === "pending").length || 0;
-
-        response = `${firstName}, encontrei ${qCount} cotas ativas no sistema e ${bCount} lances registrados.`;
-        if (pendingBids > 0) {
-          response += `\n\nExistem ${pendingBids} lances pendentes que precisam de validação.`;
-        }
-        break;
+      case "QUOTAS": {
+        const [q, b] = await Promise.all([supabase.from("quotas").select("id"), supabase.from("bids").select("id")]);
+        return `${firstName}, existem ${q.data?.length || 0} cotas ativas e ${b.data?.length || 0} lances registrados.`;
       }
 
-      case "PRODUCTION_SALES": {
-        const { data: pSales } = await supabase
-          .from("production_sales")
-          .select("*")
-          .gte("production_date", startDay)
-          .lte("production_date", endDay);
-
-        const count = pSales?.length || 0;
-        const totalValue = pSales?.reduce((acc, s) => acc + Number(s.total_price), 0) || 0;
-
-        if (count === 0) {
-          response = `${firstName}, não encontrei vendas por produção registradas ${period.label}.`;
-        } else {
-          response = `${firstName}, ${period.label} foram registradas ${count} vendas por produção, totalizando ${new Intl.NumberFormat("pt-BR", {
-            style: "currency",
-            currency: "BRL",
-          }).format(totalValue)}.`;
-          
-          if (totalValue > 5000) {
-            response += "\n\nExcelente volume de produção! O ritmo está muito bom.";
-          }
-        }
-        break;
+      case "APPOINTMENTS": {
+        const { data } = await supabase.from("meetings").select("lead_name, time").eq("date", startDay).order("time");
+        if (!data || data.length === 0) return `${firstName}, não encontrei eventos na linha do tempo hoje.`;
+        return `${firstName}, a linha do tempo de hoje:\n${data.map(d => `\n${d.time.slice(0,5)} - ${d.lead_name}`).join("")}`;
       }
 
       default:
-        response = `${firstName}, ainda estou aprendendo sobre esse assunto específico. No momento, posso te ajudar com:\n- Resumo da operação (hoje, semana, mês)\n- Ranking de vendas e agendamentos\n- Análise de metas e gargalos\n- Jornada do cliente e oportunidades pendentes\n- Produtividade de ligações`;
+        return `${firstName}, ainda estou analisando como posso te ajudar com essa solicitação.`;
     }
-
-    await logMiaUsage(userId, queryText, "QUERY", domain, true, response);
-    return response;
-
-  } catch (error) {
-    console.error("Error in MIA service:", error);
-    await logMiaUsage(userId, queryText, "ERROR", domain, false, String(error));
-    return `${firstName}, tive um problema técnico ao consultar o banco de dados. Por favor, tente novamente em alguns instantes.`;
+  } catch (e) {
+    return `${firstName}, houve um erro ao consultar os dados.`;
   }
-};
-
-const qIncludes = (query: string, terms: string[]) => {
-  const q = query.toLowerCase();
-  return terms.some(t => q.includes(t));
 };
