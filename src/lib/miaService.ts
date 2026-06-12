@@ -171,7 +171,7 @@ export const getMiaResponse = async (queryText: string, userId: string, userName
       }
 
       case "SALES": {
-        const [meetings, production] = await Promise.all([
+        const [meetings, production, profilesResult] = await Promise.all([
           supabase.from("meetings").select("consultant, lead_name").eq("status", "venda_concluida").gte("date", startDay).lte("date", endDay),
           supabase.from("production_sales").select("total_price, user_id").gte("production_date", startDay).lte("production_date", endDay),
           supabase.from("profiles").select("id, display_name")
