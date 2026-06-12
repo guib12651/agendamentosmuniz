@@ -111,17 +111,19 @@ export const detectDomain = (query: string): MiaDomain => {
   
   if (q.includes("jornada") || q.includes("o que aconteceu com") || q.includes("histórico do cliente") || q.includes("jornada do cliente")) return "CUSTOMER_JOURNEY";
   if (q.includes("gargalo") || q.includes("travando") || q.includes("onde estamos perdendo") || q.includes("problema")) return "BOTTLENECKS";
-  if (q.includes("venda") || q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("melhor usuário") || q.includes("melhor usuario") || q.includes("faturamento") || q.includes("produção")) return "SALES";
-  if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião") || q.includes("linha do tempo")) return "APPOINTMENTS";
-  if (q.includes("falta") || q.includes("compareceu") || q.includes("não compareceu") || q.includes("presença") || q.includes("recuperar")) return "ATTENDANCE";
+  if (q.includes("ranking de vendas") || q.includes("quem mais vendeu") || q.includes("vendas do mês") || q.includes("vendas do mes")) return "SALES";
+  if (q.includes("melhor usuário") || q.includes("melhor usuario") || q.includes("destaque da semana")) return "USERS";
+  if (q.includes("venda") || q.includes("faturamento") || q.includes("produção")) return "SALES";
+  if (q.includes("linha do tempo") || q.includes("o que aconteceu hoje") || q.includes("acontecimentos")) return "APPOINTMENTS";
+  if (q.includes("agendamento") || q.includes("agenda") || q.includes("marcou") || q.includes("reunião")) return "APPOINTMENTS";
+  if (q.includes("falta") || q.includes("não compareceu") || q.includes("nao compareceu") || q.includes("presença")) return "ATTENDANCE";
+  if (q.includes("recuperar") || q.includes("clientes para recuperar")) return "ATTENDANCE";
+  if (q.includes("negociação aberta") || q.includes("negociações abertas") || q.includes("em negociação")) return "NEGOTIATIONS";
   if (q.includes("ligação") || q.includes("chamada") || q.includes("ligou")) return "CALLS";
   if (q.includes("oportunidade") || q.includes("lead")) return "OPPORTUNITIES";
   if (q.includes("meta") || q.includes("objetivo") || q.includes("bater")) return "GOALS";
-  if (q.includes("cota")) return "QUOTAS";
-  if (q.includes("lance")) return "BIDS";
-  if (q.includes("usuário") || q.includes("vendedor") || q.includes("equipe") || q.includes("quem é") || q.includes("consultor")) return "USERS";
-  if (q.includes("produção") || q.includes("venda de produção") || q.includes("produto fabricado")) return "PRODUCTION_SALES";
-  if (q.includes("hoje") || q.includes("resumo") || q.includes("operação") || q.includes("aconteceu")) return "OPERATION";
+  if (q.includes("cota") || q.includes("lance")) return "QUOTAS"; // Grouped for ease
+  if (q.includes("hoje") || q.includes("resumo") || q.includes("operação")) return "OPERATION";
 
   return "UNKNOWN";
 };
