@@ -50,10 +50,6 @@ export default function GoalsBanner() {
 
   async function handleConcludeGoal() {
     if (!goal || concluding) return;
-    
-    const confirm = window.confirm("Deseja realmente concluir esta meta? Ela será movida para o histórico.");
-    if (!confirm) return;
-
     setConcluding(true);
     try {
       const { error } = await supabase
@@ -62,8 +58,10 @@ export default function GoalsBanner() {
         .eq("id", goal.id);
 
       if (error) throw error;
-      
+
       toast.success("Meta concluída com sucesso!");
+      setConfirmConcludeOpen(false);
+      setMenuOpen(false);
       await reload();
     } catch (error: any) {
       console.error("Error concluding goal:", error);
@@ -72,6 +70,117 @@ export default function GoalsBanner() {
       setConcluding(false);
     }
   }
+
+  function openWithGuard(open: () => void, requireGoal = true) {
+    if (requireGoal && !goal) {
+      toast.warning("Crie ou selecione uma meta antes de registrar vendas.");
+      return;
+    }
+    setMenuOpen(false);
+    open();
+  }
+
+  const MenuBody = () => (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border bg-muted/30 p-3">
+        {goal ? (
+          <>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Meta do período
+            </p>
+            <p className="text-sm font-semibold mt-0.5">
+              {formatBRL(totalRealized)}{" "}
+              <span className="text-muted-foreground font-normal">de {formatBRL(totalGoal)}</span>
+            </p>
+            <p className="text-xs text-primary font-semibold mt-0.5">
+              {Math.round(generalPctRaw)}% concluída
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">Nenhuma meta ativa para este período.</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Vendas
+        </p>
+        <button
+          onClick={() => openWithGuard(() => setSaleOpen(true))}
+          disabled={!goal}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors bg-primary/10 hover:bg-primary/20 disabled:opacity-50 disabled:hover:bg-primary/10 disabled:cursor-not-allowed"
+        >
+          <Plus className="size-4 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Registrar venda</p>
+            <p className="text-xs text-muted-foreground">Adicionar valor ao realizado do vendedor</p>
+          </div>
+        </button>
+        <button
+          onClick={() => openWithGuard(() => setRemoveSaleOpen(true))}
+          disabled={!goal}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+        >
+          <Undo2 className="size-4 text-destructive mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Corrigir / estornar venda</p>
+            <p className="text-xs text-muted-foreground">Use para corrigir lançamentos ou estornos</p>
+          </div>
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Gestão da meta
+        </p>
+        <button
+          onClick={() => { setMenuOpen(false); setAdminOpen(true); }}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted"
+        >
+          <Settings2 className="size-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Gerenciar metas</p>
+            <p className="text-xs text-muted-foreground">Criar, editar ou definir metas individuais</p>
+          </div>
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Relatórios
+        </p>
+        <button
+          onClick={() => { setMenuOpen(false); setPrintOpen(true); }}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted"
+        >
+          <Printer className="size-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Exportar faltas</p>
+            <p className="text-xs text-muted-foreground">Gerar folha de no-shows do período</p>
+          </div>
+        </button>
+      </div>
+
+      {goal && (
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+            Encerramento
+          </p>
+          <button
+            onClick={() => { setMenuOpen(false); setConfirmConcludeOpen(true); }}
+            className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-emerald-600/10"
+          >
+            <CheckCircle2 className="size-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">Concluir meta do período</p>
+              <p className="text-xs text-muted-foreground">Move a meta para o histórico</p>
+            </div>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
