@@ -378,6 +378,28 @@ export default function GoalsBanner() {
         <AddSaleDialog open={removeSaleOpen} onOpenChange={setRemoveSaleOpen} mode="remove" />
       )}
       {isAdmin && <NoShowPrintDialog open={printOpen} onOpenChange={setPrintOpen} />}
+      {isAdmin && (
+        <AlertDialog open={confirmConcludeOpen} onOpenChange={setConfirmConcludeOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Concluir meta do período?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ao concluir esta meta, ela sairá do acompanhamento ativo e ficará disponível apenas no Histórico de Metas. Esta ação pode impactar os relatórios do período.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={concluding}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => { e.preventDefault(); handleConcludeGoal(); }}
+                disabled={concluding}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {concluding ? "Concluindo..." : "Concluir meta"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </section>
   );
 }
