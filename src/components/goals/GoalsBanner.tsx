@@ -203,46 +203,43 @@ export default function GoalsBanner() {
           {goal ? formatPeriodLabel(goal.start_date, goal.end_date) : "Metas"}
         </h2>
         {isAdmin && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" onClick={() => setSaleOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">Adicionar venda</span>
-              <span className="sm:hidden">Venda</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setRemoveSaleOpen(true)}
-              className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9"
-            >
-              <Minus className="size-4" />
-              <span className="hidden sm:inline">Remover venda</span>
-              <span className="sm:hidden">Remover</span>
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 border-destructive/20 text-destructive hover:bg-destructive/10">
-              <Printer className="size-4" />
-              <span className="hidden sm:inline">Imprimir Faltas</span>
-              <span className="sm:hidden">Faltas</span>
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
-              <Settings2 className="size-4" />
-              <span className="hidden sm:inline">Gerenciar metas</span>
-              <span className="sm:hidden">Metas</span>
-            </Button>
-            {goal && (
-              <Button 
-                size="sm" 
-                variant="default" 
-                onClick={handleConcludeGoal} 
-                disabled={concluding}
-                className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm"
-              >
-                <CheckCircle2 className="size-4" />
-                <span className="hidden sm:inline">{concluding ? "Concluindo..." : "Concluir meta"}</span>
-                <span className="sm:hidden">{concluding ? "..." : "Concluir"}</span>
-              </Button>
-            )}
-          </div>
+          isMobile ? (
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  size="sm"
+                  className="gap-2 h-10 bg-neutral-900 hover:bg-neutral-800 text-white border border-primary/30"
+                >
+                  <Target className="size-4 text-primary" />
+                  META
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+                <SheetHeader className="text-left mb-3">
+                  <SheetTitle>Ações da Meta</SheetTitle>
+                </SheetHeader>
+                <MenuBody />
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  size="sm"
+                  className="gap-2 h-9 bg-neutral-900 hover:bg-neutral-800 text-white border border-primary/30"
+                >
+                  <Target className="size-4 text-primary" />
+                  META
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-4">
+                <p className="text-sm font-semibold mb-3">Ações da Meta</p>
+                <MenuBody />
+              </PopoverContent>
+            </Popover>
+          )
         )}
       </div>
 
