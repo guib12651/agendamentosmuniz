@@ -44,6 +44,9 @@ export default function GoalsBanner() {
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [concluding, setConcluding] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   async function handleConcludeGoal() {
     if (!goal || concluding) return;
