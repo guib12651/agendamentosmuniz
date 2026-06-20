@@ -3,7 +3,30 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePeriodGoal, formatPeriodLabel, getCurrentPeriod } from "@/hooks/usePeriodGoal";
 import { useCountUp } from "@/hooks/useCountUp";
 import { Button } from "@/components/ui/button";
-import { Settings2, Trophy, Sparkles, Plus, Minus, Printer, CheckCircle2 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Settings2,
+  Trophy,
+  Sparkles,
+  Plus,
+  Undo2,
+  Printer,
+  CheckCircle2,
+  Target,
+  ChevronDown,
+} from "lucide-react";
 import GoalsAdminDialog from "./GoalsAdminDialog";
 import AddSaleDialog from "./AddSaleDialog";
 import GoalsHistory from "./GoalsHistory";
@@ -31,13 +54,12 @@ export default function GoalsBanner() {
   const [removeSaleOpen, setRemoveSaleOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const [concluding, setConcluding] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmConcludeOpen, setConfirmConcludeOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   async function handleConcludeGoal() {
     if (!goal || concluding) return;
-    
-    const confirm = window.confirm("Deseja realmente concluir esta meta? Ela será movida para o histórico.");
-    if (!confirm) return;
-
     setConcluding(true);
     try {
       const { error } = await supabase
@@ -46,8 +68,10 @@ export default function GoalsBanner() {
         .eq("id", goal.id);
 
       if (error) throw error;
-      
+
       toast.success("Meta concluída com sucesso!");
+      setConfirmConcludeOpen(false);
+      setMenuOpen(false);
       await reload();
     } catch (error: any) {
       console.error("Error concluding goal:", error);
@@ -56,6 +80,117 @@ export default function GoalsBanner() {
       setConcluding(false);
     }
   }
+
+  function openWithGuard(open: () => void, requireGoal = true) {
+    if (requireGoal && !goal) {
+      toast.warning("Crie ou selecione uma meta antes de registrar vendas.");
+      return;
+    }
+    setMenuOpen(false);
+    open();
+  }
+
+  const MenuBody = () => (
+    <div className="space-y-4">
+      <div className="rounded-lg border border-border bg-muted/30 p-3">
+        {goal ? (
+          <>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Meta do período
+            </p>
+            <p className="text-sm font-semibold mt-0.5">
+              {formatBRL(totalRealized)}{" "}
+              <span className="text-muted-foreground font-normal">de {formatBRL(totalGoal)}</span>
+            </p>
+            <p className="text-xs text-primary font-semibold mt-0.5">
+              {Math.round(generalPctRaw)}% concluída
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">Nenhuma meta ativa para este período.</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Vendas
+        </p>
+        <button
+          onClick={() => openWithGuard(() => setSaleOpen(true))}
+          disabled={!goal}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors bg-primary/10 hover:bg-primary/20 disabled:opacity-50 disabled:hover:bg-primary/10 disabled:cursor-not-allowed"
+        >
+          <Plus className="size-4 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Registrar venda</p>
+            <p className="text-xs text-muted-foreground">Adicionar valor ao realizado do vendedor</p>
+          </div>
+        </button>
+        <button
+          onClick={() => openWithGuard(() => setRemoveSaleOpen(true))}
+          disabled={!goal}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent disabled:cursor-not-allowed"
+        >
+          <Undo2 className="size-4 text-destructive mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Corrigir / estornar venda</p>
+            <p className="text-xs text-muted-foreground">Use para corrigir lançamentos ou estornos</p>
+          </div>
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Gestão da meta
+        </p>
+        <button
+          onClick={() => { setMenuOpen(false); setAdminOpen(true); }}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted"
+        >
+          <Settings2 className="size-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Gerenciar metas</p>
+            <p className="text-xs text-muted-foreground">Criar, editar ou definir metas individuais</p>
+          </div>
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+          Relatórios
+        </p>
+        <button
+          onClick={() => { setMenuOpen(false); setPrintOpen(true); }}
+          className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-muted"
+        >
+          <Printer className="size-4 mt-0.5 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold">Exportar faltas</p>
+            <p className="text-xs text-muted-foreground">Gerar folha de no-shows do período</p>
+          </div>
+        </button>
+      </div>
+
+      {goal && (
+        <div className="space-y-2">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-1">
+            Encerramento
+          </p>
+          <button
+            onClick={() => { setMenuOpen(false); setConfirmConcludeOpen(true); }}
+            className="w-full flex items-start gap-3 rounded-lg p-2.5 text-left transition-colors hover:bg-emerald-600/10"
+          >
+            <CheckCircle2 className="size-4 text-emerald-600 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm font-semibold">Concluir meta do período</p>
+              <p className="text-xs text-muted-foreground">Move a meta para o histórico</p>
+            </div>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
 
   const generalPct = totalGoal > 0 ? Math.min(100, (totalRealized / totalGoal) * 100) : 0;
   const generalPctRaw = totalGoal > 0 ? (totalRealized / totalGoal) * 100 : 0;
@@ -78,46 +213,43 @@ export default function GoalsBanner() {
           {goal ? formatPeriodLabel(goal.start_date, goal.end_date) : "Metas"}
         </h2>
         {isAdmin && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" onClick={() => setSaleOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">Adicionar venda</span>
-              <span className="sm:hidden">Venda</span>
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setRemoveSaleOpen(true)}
-              className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9"
-            >
-              <Minus className="size-4" />
-              <span className="hidden sm:inline">Remover venda</span>
-              <span className="sm:hidden">Remover</span>
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setPrintOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 border-destructive/20 text-destructive hover:bg-destructive/10">
-              <Printer className="size-4" />
-              <span className="hidden sm:inline">Imprimir Faltas</span>
-              <span className="sm:hidden">Faltas</span>
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => setAdminOpen(true)} className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9">
-              <Settings2 className="size-4" />
-              <span className="hidden sm:inline">Gerenciar metas</span>
-              <span className="sm:hidden">Metas</span>
-            </Button>
-            {goal && (
-              <Button 
-                size="sm" 
-                variant="default" 
-                onClick={handleConcludeGoal} 
-                disabled={concluding}
-                className="flex-1 sm:flex-none gap-1.5 h-10 sm:h-9 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm"
-              >
-                <CheckCircle2 className="size-4" />
-                <span className="hidden sm:inline">{concluding ? "Concluindo..." : "Concluir meta"}</span>
-                <span className="sm:hidden">{concluding ? "..." : "Concluir"}</span>
-              </Button>
-            )}
-          </div>
+          isMobile ? (
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  size="sm"
+                  className="gap-2 h-10 bg-neutral-900 hover:bg-neutral-800 text-white border border-primary/30"
+                >
+                  <Target className="size-4 text-primary" />
+                  META
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="max-h-[85vh] overflow-y-auto">
+                <SheetHeader className="text-left mb-3">
+                  <SheetTitle>Ações da Meta</SheetTitle>
+                </SheetHeader>
+                <MenuBody />
+              </SheetContent>
+            </Sheet>
+          ) : (
+            <Popover open={menuOpen} onOpenChange={setMenuOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  size="sm"
+                  className="gap-2 h-9 bg-neutral-900 hover:bg-neutral-800 text-white border border-primary/30"
+                >
+                  <Target className="size-4 text-primary" />
+                  META
+                  <ChevronDown className="size-3.5 opacity-70" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-4">
+                <p className="text-sm font-semibold mb-3">Ações da Meta</p>
+                <MenuBody />
+              </PopoverContent>
+            </Popover>
+          )
         )}
       </div>
 
@@ -256,6 +388,28 @@ export default function GoalsBanner() {
         <AddSaleDialog open={removeSaleOpen} onOpenChange={setRemoveSaleOpen} mode="remove" />
       )}
       {isAdmin && <NoShowPrintDialog open={printOpen} onOpenChange={setPrintOpen} />}
+      {isAdmin && (
+        <AlertDialog open={confirmConcludeOpen} onOpenChange={setConfirmConcludeOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Concluir meta do período?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Ao concluir esta meta, ela sairá do acompanhamento ativo e ficará disponível apenas no Histórico de Metas. Esta ação pode impactar os relatórios do período.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={concluding}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => { e.preventDefault(); handleConcludeGoal(); }}
+                disabled={concluding}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                {concluding ? "Concluindo..." : "Concluir meta"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </section>
   );
 }
