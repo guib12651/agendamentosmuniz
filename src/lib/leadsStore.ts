@@ -3,7 +3,7 @@ import { Lead, LeadHistoryEntry, LeadStatus, normalizePhone } from "./leadsTypes
 
 export async function getLeads(includeArchived = false): Promise<Lead[]> {
   let q = supabase.from("leads").select("*").order("created_at", { ascending: false });
-  if (!includeArchived) q = q.eq("is_archived", false);
+  q = q.eq("is_archived", includeArchived);
   const { data, error } = await q;
   if (error) { console.error(error); return []; }
 
