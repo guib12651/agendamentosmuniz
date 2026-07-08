@@ -108,6 +108,21 @@ export default function OpportunitiesCenter() {
     }
   };
 
+  const handleUpdateNotes = async (id: string, notes: string) => {
+    try {
+      const { error } = await supabase
+        .from("opportunities")
+        .update({ notes })
+        .eq("id", id);
+      if (error) throw error;
+      setOpportunities((prev) => prev.map((o) => (o.id === id ? { ...o, notes } : o)));
+      toast.success("Observação salva!");
+    } catch (error) {
+      console.error("Erro ao salvar observação:", error);
+      toast.error("Erro ao salvar observação.");
+    }
+  };
+
   const handleDeleteOpportunity = async (id: string) => {
     const opp = opportunities.find(o => o.id === id);
     if (!opp) return;
@@ -353,6 +368,7 @@ export default function OpportunitiesCenter() {
                     onUpdateStatus={handleUpdateStatus}
                     onSchedule={(o) => { setSelectedOpportunity(o); setIsScheduleOpen(true); }}
                     onDelete={handleDeleteOpportunity}
+                    onUpdateNotes={handleUpdateNotes}
                     isAdmin={isAdmin}
                   />
                 ))}

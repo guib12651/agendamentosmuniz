@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Opportunity } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2, Save, StickyNote } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -12,6 +13,7 @@ interface OpportunityCardProps {
   onUpdateStatus: (id: string, status: string) => void;
   onSchedule: (opportunity: Opportunity) => void;
   onDelete?: (id: string) => void;
+  onUpdateNotes?: (id: string, notes: string) => Promise<void> | void;
   isAdmin: boolean;
 }
 
@@ -24,8 +26,24 @@ const statusConfig = {
   archived: { label: "Arquivado", color: "bg-gray-100 text-gray-700 border-gray-200" },
 };
 
-export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, onDelete, isAdmin }: OpportunityCardProps) {
+export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, onDelete, onUpdateNotes, isAdmin }: OpportunityCardProps) {
   const status = statusConfig[opportunity.status] || statusConfig.pending;
+  const [notes, setNotes] = useState(opportunity.notes || "");
+  const [savingNotes, setSavingNotes] = useState(false);
+
+  useEffect(() => {
+    setNotes(opportunity.notes || "");
+  }, [opportunity.notes]);
+
+  const handleSaveNotes = async () => {
+    if (!onUpdateNotes) return;
+    setSavingNotes(true);
+    try {
+      await onUpdateNotes(opportunity.id, notes);
+    } finally {
+      setSavingNotes(false);
+    }
+  };
 
   const handleWhatsApp = () => {
     const phone = opportunity.phone.replace(/\D/g, "");
@@ -105,6 +123,31 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
             {opportunity.vehicle_or_property}
           </div>
         )}
+
+        <div className="space-y-1.5">
+          <label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+            <StickyNote className="w-3 h-3" /> Observações
+          </label>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Adicione anotações sobre este lead..."
+            className="min-h-[60px] text-xs resize-none"
+          />
+          {notes !== (opportunity.notes || "") && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-[11px] w-full"
+              onClick={handleSaveNotes}
+              disabled={savingNotes}
+            >
+              <Save className="w-3 h-3 mr-1" />
+              {savingNotes ? "Salvando..." : "Salvar observação"}
+            </Button>
+          )}
+        </div>
+
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
