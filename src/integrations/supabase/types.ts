@@ -157,6 +157,122 @@ export type Database = {
           },
         ]
       }
+      lead_history: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          id: string
+          lead_id: string
+          new_value: string | null
+          old_value: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id?: string
+          new_value?: string | null
+          old_value?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          archived_at: string | null
+          available_down_payment: number | null
+          created_at: string
+          created_by: string
+          decides_alone: string | null
+          desired_credit_value: number | null
+          desired_installment: number | null
+          has_restriction: string | null
+          id: string
+          income: number | null
+          interest: string
+          is_archived: boolean
+          name: string
+          next_follow_up_at: string | null
+          normalized_phone: string
+          notes: string | null
+          phone: string
+          profession: string | null
+          responsible_user_id: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          archived_at?: string | null
+          available_down_payment?: number | null
+          created_at?: string
+          created_by: string
+          decides_alone?: string | null
+          desired_credit_value?: number | null
+          desired_installment?: number | null
+          has_restriction?: string | null
+          id?: string
+          income?: number | null
+          interest: string
+          is_archived?: boolean
+          name: string
+          next_follow_up_at?: string | null
+          normalized_phone: string
+          notes?: string | null
+          phone: string
+          profession?: string | null
+          responsible_user_id: string
+          source: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          archived_at?: string | null
+          available_down_payment?: number | null
+          created_at?: string
+          created_by?: string
+          decides_alone?: string | null
+          desired_credit_value?: number | null
+          desired_installment?: number | null
+          has_restriction?: string | null
+          id?: string
+          income?: number | null
+          interest?: string
+          is_archived?: boolean
+          name?: string
+          next_follow_up_at?: string | null
+          normalized_phone?: string
+          notes?: string | null
+          phone?: string
+          profession?: string | null
+          responsible_user_id?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads_distribution: {
         Row: {
           amount: number
