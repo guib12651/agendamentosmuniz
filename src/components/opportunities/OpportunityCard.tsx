@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Opportunity } from "@/lib/types";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2, Save, StickyNote } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -12,6 +13,7 @@ interface OpportunityCardProps {
   onUpdateStatus: (id: string, status: string) => void;
   onSchedule: (opportunity: Opportunity) => void;
   onDelete?: (id: string) => void;
+  onUpdateNotes?: (id: string, notes: string) => Promise<void> | void;
   isAdmin: boolean;
 }
 
