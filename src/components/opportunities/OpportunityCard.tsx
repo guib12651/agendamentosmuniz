@@ -26,8 +26,24 @@ const statusConfig = {
   archived: { label: "Arquivado", color: "bg-gray-100 text-gray-700 border-gray-200" },
 };
 
-export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, onDelete, isAdmin }: OpportunityCardProps) {
+export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedule, onDelete, onUpdateNotes, isAdmin }: OpportunityCardProps) {
   const status = statusConfig[opportunity.status] || statusConfig.pending;
+  const [notes, setNotes] = useState(opportunity.notes || "");
+  const [savingNotes, setSavingNotes] = useState(false);
+
+  useEffect(() => {
+    setNotes(opportunity.notes || "");
+  }, [opportunity.notes]);
+
+  const handleSaveNotes = async () => {
+    if (!onUpdateNotes) return;
+    setSavingNotes(true);
+    try {
+      await onUpdateNotes(opportunity.id, notes);
+    } finally {
+      setSavingNotes(false);
+    }
+  };
 
   const handleWhatsApp = () => {
     const phone = opportunity.phone.replace(/\D/g, "");
