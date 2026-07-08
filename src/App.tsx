@@ -17,6 +17,7 @@ import PainelTV from "./pages/PainelTV.tsx";
 import OpportunitiesCenter from "./pages/OpportunitiesCenter.tsx";
 import Settings from "./pages/Settings.tsx";
 import ProductionSales from "./pages/ProductionSales.tsx";
+import CarteiraLeads from "./pages/CarteiraLeads.tsx";
 import { MIA } from "./components/MIA";
 
 
@@ -75,6 +76,7 @@ const App = () => (
 
 
             <Route path="/production-sales" element={<ProtectedRoute><ProductionSales /></ProtectedRoute>} />
+            <Route path="/carteira-leads" element={<ProtectedRoute><CarteiraLeads /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
