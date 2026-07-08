@@ -124,6 +124,31 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
           </div>
         )}
 
+        <div className="space-y-1.5">
+          <label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+            <StickyNote className="w-3 h-3" /> Observações
+          </label>
+          <Textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Adicione anotações sobre este lead..."
+            className="min-h-[60px] text-xs resize-none"
+          />
+          {notes !== (opportunity.notes || "") && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-[11px] w-full"
+              onClick={handleSaveNotes}
+              disabled={savingNotes}
+            >
+              <Save className="w-3 h-3 mr-1" />
+              {savingNotes ? "Salvando..." : "Salvar observação"}
+            </Button>
+          )}
+        </div>
+
+
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
             <User className="w-3 h-3" />
