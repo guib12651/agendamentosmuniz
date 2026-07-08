@@ -19,7 +19,7 @@ import {
 export default function CarteiraLeads() {
   const { profile, isAdmin } = useAuth();
   const navigate = useNavigate();
-  if (!profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
+  
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [showArchived, setShowArchived] = useState(false);
@@ -91,6 +91,8 @@ export default function CarteiraLeads() {
       load();
     } catch (e: any) { toast.error(e.message); }
   };
+
+  if (!profile) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
 
   return (
     <div className="min-h-screen bg-background">
