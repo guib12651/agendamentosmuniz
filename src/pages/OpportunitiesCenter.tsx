@@ -368,6 +368,7 @@ export default function OpportunitiesCenter() {
                     onUpdateStatus={handleUpdateStatus}
                     onSchedule={(o) => { setSelectedOpportunity(o); setIsScheduleOpen(true); }}
                     onDelete={handleDeleteOpportunity}
+                    onUpdateNotes={handleUpdateNotes}
                     isAdmin={isAdmin}
                   />
                 ))}
