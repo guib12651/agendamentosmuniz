@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, MeetingStatus } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download, Wallet } from "lucide-react";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -351,6 +351,10 @@ export default function Index() {
                 <DropdownMenuItem onClick={() => navigate("/central-oportunidades")}>
                   <Target className="w-4 h-4 mr-2 text-primary" />
                   Central de Oportunidades
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/carteira-leads")}>
+                  <Wallet className="w-4 h-4 mr-2 text-primary" />
+                  Carteira de Leads
                 </DropdownMenuItem>
 
                 {isAdmin && (
