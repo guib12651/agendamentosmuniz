@@ -55,6 +55,32 @@ export default function GerenciarUsuarios() {
     avatar_url: "" as string | null,
   });
   const [uploadingAvatar, setUploadingAvatar] = useState<string | null>(null);
+  const [resetPwdUser, setResetPwdUser] = useState<UserProfile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetPassword = async () => {
+    if (!resetPwdUser) return;
+    if (newPassword.length < 6) {
+      toast.error("Senha deve ter ao menos 6 caracteres");
+      return;
+    }
+    setResetting(true);
+    const { data, error } = await supabase.functions.invoke("reset-user-password", {
+      body: { targetUserId: resetPwdUser.id, newPassword },
+    });
+    setResetting(false);
+
+    if (error || (data && data.error)) {
+      toast.error(data?.error || error?.message || "Erro ao redefinir senha");
+      return;
+    }
+    toast.success(`Senha de ${resetPwdUser.display_name} redefinida com sucesso!`);
+    setResetPwdUser(null);
+    setNewPassword("");
+    setShowNewPwd(false);
+  };
 
   const handleCreate = async () => {
     const username = form.username.toLowerCase().trim().replace(/\s+/g, "");
