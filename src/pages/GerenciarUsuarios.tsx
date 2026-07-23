@@ -488,6 +488,18 @@ export default function GerenciarUsuarios() {
                           </div>
 
                           {user.id !== profile?.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                              title="Redefinir senha"
+                              onClick={() => { setResetPwdUser(user); setNewPassword(""); setShowNewPwd(false); }}
+                            >
+                              <KeyRound className="w-4 h-4" />
+                            </Button>
+                          )}
+
+                          {user.id !== profile?.id && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
