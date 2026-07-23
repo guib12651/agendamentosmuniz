@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X, Camera, ImagePlus, Loader2 } from "lucide-react";
+import { Search, UserCog, Shield, ShieldAlert, ArrowLeft, User, Plus, Eye, EyeOff, Trash2, Pencil, Check, X, Camera, ImagePlus, Loader2, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -55,6 +55,32 @@ export default function GerenciarUsuarios() {
     avatar_url: "" as string | null,
   });
   const [uploadingAvatar, setUploadingAvatar] = useState<string | null>(null);
+  const [resetPwdUser, setResetPwdUser] = useState<UserProfile | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetPassword = async () => {
+    if (!resetPwdUser) return;
+    if (newPassword.length < 6) {
+      toast.error("Senha deve ter ao menos 6 caracteres");
+      return;
+    }
+    setResetting(true);
+    const { data, error } = await supabase.functions.invoke("reset-user-password", {
+      body: { targetUserId: resetPwdUser.id, newPassword },
+    });
+    setResetting(false);
+
+    if (error || (data && data.error)) {
+      toast.error(data?.error || error?.message || "Erro ao redefinir senha");
+      return;
+    }
+    toast.success(`Senha de ${resetPwdUser.display_name} redefinida com sucesso!`);
+    setResetPwdUser(null);
+    setNewPassword("");
+    setShowNewPwd(false);
+  };
 
   const handleCreate = async () => {
     const username = form.username.toLowerCase().trim().replace(/\s+/g, "");
@@ -462,6 +488,18 @@ export default function GerenciarUsuarios() {
                           </div>
 
                           {user.id !== profile?.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-primary hover:text-primary hover:bg-primary/10"
+                              title="Redefinir senha"
+                              onClick={() => { setResetPwdUser(user); setNewPassword(""); setShowNewPwd(false); }}
+                            >
+                              <KeyRound className="w-4 h-4" />
+                            </Button>
+                          )}
+
+                          {user.id !== profile?.id && (
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <Button
@@ -607,6 +645,46 @@ export default function GerenciarUsuarios() {
             <Button variant="outline" onClick={() => setCreateOpen(false)} disabled={creating}>Cancelar</Button>
             <Button onClick={handleCreate} disabled={creating}>
               {creating ? "Criando..." : "Criar usuário"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!resetPwdUser} onOpenChange={(o) => !o && setResetPwdUser(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <KeyRound className="w-4 h-4 text-primary" />
+              Redefinir senha
+            </DialogTitle>
+            <DialogDescription>
+              Defina uma nova senha para <strong>{resetPwdUser?.display_name}</strong>. O usuário poderá entrar imediatamente com a nova senha.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1 py-2">
+            <Label>Nova senha</Label>
+            <div className="relative">
+              <Input
+                type={showNewPwd ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                autoFocus
+                onKeyDown={(e) => { if (e.key === "Enter") handleResetPassword(); }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPwd(!showNewPwd)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+              >
+                {showNewPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetPwdUser(null)} disabled={resetting}>Cancelar</Button>
+            <Button onClick={handleResetPassword} disabled={resetting}>
+              {resetting ? "Salvando..." : "Salvar nova senha"}
             </Button>
           </DialogFooter>
         </DialogContent>
