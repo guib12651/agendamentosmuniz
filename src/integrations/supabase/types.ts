@@ -788,7 +788,7 @@ export type Database = {
           phone: string | null
           quota_number: string | null
           sale_id: string | null
-          seller_id: string | null
+          seller_id: string
           seller_name: string | null
           status: string
           updated_at: string | null
@@ -805,7 +805,7 @@ export type Database = {
           phone?: string | null
           quota_number?: string | null
           sale_id?: string | null
-          seller_id?: string | null
+          seller_id: string
           seller_name?: string | null
           status?: string
           updated_at?: string | null
@@ -822,7 +822,7 @@ export type Database = {
           phone?: string | null
           quota_number?: string | null
           sale_id?: string | null
-          seller_id?: string | null
+          seller_id?: string
           seller_name?: string | null
           status?: string
           updated_at?: string | null
