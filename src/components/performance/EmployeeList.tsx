@@ -112,9 +112,19 @@ export function EmployeeList({ employees, onSelect, onSent }: Props) {
                 )}
               </div>
             </div>
-            <Button size="sm" variant="outline" onClick={() => onSelect(e)}>
-              Detalhes
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+              <Button
+                size="sm"
+                onClick={() => setCongratsTarget(e)}
+                className="whitespace-nowrap"
+              >
+                <PartyPopper className="w-4 h-4 mr-1" />
+                Parabenizar
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => onSelect(e)}>
+                Detalhes
+              </Button>
+            </div>
           </Card>
         ))}
         {filtered.length === 0 && (
@@ -123,6 +133,13 @@ export function EmployeeList({ employees, onSelect, onSent }: Props) {
           </Card>
         )}
       </div>
+
+      <CongratulateDialog
+        employee={congratsTarget}
+        open={!!congratsTarget}
+        onOpenChange={(o) => !o && setCongratsTarget(null)}
+        onSent={onSent}
+      />
     </div>
   );
 }
