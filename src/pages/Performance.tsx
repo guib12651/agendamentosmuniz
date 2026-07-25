@@ -109,7 +109,7 @@ export default function Performance() {
           {loading ? (
             <p className="text-sm text-muted-foreground">Carregando...</p>
           ) : (
-            <EmployeeList employees={employees} onSelect={setSelected} />
+            <EmployeeList employees={employees} onSelect={setSelected} onSent={reload} />
           )}
         </section>
 
