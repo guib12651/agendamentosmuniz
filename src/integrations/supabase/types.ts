@@ -851,6 +851,53 @@ export type Database = {
           },
         ]
       }
+      recognitions: {
+        Row: {
+          admin_user_id: string
+          created_at: string
+          goal_progress_id: string | null
+          id: string
+          message: string
+          metric_label: string | null
+          metric_value: string | null
+          recipient_user_id: string
+          seen_at: string | null
+          title: string
+        }
+        Insert: {
+          admin_user_id: string
+          created_at?: string
+          goal_progress_id?: string | null
+          id?: string
+          message: string
+          metric_label?: string | null
+          metric_value?: string | null
+          recipient_user_id: string
+          seen_at?: string | null
+          title: string
+        }
+        Update: {
+          admin_user_id?: string
+          created_at?: string
+          goal_progress_id?: string | null
+          id?: string
+          message?: string
+          metric_label?: string | null
+          metric_value?: string | null
+          recipient_user_id?: string
+          seen_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recognitions_goal_progress_id_fkey"
+            columns: ["goal_progress_id"]
+            isOneToOne: false
+            referencedRelation: "period_goal_progress"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_funnel_days: {
         Row: {
           created_at: string | null
