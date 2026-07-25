@@ -18,6 +18,7 @@ function fireFireworks() {
       spread: 55,
       origin: { x: 0, y: 0.7 },
       colors,
+      zIndex: 90,
     });
     confetti({
       particleCount: 4,
@@ -25,6 +26,7 @@ function fireFireworks() {
       spread: 55,
       origin: { x: 1, y: 0.7 },
       colors,
+      zIndex: 90,
     });
     if (Math.random() < 0.15) {
       confetti({
@@ -34,6 +36,7 @@ function fireFireworks() {
         ticks: 60,
         origin: { x: Math.random(), y: Math.random() * 0.4 + 0.1 },
         colors,
+        zIndex: 90,
       });
     }
     if (Date.now() < end) requestAnimationFrame(frame);
