@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Search, ArrowUpDown, Trophy } from "lucide-react";
+import { Search, ArrowUpDown, Trophy, PartyPopper } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { EmployeeMetrics } from "@/lib/performanceQueries";
+import { CongratulateDialog } from "./CongratulateDialog";
 
 type SortKey = "name" | "meetings" | "visits" | "calls" | "sales" | "goalsAchieved";
 
