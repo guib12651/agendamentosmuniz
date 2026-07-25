@@ -39,6 +39,16 @@ function fireFireworks() {
         zIndex: 90,
       });
     }
+    // Camada da frente (por cima do modal)
+    confetti({
+      particleCount: 2,
+      angle: 90,
+      spread: 80,
+      startVelocity: 45,
+      origin: { x: Math.random(), y: 1 },
+      colors,
+      zIndex: 200,
+    });
     if (Date.now() < end) requestAnimationFrame(frame);
   })();
 }
