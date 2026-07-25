@@ -38,6 +38,7 @@ function fireFireworks() {
         colors,
         zIndex: 90,
       });
+    }
     // Camada da frente (por cima do modal)
     confetti({
       particleCount: 2,
@@ -50,6 +51,7 @@ function fireFireworks() {
     });
     if (Date.now() < end) requestAnimationFrame(frame);
   })();
+}
 }
 
 function tryPlaySound() {
