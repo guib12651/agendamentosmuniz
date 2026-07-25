@@ -19,6 +19,7 @@ type SortKey = "name" | "meetings" | "visits" | "calls" | "sales" | "goalsAchiev
 interface Props {
   employees: EmployeeMetrics[];
   onSelect: (e: EmployeeMetrics) => void;
+  onSent?: () => void;
 }
 
 const roleLabels: Record<string, string> = {
@@ -27,7 +28,8 @@ const roleLabels: Record<string, string> = {
   pre_seller: "Pré-vendedor",
 };
 
-export function EmployeeList({ employees, onSelect }: Props) {
+export function EmployeeList({ employees, onSelect, onSent }: Props) {
+  const [congratsTarget, setCongratsTarget] = useState<EmployeeMetrics | null>(null);
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sort, setSort] = useState<SortKey>("name");
