@@ -52,7 +52,6 @@ function fireFireworks() {
     if (Date.now() < end) requestAnimationFrame(frame);
   })();
 }
-}
 
 function tryPlaySound() {
   try {
