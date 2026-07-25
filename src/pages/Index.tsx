@@ -3,7 +3,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, MeetingStatus } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
-import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download, Wallet } from "lucide-react";
+import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download, Wallet, Trophy } from "lucide-react";
+import { CelebrationOverlay } from "@/components/CelebrationOverlay";
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -342,6 +343,12 @@ export default function Index() {
                   <DropdownMenuItem onClick={() => navigate("/usuarios")}>
                     <UsersIcon className="w-4 h-4 mr-2" />
                     Usuários
+                  </DropdownMenuItem>
+                )}
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate("/performance")}>
+                    <Trophy className="w-4 h-4 mr-2 text-primary" />
+                    Performance
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuItem onClick={() => navigate("/central-operacional")}>
