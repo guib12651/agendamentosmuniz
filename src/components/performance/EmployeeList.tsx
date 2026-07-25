@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { Search, ArrowUpDown, Trophy } from "lucide-react";
+import { Search, ArrowUpDown, Trophy, PartyPopper } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,12 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { EmployeeMetrics } from "@/lib/performanceQueries";
+import { CongratulateDialog } from "./CongratulateDialog";
 
 type SortKey = "name" | "meetings" | "visits" | "calls" | "sales" | "goalsAchieved";
 
 interface Props {
   employees: EmployeeMetrics[];
   onSelect: (e: EmployeeMetrics) => void;
+  onSent?: () => void;
 }
 
 const roleLabels: Record<string, string> = {
@@ -26,7 +28,8 @@ const roleLabels: Record<string, string> = {
   pre_seller: "Pré-vendedor",
 };
 
-export function EmployeeList({ employees, onSelect }: Props) {
+export function EmployeeList({ employees, onSelect, onSent }: Props) {
+  const [congratsTarget, setCongratsTarget] = useState<EmployeeMetrics | null>(null);
   const [query, setQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [sort, setSort] = useState<SortKey>("name");
@@ -109,9 +112,19 @@ export function EmployeeList({ employees, onSelect }: Props) {
                 )}
               </div>
             </div>
-            <Button size="sm" variant="outline" onClick={() => onSelect(e)}>
-              Detalhes
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+              <Button
+                size="sm"
+                onClick={() => setCongratsTarget(e)}
+                className="whitespace-nowrap"
+              >
+                <PartyPopper className="w-4 h-4 mr-1" />
+                Parabenizar
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => onSelect(e)}>
+                Detalhes
+              </Button>
+            </div>
           </Card>
         ))}
         {filtered.length === 0 && (
@@ -120,6 +133,13 @@ export function EmployeeList({ employees, onSelect }: Props) {
           </Card>
         )}
       </div>
+
+      <CongratulateDialog
+        employee={congratsTarget}
+        open={!!congratsTarget}
+        onOpenChange={(o) => !o && setCongratsTarget(null)}
+        onSent={onSent}
+      />
     </div>
   );
 }
