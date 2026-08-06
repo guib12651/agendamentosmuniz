@@ -215,11 +215,14 @@ export default function PainelTV() {
         
         // Verificamos se é uma venda (pelo título)
         if (newRec.title.includes("VENDA")) {
+          console.log("Painel TV: Processing sales recognition", newRec);
           const { data: profileData } = await supabase
             .from('profiles')
             .select('display_name, avatar_url')
             .eq('id', newRec.admin_user_id)
             .single();
+          
+          console.log("Painel TV: Profile enriched for celebration", profileData);
 
           const sellerName = profileData?.display_name || "Consultor";
           

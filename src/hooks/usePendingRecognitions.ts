@@ -32,10 +32,13 @@ export function usePendingRecognitions(userId: string | undefined) {
 
     if (recData && recData.length > 0) {
       const adminIds = [...new Set(recData.map(r => r.admin_user_id))];
+      console.log("Fetching profiles for IDs:", adminIds);
       const { data: profData } = await supabase
         .from("profiles")
         .select("id, display_name, avatar_url")
         .in("id", adminIds);
+      
+      console.log("Profiles found:", profData);
 
       const enriched = recData.map(r => ({
         ...r,
@@ -65,11 +68,14 @@ export function usePendingRecognitions(userId: string | undefined) {
         async (payload) => {
           const r = payload.new as any;
           
+          console.log("Realtime recognition detected:", r);
           const { data: profData } = await supabase
             .from("profiles")
             .select("display_name, avatar_url")
             .eq("id", r.admin_user_id)
             .single();
+          
+          console.log("Realtime profile enriched:", profData);
 
           const enriched = {
             ...r,

@@ -122,6 +122,7 @@ export function CelebrationOverlay() {
 
   useEffect(() => {
     if (!current) return;
+    console.log("Rendering celebration for:", current.id, current.title);
     fireFireworks();
     tryPlaySound();
     const timer = setTimeout(() => {
@@ -130,7 +131,12 @@ export function CelebrationOverlay() {
     return () => clearTimeout(timer);
   }, [current, markSeen]);
 
-  if (!current || dismissedAt === current.created_at.length) return null;
+  if (!current) return null;
+  
+  if (dismissedAt === current.created_at.length) {
+    console.log("Dismissed current recognition:", current.id);
+    return null;
+  }
 
   const isSale = current.title.includes("VENDA");
 
