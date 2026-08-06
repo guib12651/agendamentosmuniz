@@ -213,7 +213,6 @@ export default function PainelTV() {
           const newMeeting = payload.new as any;
           console.log("New meeting inserted, showing celebration for:", newMeeting.pre_seller);
           
-          // Get avatar for pre-seller
           supabase.from('profiles').select('avatar_url').eq('display_name', newMeeting.pre_seller).single().then(({ data }) => {
             setShowMeetingCelebration({
               preSeller: newMeeting.pre_seller || "Consultor",
@@ -223,7 +222,6 @@ export default function PainelTV() {
             });
           });
           
-          // Play celebration sound
           const audio = new Audio('/sounds/tv_panel_celebration.mp3');
           audio.play().catch(e => console.log("Audio play failed:", e));
 
@@ -256,7 +254,6 @@ export default function PainelTV() {
               });
             });
 
-            // Play celebration sound
             const audio = new Audio('/sounds/tv_panel_celebration.mp3');
             audio.play().catch(e => console.log("Audio play failed:", e));
 
@@ -271,11 +268,46 @@ export default function PainelTV() {
           }
         }
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, () => { console.log("Leads update"); loadData(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, () => { console.log("Calls update"); loadData(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, () => { console.log("Dist update"); loadData(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goals' }, () => { console.log("Goals update"); loadData(); })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goal_progress' }, () => { console.log("Progress update"); loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'production_sales' }, (payload) => {
+        console.log("Production sale change detected:", payload.eventType, payload);
+        loadData();
+        
+        if (payload.eventType === 'INSERT') {
+          const newSale = payload.new as any;
+          console.log("New production sale inserted, showing celebration for user_id:", newSale.user_id);
+          
+          supabase.from('profiles').select('display_name, avatar_url').eq('id', newSale.user_id).single().then(({ data }) => {
+            const sellerName = data?.display_name || "Consultor";
+            const totalValue = new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            }).format(newSale.total_price);
+
+            setShowSaleCelebration({
+              seller: sellerName,
+              value: totalValue,
+              avatar_url: data?.avatar_url
+            });
+            
+            const audio = new Audio('/sounds/tv_panel_celebration.mp3');
+            audio.play().catch(e => console.log("Audio play failed:", e));
+
+            confetti({
+              particleCount: 200,
+              spread: 100,
+              origin: { y: 0.6 },
+              colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
+            });
+
+            setTimeout(() => setShowSaleCelebration(null), 7000);
+          });
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, () => { loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, () => { loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, () => { loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goals' }, () => { loadData(); })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'period_goal_progress' }, () => { loadData(); })
       .subscribe((status) => {
         console.log("Subscription status:", status);
       });
