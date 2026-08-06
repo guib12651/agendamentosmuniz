@@ -116,7 +116,7 @@ function tryPlaySound() {
 export function CelebrationOverlay() {
   const { profile } = useAuth();
   const { pending, markSeen } = usePendingRecognitions(profile?.id);
-  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+  const [dismissedAt, setDismissedAt] = useState<string | null>(null);
 
   const current = pending[0];
 
