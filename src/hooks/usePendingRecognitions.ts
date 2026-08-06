@@ -22,19 +22,28 @@ export function usePendingRecognitions(userId: string | undefined) {
 
   const load = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase
+    
+    const { data: recData } = await supabase
       .from("recognitions")
-      .select(`
-        *,
-        profiles:admin_user_id (
-          display_name,
-          avatar_url
-        )
-      `)
+      .select("*")
       .eq("recipient_user_id", userId)
       .is("seen_at", null)
       .order("created_at", { ascending: true });
-    if (data) setPending(data as Recognition[]);
+
+    if (recData && recData.length > 0) {
+      const adminIds = [...new Set(recData.map(r => r.admin_user_id))];
+      const { data: profData } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", adminIds);
+
+      const enriched = recData.map(r => ({
+        ...r,
+        profiles: profData?.find(p => p.id === r.admin_user_id) || null
+      }));
+      
+      setPending(enriched as Recognition[]);
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -54,22 +63,20 @@ export function usePendingRecognitions(userId: string | undefined) {
           filter: `recipient_user_id=eq.${userId}`,
         },
         async (payload) => {
-          const newId = (payload.new as any).id;
-          const { data } = await supabase
-            .from("recognitions")
-            .select(`
-              *,
-              profiles:admin_user_id (
-                display_name,
-                avatar_url
-              )
-            `)
-            .eq("id", newId)
+          const r = payload.new as any;
+          
+          const { data: profData } = await supabase
+            .from("profiles")
+            .select("display_name, avatar_url")
+            .eq("id", r.admin_user_id)
             .single();
-            
-          if (data && !data.seen_at) {
-            setPending((prev) => [...prev, data as Recognition]);
-          }
+
+          const enriched = {
+            ...r,
+            profiles: profData || null
+          };
+
+          if (!r.seen_at) setPending((prev) => [...prev, enriched as Recognition]);
         }
       )
       .subscribe();
