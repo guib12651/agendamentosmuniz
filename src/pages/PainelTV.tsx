@@ -207,102 +207,42 @@ export default function PainelTV() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, (payload) => {
         console.log("Meeting change detected:", payload.eventType, payload);
         loadData();
+      })
+
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'recognitions' }, async (payload) => {
+        const newRec = payload.new as any;
+        console.log("Recognition for TV detected:", newRec);
         
-        // Meeting (Agendamento) celebration
-        if (payload.eventType === 'INSERT') {
-          const newMeeting = payload.new as any;
-          console.log("New meeting inserted, showing celebration for:", newMeeting.pre_seller);
+        // Verificamos se é uma venda (pelo título)
+        if (newRec.title.includes("VENDA")) {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name, avatar_url')
+            .eq('id', newRec.admin_user_id)
+            .single();
+
+          const sellerName = profileData?.display_name || "Consultor";
           
-          supabase.from('profiles').select('avatar_url').eq('display_name', newMeeting.pre_seller).single().then(({ data }) => {
-            setShowMeetingCelebration({
-              preSeller: newMeeting.pre_seller || "Consultor",
-              leadName: newMeeting.lead_name || "Cliente",
-              time: newMeeting.time?.slice(0, 5) || "--:--",
-              avatar_url: data?.avatar_url
-            });
+          setShowSaleCelebration({
+            seller: sellerName,
+            value: newRec.metric_value || "N/A",
+            avatar_url: profileData?.avatar_url
           });
           
           const audio = new Audio('/sounds/tv_panel_celebration.mp3');
           audio.play().catch(e => console.log("Audio play failed:", e));
 
           confetti({
-            particleCount: 150,
-            spread: 70,
+            particleCount: 200,
+            spread: 100,
             origin: { y: 0.6 },
-            colors: ['#3b82f6', '#60a5fa', '#ffffff']
+            colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
           });
 
-          setTimeout(() => setShowMeetingCelebration(null), 7000);
-        }
-        
-        // Sale celebration
-        if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
-          const newMeeting = payload.new as any;
-          const oldMeeting = payload.old as any;
-          
-          const isNewSale = newMeeting.status === 'venda_concluida' && (!oldMeeting || oldMeeting.status !== 'venda_concluida');
-          
-          if (isNewSale) {
-            console.log("New sale detected, showing celebration for:", newMeeting.consultant || newMeeting.pre_seller);
-            const sellerName = newMeeting.consultant || newMeeting.pre_seller || "Consultor";
-            
-            supabase.from('profiles').select('avatar_url').eq('display_name', sellerName).single().then(({ data }) => {
-              setShowSaleCelebration({
-                seller: sellerName,
-                value: newMeeting.down_payment || "N/A",
-                avatar_url: data?.avatar_url
-              });
-            });
-
-            const audio = new Audio('/sounds/tv_panel_celebration.mp3');
-            audio.play().catch(e => console.log("Audio play failed:", e));
-
-            confetti({
-              particleCount: 200,
-              spread: 100,
-              origin: { y: 0.6 },
-              colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
-            });
-
-            setTimeout(() => setShowSaleCelebration(null), 7000);
-          }
+          setTimeout(() => setShowSaleCelebration(null), 7000);
         }
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'production_sales' }, (payload) => {
-        console.log("Production sale change detected:", payload.eventType, payload);
-        loadData();
-        
-        if (payload.eventType === 'INSERT') {
-          const newSale = payload.new as any;
-          console.log("New production sale inserted, showing celebration for user_id:", newSale.user_id);
-          
-          supabase.from('profiles').select('display_name, avatar_url').eq('id', newSale.user_id).single().then(({ data }) => {
-            const sellerName = data?.display_name || "Consultor";
-            const totalValue = new Intl.NumberFormat("pt-BR", {
-              style: "currency",
-              currency: "BRL",
-            }).format(newSale.total_price);
 
-            setShowSaleCelebration({
-              seller: sellerName,
-              value: totalValue,
-              avatar_url: data?.avatar_url
-            });
-            
-            const audio = new Audio('/sounds/tv_panel_celebration.mp3');
-            audio.play().catch(e => console.log("Audio play failed:", e));
-
-            confetti({
-              particleCount: 200,
-              spread: 100,
-              origin: { y: 0.6 },
-              colors: ['#10b981', '#34d399', '#ffffff', '#fbbf24']
-            });
-
-            setTimeout(() => setShowSaleCelebration(null), 7000);
-          });
-        }
-      })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'operational_leads' }, () => { loadData(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'daily_calls' }, () => { loadData(); })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'leads_distribution' }, () => { loadData(); })

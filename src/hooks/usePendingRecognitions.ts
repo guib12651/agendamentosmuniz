@@ -60,8 +60,8 @@ export function usePendingRecognitions(userId: string | undefined) {
           event: "INSERT",
           schema: "public",
           table: "recognitions",
-          filter: `recipient_user_id=eq.${userId}`,
         },
+
         async (payload) => {
           const r = payload.new as any;
           
@@ -76,7 +76,7 @@ export function usePendingRecognitions(userId: string | undefined) {
             profiles: profData || null
           };
 
-          if (!r.seen_at) setPending((prev) => [...prev, enriched as Recognition]);
+          if (r.recipient_user_id === userId && !r.seen_at) setPending((prev) => [...prev, enriched as Recognition]);
         }
       )
       .subscribe();

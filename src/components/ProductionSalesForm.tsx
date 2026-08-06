@@ -79,7 +79,7 @@ export function ProductionSalesForm({ onSuccess }: ProductionSalesFormProps) {
       if (profiles && profiles.length > 0) {
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
-          admin_user_id: profile?.id || p.id,
+          admin_user_id: profile?.id,
           title: "🚀 NOVA VENDA!",
           message: `${profile?.displayName || "Um consultor"} acabou de realizar uma venda de ${values.product_name}!`,
           metric_label: "Valor",
