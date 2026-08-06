@@ -11,6 +11,10 @@ export interface Recognition {
   metric_value: string | null;
   seen_at: string | null;
   created_at: string;
+  profiles?: {
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 export function usePendingRecognitions(userId: string | undefined) {
@@ -18,13 +22,28 @@ export function usePendingRecognitions(userId: string | undefined) {
 
   const load = useCallback(async () => {
     if (!userId) return;
-    const { data } = await supabase
+    
+    const { data: recData } = await supabase
       .from("recognitions")
       .select("*")
       .eq("recipient_user_id", userId)
       .is("seen_at", null)
       .order("created_at", { ascending: true });
-    if (data) setPending(data as Recognition[]);
+
+    if (recData && recData.length > 0) {
+      const adminIds = [...new Set(recData.map(r => r.admin_user_id))];
+      const { data: profData } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url")
+        .in("id", adminIds);
+
+      const enriched = recData.map(r => ({
+        ...r,
+        profiles: profData?.find(p => p.id === r.admin_user_id) || null
+      }));
+      
+      setPending(enriched as Recognition[]);
+    }
   }, [userId]);
 
   useEffect(() => {
@@ -43,9 +62,21 @@ export function usePendingRecognitions(userId: string | undefined) {
           table: "recognitions",
           filter: `recipient_user_id=eq.${userId}`,
         },
-        (payload) => {
-          const r = payload.new as Recognition;
-          if (!r.seen_at) setPending((prev) => [...prev, r]);
+        async (payload) => {
+          const r = payload.new as any;
+          
+          const { data: profData } = await supabase
+            .from("profiles")
+            .select("display_name, avatar_url")
+            .eq("id", r.admin_user_id)
+            .single();
+
+          const enriched = {
+            ...r,
+            profiles: profData || null
+          };
+
+          if (!r.seen_at) setPending((prev) => [...prev, enriched as Recognition]);
         }
       )
       .subscribe();
