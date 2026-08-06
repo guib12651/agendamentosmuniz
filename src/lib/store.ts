@@ -180,10 +180,10 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
         .select("id")
         .in("role", ["admin", "seller"]);
 
-      if (profiles && profiles.length > 0 && user) {
+      if (profiles && profiles.length > 0) {
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
-          admin_user_id: sellerUserId, // O "autor" da venda para fins de exibição (foto/nome) é o vendedor
+          admin_user_id: sellerUserId, // O "autor" da venda para exibição é o vendedor
           title: "💰 VENDA REALIZADA!",
           message: `${sellerProfile?.display_name || sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
           metric_label: "Entrada",

@@ -214,7 +214,7 @@ export default function PainelTV() {
         console.log("Recognition for TV detected:", newRec);
         
         // Verificamos se é uma venda (pelo título)
-        if (newRec.title.includes("VENDA")) {
+        if (newRec.title.includes("VENDA") || newRec.title.includes("CONCLUÍDA")) {
           // Busca o perfil do vendedor (admin_user_id no registro de reconhecimento)
           const { data: profileData } = await supabase
             .from('profiles')
