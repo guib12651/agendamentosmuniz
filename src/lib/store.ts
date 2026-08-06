@@ -163,16 +163,18 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
       .single();
 
     if (meeting) {
+      const { data: { user } } = await supabase.auth.getUser();
       const sellerName = meeting.consultant || meeting.pre_seller || "Consultor";
+      
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id")
         .in("role", ["admin", "seller"]);
 
-      if (profiles && profiles.length > 0) {
+      if (profiles && profiles.length > 0 && user) {
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
-          admin_user_id: p.id, // self-system
+          admin_user_id: user.id, // Agora usa o ID de quem registrou a venda
           title: "💰 VENDA REALIZADA!",
           message: `${sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
           metric_label: "Entrada",
