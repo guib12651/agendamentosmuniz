@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, Call, MeetingStatus } from "@/lib/types";
@@ -109,6 +109,7 @@ const statusConfig = {
 };
 
 export default function CentralOperacional() {
+  const isUpdatingStatusRef = useRef(false);
   const { profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<PeriodType | "today" | "yesterday" | "last7" | "last30">("today");
@@ -755,7 +756,10 @@ export default function CentralOperacional() {
   };
 
   const handleUpdateLeadStatus = async (id: string, status: string) => {
+    if (isUpdatingStatusRef.current) return;
+    
     try {
+      isUpdatingStatusRef.current = true;
       const currentLead = meetings.find(m => m.id === id);
       if (!currentLead) return;
 
@@ -769,7 +773,7 @@ export default function CentralOperacional() {
         if (currentLead.status === status) {
           // Se estamos removendo o status atual, definimos o anterior do histórico como atual
           newStatus = newHistory.length > 0 ? newHistory[newHistory.length - 1] as MeetingStatus : "pending";
-          // E removemos ele do histórico se houver (já foi removido pelo filter acima se estivesse lá)
+          // E removemos ele do histórico se houver
           if (newHistory.length > 0) {
             newHistory = newHistory.slice(0, -1);
           }
@@ -786,18 +790,12 @@ export default function CentralOperacional() {
         newStatus = status as MeetingStatus;
       }
 
-      const { error } = await supabase
-        .from("meetings")
-        .update({ 
-          status: newStatus,
-          status_history: newHistory 
-        })
-        .eq("id", id);
-      
-      if (error) throw error;
+      // Chama a função centralizada que já lida com comemorações e perfis corretamente
+      const { updateMeetingStatus } = await import("@/lib/store");
+      await updateMeetingStatus(id, status);
       
       toast.success("Status atualizado!");
-      loadData();
+      await loadData();
       
       // Só mostra o modal de parabéns se estiver ADICIONANDO o status de venda
       if (isAdding && newStatus === "venda_concluida" && isAdmin) {
@@ -807,6 +805,8 @@ export default function CentralOperacional() {
     } catch (error) {
       console.error(error);
       toast.error("Erro ao atualizar status");
+    } finally {
+      isUpdatingStatusRef.current = false;
     }
   };
 
