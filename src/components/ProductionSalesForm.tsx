@@ -73,8 +73,8 @@ export function ProductionSalesForm({ onSuccess }: ProductionSalesFormProps) {
 
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("id")
-        .in("role", ["admin", "seller"]);
+        .select("id, role")
+        .in("role", ["admin", "seller", "pre_seller"]);
 
       if (profiles && profiles.length > 0) {
         const recognitions = profiles.map(p => ({
