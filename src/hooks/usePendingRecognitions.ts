@@ -36,7 +36,7 @@ export function usePendingRecognitions(userId: string | undefined) {
         .from("profiles")
         .select("id, display_name, avatar_url")
         .in("id", adminIds);
-
+      
       const enriched = recData.map(r => ({
         ...r,
         profiles: profData?.find(p => p.id === r.admin_user_id) || null
@@ -70,7 +70,7 @@ export function usePendingRecognitions(userId: string | undefined) {
             .select("display_name, avatar_url")
             .eq("id", r.admin_user_id)
             .single();
-
+          
           const enriched = {
             ...r,
             profiles: profData || null

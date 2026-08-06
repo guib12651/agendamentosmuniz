@@ -220,7 +220,7 @@ export default function PainelTV() {
             .select('display_name, avatar_url')
             .eq('id', newRec.admin_user_id)
             .single();
-
+          
           const sellerName = profileData?.display_name || "Consultor";
           
           setShowSaleCelebration({

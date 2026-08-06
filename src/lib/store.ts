@@ -166,19 +166,18 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
       const { data: { user } } = await supabase.auth.getUser();
       const sellerName = meeting.consultant || meeting.pre_seller || "Consultor";
       
+      const { data: myProfile } = await supabase
+        .from("profiles")
+        .select("display_name, avatar_url")
+        .eq("id", user?.id)
+        .single();
+
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id")
         .in("role", ["admin", "seller"]);
 
       if (profiles && profiles.length > 0 && user) {
-        // Obter o perfil do usuário atual para saber o display_name
-        const { data: myProfile } = await supabase
-          .from("profiles")
-          .select("display_name")
-          .eq("id", user.id)
-          .single();
-
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
           admin_user_id: user.id,
@@ -188,7 +187,11 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
           metric_value: meeting.down_payment || "N/A",
         }));
 
-        await supabase.from("recognitions").insert(recognitions);
+        const { error: insertErr } = await supabase.from("recognitions").insert(recognitions);
+        if (insertErr) console.error("Error inserting recognitions:", insertErr);
+        
+        // Disparar um evento de realtime broadcast manual se necessário, 
+        // mas o Supabase Realtime deve pegar o insert se habilitado.
       }
     }
 
