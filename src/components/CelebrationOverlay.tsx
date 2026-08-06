@@ -3,6 +3,8 @@ import confetti from "canvas-confetti";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePendingRecognitions } from "@/hooks/usePendingRecognitions";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { User } from "lucide-react";
 
 const DURATION_MS = 6000;
 
@@ -104,11 +106,28 @@ export function CelebrationOverlay() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in pointer-events-auto">
       <div className="relative max-w-lg mx-4 rounded-2xl border border-primary/40 bg-card p-8 text-center shadow-2xl animate-scale-in">
-        <div className="text-6xl mb-4">🎉</div>
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <div className="absolute -inset-4 bg-primary/20 rounded-full blur-xl animate-pulse" />
+            <Avatar className="h-24 w-24 border-4 border-primary shadow-xl relative z-10">
+              <AvatarImage src={current.profiles?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary">
+                <User className="h-12 w-12" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="absolute -top-2 -right-2 text-4xl animate-bounce">🎉</div>
+          </div>
+        </div>
+        
         <h2 className="text-3xl font-display font-black text-primary mb-2">
-          PARABÉNS, {firstName?.toUpperCase() || "!"}!
+          PARABÉNS!
         </h2>
-        <p className="text-lg text-foreground mb-4 whitespace-pre-wrap">{current.message}</p>
+        <p className="text-xl font-medium text-foreground mb-4">
+          {current.profiles?.display_name || "Alguém"} mandou um reconhecimento!
+        </p>
+        <p className="text-lg text-muted-foreground mb-6 italic whitespace-pre-wrap">
+          "{current.message}"
+        </p>
         {current.metric_value && (
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-bold text-primary mb-6">
             🏆 {current.metric_label}: {current.metric_value}

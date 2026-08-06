@@ -11,6 +11,10 @@ export interface Recognition {
   metric_value: string | null;
   seen_at: string | null;
   created_at: string;
+  profiles?: {
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
 }
 
 export function usePendingRecognitions(userId: string | undefined) {
@@ -20,7 +24,13 @@ export function usePendingRecognitions(userId: string | undefined) {
     if (!userId) return;
     const { data } = await supabase
       .from("recognitions")
-      .select("*")
+      .select(`
+        *,
+        profiles:admin_user_id (
+          display_name,
+          avatar_url
+        )
+      `)
       .eq("recipient_user_id", userId)
       .is("seen_at", null)
       .order("created_at", { ascending: true });
@@ -43,9 +53,23 @@ export function usePendingRecognitions(userId: string | undefined) {
           table: "recognitions",
           filter: `recipient_user_id=eq.${userId}`,
         },
-        (payload) => {
-          const r = payload.new as Recognition;
-          if (!r.seen_at) setPending((prev) => [...prev, r]);
+        async (payload) => {
+          const newId = (payload.new as any).id;
+          const { data } = await supabase
+            .from("recognitions")
+            .select(`
+              *,
+              profiles:admin_user_id (
+                display_name,
+                avatar_url
+              )
+            `)
+            .eq("id", newId)
+            .single();
+            
+          if (data && !data.seen_at) {
+            setPending((prev) => [...prev, data as Recognition]);
+          }
         }
       )
       .subscribe();
