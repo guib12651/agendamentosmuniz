@@ -130,7 +130,7 @@ export function CelebrationOverlay() {
     return () => clearTimeout(timer);
   }, [current, markSeen]);
 
-  if (!current || dismissedAt === current.created_at.length) return null;
+  if (!current || dismissedAt === current.id) return null;
 
   const isSale = current.title.includes("VENDA");
 
@@ -171,7 +171,7 @@ export function CelebrationOverlay() {
           <Button
             onClick={() => {
               markSeen(current.id);
-              setDismissedAt(current.created_at.length);
+              setDismissedAt(current.id);
             }}
           >
             Obrigado!
