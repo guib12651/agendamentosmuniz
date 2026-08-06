@@ -158,7 +158,7 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
   if (status === "venda_concluida") {
     const { data: meeting } = await supabase
       .from("meetings")
-      .select("lead_name, down_payment, pre_seller, consultant")
+      .select("lead_name, down_payment, pre_seller, consultant, user_id")
       .eq("id", id)
       .single();
 
@@ -166,10 +166,13 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
       const { data: { user } } = await supabase.auth.getUser();
       const sellerName = meeting.consultant || meeting.pre_seller || "Consultor";
       
-      const { data: myProfile } = await supabase
+      // O vendedor (destinatário principal dos fogos e mérito) é o user_id da reunião
+      const sellerUserId = meeting.user_id;
+
+      const { data: sellerProfile } = await supabase
         .from("profiles")
         .select("display_name, avatar_url")
-        .eq("id", user?.id)
+        .eq("id", sellerUserId)
         .single();
 
       const { data: profiles } = await supabase
@@ -180,21 +183,17 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
       if (profiles && profiles.length > 0 && user) {
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
-          admin_user_id: user.id,
+          admin_user_id: sellerUserId, // O "autor" da venda para fins de exibição (foto/nome) é o vendedor
           title: "💰 VENDA REALIZADA!",
-          message: `${myProfile?.display_name || sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
+          message: `${sellerProfile?.display_name || sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
           metric_label: "Entrada",
           metric_value: meeting.down_payment || "N/A",
         }));
 
         const { error: insertErr } = await supabase.from("recognitions").insert(recognitions);
         if (insertErr) console.error("Error inserting recognitions:", insertErr);
-        
-        // Disparar um evento de realtime broadcast manual se necessário, 
-        // mas o Supabase Realtime deve pegar o insert se habilitado.
       }
     }
-
   }
 }
 

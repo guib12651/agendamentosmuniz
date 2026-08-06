@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Meeting, Call, MeetingStatus } from "@/lib/types";
@@ -109,6 +109,7 @@ const statusConfig = {
 };
 
 export default function CentralOperacional() {
+  const isUpdatingStatusRef = useRef(false);
   const { profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
   const [period, setPeriod] = useState<PeriodType | "today" | "yesterday" | "last7" | "last30">("today");
