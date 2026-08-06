@@ -60,17 +60,51 @@ function tryPlaySound() {
     const Ctx = (window as any).AudioContext || (window as any).webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
+    
+    // Som de fogos (ruído branco + envelope de volume)
+    const playFireworkSound = (time: number) => {
+      const bufferSize = ctx.sampleRate * 0.5;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = Math.random() * 2 - 1;
+      }
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(1000, time);
+      filter.frequency.exponentialRampToValueAtTime(10, time + 0.5);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.3, time);
+      gain.gain.exponentialRampToValueAtTime(0.01, time + 0.5);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start(time);
+    };
+
+    // Disparar alguns "explosões"
+    [0, 0.2, 0.5, 0.8, 1.2].forEach((delay) => {
+      playFireworkSound(ctx.currentTime + delay);
+    });
+
+    // Pequena melodia de vitória
     const notes = [523.25, 659.25, 783.99, 1046.5];
     notes.forEach((freq, i) => {
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.type = "triangle";
       o.frequency.value = freq;
-      g.gain.value = 0.08;
+      g.gain.value = 0.05;
       o.connect(g).connect(ctx.destination);
-      const t = ctx.currentTime + i * 0.12;
+      const t = ctx.currentTime + 0.5 + i * 0.12;
       o.start(t);
-      g.gain.setValueAtTime(0.08, t);
+      g.gain.setValueAtTime(0.05, t);
       g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
       o.stop(t + 0.4);
     });
@@ -86,11 +120,6 @@ export function CelebrationOverlay() {
 
   const current = pending[0];
 
-  const firstName = useMemo(
-    () => (profile?.displayName || "").split(" ")[0],
-    [profile?.displayName]
-  );
-
   useEffect(() => {
     if (!current) return;
     fireFireworks();
@@ -102,6 +131,8 @@ export function CelebrationOverlay() {
   }, [current, markSeen]);
 
   if (!current || dismissedAt === current.created_at.length) return null;
+
+  const isSale = current.title.includes("VENDA");
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in pointer-events-auto">
@@ -120,10 +151,13 @@ export function CelebrationOverlay() {
         </div>
         
         <h2 className="text-3xl font-display font-black text-primary mb-2">
-          PARABÉNS!
+          {current.title}
         </h2>
         <p className="text-xl font-medium text-foreground mb-4">
-          {current.profiles?.display_name || "Alguém"} mandou um reconhecimento!
+          {isSale 
+            ? `${current.profiles?.display_name || "Um consultor"} acabou de brilhar!`
+            : `${current.profiles?.display_name || "Alguém"} mandou um reconhecimento!`
+          }
         </p>
         <p className="text-lg text-muted-foreground mb-6 italic whitespace-pre-wrap">
           "{current.message}"
