@@ -20,6 +20,8 @@ import ProductionSales from "./pages/ProductionSales.tsx";
 import CarteiraLeads from "./pages/CarteiraLeads.tsx";
 import Performance from "./pages/Performance.tsx";
 import { MIA } from "./components/MIA";
+import { CelebrationOverlay } from "./components/CelebrationOverlay";
+
 
 
 
@@ -60,6 +62,7 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <MIA />
+          <CelebrationOverlay />
           <Routes>
 
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />

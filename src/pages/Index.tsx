@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Meeting, TimeBlock, MeetingStatus } from "@/lib/types";
 import { getMeetings, getBlocks, deleteMeeting, deleteBlock, updateMeetingStatus, getOccupiedSlots } from "@/lib/store";
 import { Plus, Ban, CalendarDays, LogOut, Search, X, BarChart3, CalendarCheck, MessageSquare, Filter, Menu, Users as UsersIcon, FileText, Gavel, Monitor, Target, Download, Wallet, Trophy } from "lucide-react";
-import { CelebrationOverlay } from "@/components/CelebrationOverlay";
+
 import { FIXED_TIME_SLOTS, TimeSlotInfo } from "@/lib/timeSlots";
 import TimeSlotGrid from "@/components/TimeSlotGrid";
 import { Button } from "@/components/ui/button";
@@ -279,7 +279,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen pb-8">
-      <CelebrationOverlay />
+      
       <header className="border-b border-border sticky top-0 z-30 bg-background/95 backdrop-blur">
         <div className="container flex items-center justify-between gap-2 py-3 px-3 sm:px-6">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
