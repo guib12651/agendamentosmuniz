@@ -172,11 +172,18 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
         .in("role", ["admin", "seller"]);
 
       if (profiles && profiles.length > 0 && user) {
+        // Obter o perfil do usuário atual para saber o display_name
+        const { data: myProfile } = await supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("id", user.id)
+          .single();
+
         const recognitions = profiles.map(p => ({
           recipient_user_id: p.id,
-          admin_user_id: user.id, // Agora usa o ID de quem registrou a venda
+          admin_user_id: user.id,
           title: "💰 VENDA REALIZADA!",
-          message: `${sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
+          message: `${myProfile?.display_name || sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
           metric_label: "Entrada",
           metric_value: meeting.down_payment || "N/A",
         }));
@@ -184,6 +191,7 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
         await supabase.from("recognitions").insert(recognitions);
       }
     }
+
   }
 }
 
