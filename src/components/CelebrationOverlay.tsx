@@ -150,16 +150,13 @@ export function CelebrationOverlay() {
           </div>
         </div>
         
-        <h2 className="text-3xl font-display font-black text-primary mb-2">
+        <h2 className="text-3xl font-display font-black text-primary mb-2 uppercase">
           {current.title}
         </h2>
-        <p className="text-xl font-medium text-foreground mb-4">
-          {isSale 
-            ? `${current.profiles?.display_name || "Um consultor"} acabou de brilhar!`
-            : `${current.profiles?.display_name || "Alguém"} mandou um reconhecimento!`
-          }
+        <p className="text-xl font-bold text-foreground mb-4">
+          {current.profiles?.display_name || "Consultor"} 🚀
         </p>
-        <p className="text-lg text-muted-foreground mb-6 italic whitespace-pre-wrap">
+        <p className="text-lg text-muted-foreground mb-6 italic whitespace-pre-wrap font-medium">
           "{current.message}"
         </p>
         {current.metric_value && (
