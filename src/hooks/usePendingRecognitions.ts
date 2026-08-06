@@ -76,7 +76,9 @@ export function usePendingRecognitions(userId: string | undefined) {
             profiles: profData || null
           };
 
-          if (r.recipient_user_id === userId && !r.seen_at) setPending((prev) => [...prev, enriched as Recognition]);
+          if ((r.recipient_user_id === userId || userId === undefined) && !r.seen_at) {
+            setPending((prev) => [...prev, enriched as Recognition]);
+          }
         }
       )
       .subscribe();

@@ -215,6 +215,7 @@ export default function PainelTV() {
         
         // Verificamos se é uma venda (pelo título)
         if (newRec.title.includes("VENDA")) {
+          // Busca o perfil do vendedor (admin_user_id no registro de reconhecimento)
           const { data: profileData } = await supabase
             .from('profiles')
             .select('display_name, avatar_url')
