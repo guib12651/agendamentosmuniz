@@ -55,13 +55,39 @@ export function ProductionSalesForm({ onSuccess }: ProductionSalesFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      const { error } = await supabase.from("production_sales").insert({
+      const { data: newSale, error } = await supabase.from("production_sales").insert({
         product_name: values.product_name,
         production_date: format(values.production_date, "yyyy-MM-dd"),
         quantity: values.quantity,
         unit_price: values.unit_price,
         user_id: profile?.id,
-      });
+      }).select().single();
+
+      if (error) throw error;
+
+      // Criar reconhecimento para comemoração em tela cheia para todos os admins/vendedores
+      const totalFormatted = new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      }).format(values.quantity * values.unit_price);
+
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .in("role", ["admin", "seller"]);
+
+      if (profiles && profiles.length > 0) {
+        const recognitions = profiles.map(p => ({
+          recipient_user_id: p.id,
+          admin_user_id: profile?.id || p.id,
+          title: "🚀 NOVA VENDA!",
+          message: `${profile?.displayName || "Um consultor"} acabou de realizar uma venda de ${values.product_name}!`,
+          metric_label: "Valor",
+          metric_value: totalFormatted,
+        }));
+
+        await supabase.from("recognitions").insert(recognitions);
+      }
 
       if (error) throw error;
 

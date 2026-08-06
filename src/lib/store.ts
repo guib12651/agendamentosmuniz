@@ -153,6 +153,36 @@ export async function updateMeetingStatus(id: string, status: string): Promise<v
     })
     .eq("id", id);
   if (error) throw error;
+
+  // Se for uma venda, criar reconhecimento para comemoração em tela cheia
+  if (status === "venda_concluida") {
+    const { data: meeting } = await supabase
+      .from("meetings")
+      .select("lead_name, down_payment, pre_seller, consultant")
+      .eq("id", id)
+      .single();
+
+    if (meeting) {
+      const sellerName = meeting.consultant || meeting.pre_seller || "Consultor";
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id")
+        .in("role", ["admin", "seller"]);
+
+      if (profiles && profiles.length > 0) {
+        const recognitions = profiles.map(p => ({
+          recipient_user_id: p.id,
+          admin_user_id: p.id, // self-system
+          title: "💰 VENDA REALIZADA!",
+          message: `${sellerName} fechou uma venda com o cliente ${meeting.lead_name}!`,
+          metric_label: "Entrada",
+          metric_value: meeting.down_payment || "N/A",
+        }));
+
+        await supabase.from("recognitions").insert(recognitions);
+      }
+    }
+  }
 }
 
 export async function deleteMeeting(id: string): Promise<void> {
