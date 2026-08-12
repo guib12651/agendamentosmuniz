@@ -181,42 +181,47 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-gray-500 hover:bg-gray-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-gray-500 hover:bg-gray-600 text-white border-none text-[9px] min-[400px]:text-[10px] sm:text-xs h-8 sm:h-9 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1"
           onClick={handleNoWhatsApp}
         >
-          <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
+          <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="truncate w-full text-center">Sem WhatsApp</span>
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-amber-500 hover:bg-amber-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-amber-500 hover:bg-amber-600 text-white border-none text-[9px] min-[400px]:text-[10px] sm:text-xs h-8 sm:h-9 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1"
           onClick={() => onUpdateStatus(opportunity.id, "in_contact")}
         >
-          <MessageSquare className="w-4 h-4 mr-1" /> Em contato
+          <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="truncate w-full text-center">Em contato</span>
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-blue-500 hover:bg-blue-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-blue-500 hover:bg-blue-600 text-white border-none text-[9px] min-[400px]:text-[10px] sm:text-xs h-8 sm:h-9 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1"
           onClick={() => onUpdateStatus(opportunity.id, "contacted")}
         >
-          <Check className="w-4 h-4 mr-1" /> Atendeu
+          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="truncate w-full text-center">Atendeu</span>
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-purple-500 hover:bg-purple-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-purple-500 hover:bg-purple-600 text-white border-none text-[9px] min-[400px]:text-[10px] sm:text-xs h-8 sm:h-9 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1"
           onClick={() => onSchedule(opportunity)}
         >
-          <Calendar className="w-4 h-4 mr-1" /> Agendado
+          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="truncate w-full text-center">Agendado</span>
         </Button>
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-red-500 hover:bg-red-600 text-white border-none text-[9px] min-[400px]:text-[10px] sm:text-xs h-8 sm:h-9 px-1 sm:px-2 flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1"
           onClick={() => onUpdateStatus(opportunity.id, "no_answer")}
         >
-          <X className="w-4 h-4 mr-1" /> Não Atendeu
+          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <span className="truncate w-full text-center">Não Atendeu</span>
         </Button>
       </CardFooter>
     </Card>
