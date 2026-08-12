@@ -45,6 +45,15 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
     }
   };
 
+  const handleNoWhatsApp = async () => {
+    try {
+      await onUpdateStatus(opportunity.id, "no_whatsapp");
+      toast.success("Marcado como sem WhatsApp");
+    } catch (error) {
+      toast.error("Erro ao atualizar status.");
+    }
+  };
+
   const handleWhatsApp = () => {
     const phone = opportunity.phone.replace(/\D/g, "");
     if (!phone) return;
@@ -152,7 +161,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
           variant="outline" 
           size="sm" 
           className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
-          onClick={() => {}}
+          onClick={handleNoWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
         </Button>
