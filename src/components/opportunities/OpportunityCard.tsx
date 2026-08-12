@@ -161,7 +161,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-[#EDAB00] hover:bg-[#D49A00] text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={handleNoWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
