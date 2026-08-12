@@ -136,16 +136,34 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
           </div>
         )}
 
-        {opportunity.notes && (
-          <div className="bg-amber-50 dark:bg-amber-950/20 p-2 rounded text-xs border border-amber-100 dark:border-amber-900/30">
-            <span className="font-bold block mb-1 flex items-center gap-1 text-amber-800 dark:text-amber-200 uppercase text-[9px]">
-              <StickyNote className="w-3 h-3" /> Observação Histórica
-            </span>
-            <p className="text-amber-900/80 dark:text-amber-100/70 italic whitespace-pre-wrap">
-              {opportunity.notes}
-            </p>
+        <div className="space-y-2 pt-2 border-t border-border">
+          <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+            <StickyNote className="w-3 h-3" /> Observações do Lead
+          </span>
+          <div className="flex gap-2">
+            <Textarea
+              placeholder="Adicione observações sobre o lead..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="text-xs min-h-[60px] resize-none bg-muted/30 focus:bg-background transition-colors"
+            />
+            {onUpdateNotes && notes !== (opportunity.notes || "") && (
+              <Button
+                size="icon"
+                variant="outline"
+                className="h-auto w-10 shrink-0 border-primary/20 text-primary hover:bg-primary/10"
+                onClick={handleSaveNotes}
+                disabled={savingNotes}
+              >
+                {savingNotes ? (
+                  <Clock className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+              </Button>
+            )}
           </div>
-        )}
+        </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
