@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2, Save, StickyNote } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;
@@ -42,6 +43,15 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
       await onUpdateNotes(opportunity.id, notes);
     } finally {
       setSavingNotes(false);
+    }
+  };
+
+  const handleNoWhatsApp = async () => {
+    try {
+      await onUpdateStatus(opportunity.id, "no_whatsapp");
+      toast.success("Marcado como sem WhatsApp");
+    } catch (error) {
+      toast.error("Erro ao atualizar status.");
     }
   };
 
@@ -152,7 +162,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
           variant="outline" 
           size="sm" 
           className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
-          onClick={() => {}}
+          onClick={handleNoWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
         </Button>

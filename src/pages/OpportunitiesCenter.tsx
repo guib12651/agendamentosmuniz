@@ -97,6 +97,7 @@ export default function OpportunitiesCenter() {
         callTime: new Date().toISOString(),
         result: status === "contacted" ? "Atendeu" : 
                 status === "no_answer" ? "Não Atendeu" : 
+                status === "no_whatsapp" ? "Sem WhatsApp" :
                 status === "scheduled" ? "Agendou" : "Contato"
       });
 
