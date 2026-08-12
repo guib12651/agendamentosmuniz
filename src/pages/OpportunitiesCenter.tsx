@@ -258,6 +258,7 @@ export default function OpportunitiesCenter() {
       pending: opportunities.filter(o => o.status === "pending").length,
       contacted: opportunities.filter(o => o.status === "contacted").length,
       no_answer: opportunities.filter(o => o.status === "no_answer").length,
+      no_whatsapp: opportunities.filter(o => o.status === "no_whatsapp").length,
       scheduled: opportunities.filter(o => o.status === "scheduled").length,
     };
   }, [opportunities]);
@@ -269,7 +270,7 @@ export default function OpportunitiesCenter() {
     opportunities.forEach(opp => {
       const userName = opp.profiles?.display_name || "Desconhecido";
       if (!users[userName]) {
-        users[userName] = { name: userName, pending: 0, contacted: 0, no_answer: 0, scheduled: 0 };
+        users[userName] = { name: userName, pending: 0, contacted: 0, no_answer: 0, no_whatsapp: 0, scheduled: 0 };
       }
       if (opp.status in users[userName]) {
         users[userName][opp.status]++;
@@ -279,6 +280,8 @@ export default function OpportunitiesCenter() {
         users[userName].contacted++;
       } else if (opp.status === "no_answer") {
         users[userName].no_answer++;
+      } else if (opp.status === "no_whatsapp") {
+        users[userName].no_whatsapp++;
       } else if (opp.status === "scheduled") {
         users[userName].scheduled++;
       }
@@ -392,6 +395,7 @@ export default function OpportunitiesCenter() {
                       <th className="px-4 py-3 text-center">🟢 Atenderam</th>
                       <th className="px-4 py-3 text-center">🔴 Não Atenderam</th>
                       <th className="px-4 py-3 text-center">📅 Agendados</th>
+                      <th className="px-4 py-3 text-center">📵 Sem WhatsApp</th>
                       <th className="px-4 py-3 text-center">Total</th>
                     </tr>
                   </thead>
@@ -403,6 +407,7 @@ export default function OpportunitiesCenter() {
                         <td className="px-4 py-3 text-center">{user.contacted}</td>
                         <td className="px-4 py-3 text-center">{user.no_answer}</td>
                         <td className="px-4 py-3 text-center">{user.scheduled}</td>
+                        <td className="px-4 py-3 text-center">{user.no_whatsapp || 0}</td>
                         <td className="px-4 py-3 text-center font-bold">
                           {user.pending + user.contacted + user.no_answer + user.scheduled}
                         </td>
