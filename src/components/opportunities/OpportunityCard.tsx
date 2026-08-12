@@ -22,6 +22,8 @@ const statusConfig = {
   pending: { label: "Pendente", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
   contacted: { label: "Atendeu", color: "bg-green-100 text-green-700 border-green-200" },
   no_answer: { label: "Não Atendeu", color: "bg-red-100 text-red-700 border-red-200" },
+  no_whatsapp: { label: "Sem WhatsApp", color: "bg-amber-100 text-amber-700 border-amber-200" },
+  in_contact: { label: "Em contato", color: "bg-orange-100 text-orange-700 border-orange-200" },
   scheduled: { label: "Agendado", color: "bg-blue-100 text-blue-700 border-blue-200" },
   converted: { label: "Convertido", color: "bg-purple-100 text-purple-700 border-purple-200" },
   archived: { label: "Arquivado", color: "bg-gray-100 text-gray-700 border-gray-200" },
@@ -161,7 +163,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         <Button 
           variant="outline" 
           size="sm" 
-          className="bg-red-500 hover:bg-red-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          className="bg-[#EDAB00] hover:bg-[#D49A00] text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
           onClick={handleNoWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
