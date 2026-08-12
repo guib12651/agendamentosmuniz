@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Check, X, Calendar, User, MapPin, Building2, Car, Clock, Trash2, Save, StickyNote } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 interface OpportunityCardProps {
   opportunity: Opportunity;

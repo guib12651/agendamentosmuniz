@@ -55,7 +55,8 @@ export default function OpportunityFilters({
           <SelectItem value="all">Todos os Status</SelectItem>
           <SelectItem value="pending">Não Contatados</SelectItem>
           <SelectItem value="contacted">Atenderam</SelectItem>
-          <SelectItem value="no_answer">Não Atenderam</SelectItem>
+          <SelectItem value="no_answer">Não Atendeu</SelectItem>
+          <SelectItem value="no_whatsapp">Sem WhatsApp</SelectItem>
           <SelectItem value="scheduled">Agendados</SelectItem>
           <SelectItem value="converted">Convertidos</SelectItem>
           <SelectItem value="archived">Arquivados</SelectItem>
@@ -98,8 +99,6 @@ export default function OpportunityFilters({
           </SelectContent>
         </Select>
       )}
-
-
 
       <Select value={period} onValueChange={onPeriodChange}>
         <SelectTrigger>
