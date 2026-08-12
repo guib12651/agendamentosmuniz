@@ -22,7 +22,7 @@ const statusConfig = {
   pending: { label: "Pendente", color: "bg-yellow-100 text-yellow-700 border-yellow-200" },
   contacted: { label: "Atendeu", color: "bg-green-100 text-green-700 border-green-200" },
   no_answer: { label: "Não Atendeu", color: "bg-red-100 text-red-700 border-red-200" },
-  no_whatsapp: { label: "Sem WhatsApp", color: "bg-amber-100 text-amber-700 border-amber-200" },
+  no_whatsapp: { label: "Sem WhatsApp", color: "bg-gray-100 text-gray-700 border-gray-200" },
   in_contact: { label: "Em contato", color: "bg-orange-100 text-orange-700 border-orange-200" },
   scheduled: { label: "Agendado", color: "bg-blue-100 text-blue-700 border-blue-200" },
   converted: { label: "Convertido", color: "bg-purple-100 text-purple-700 border-purple-200" },
