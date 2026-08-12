@@ -26,7 +26,7 @@ export default function OpportunityStats({ stats, onFilterStatus, activeFilter }
     { key: "no_whatsapp", label: "Sem WhatsApp", color: "text-gray-600", bg: "bg-gray-50", border: "border-gray-200", count: stats.no_whatsapp },
     { key: "in_contact", label: "Em contato", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100", count: stats.in_contact },
     { key: "scheduled", label: "Agendados", color: "text-blue-600", bg: "bg-[#F0F7FF]", border: "border-blue-200", count: stats.scheduled },
-    { key: "ocr", label: "Leads OCR", color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200", count: stats.ocr_count || 0 },
+    { key: "ocr", label: "Total de Leads", color: "text-purple-600", bg: "bg-purple-50", border: "border-purple-200", count: stats.ocr_count || 0 },
   ];
 
   return (
