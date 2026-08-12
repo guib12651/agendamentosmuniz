@@ -262,7 +262,7 @@ export default function OpportunitiesCenter() {
       no_whatsapp: opportunities.filter(o => o.status === "no_whatsapp").length,
       in_contact: opportunities.filter(o => o.status === "in_contact").length,
       scheduled: opportunities.filter(o => o.status === "scheduled").length,
-      ocr_count: opportunities.filter(o => o.ocr_raw_text !== null).length,
+      ocr_count: new Set(opportunities.filter(o => o.ocr_raw_text !== null).map(o => o.phone)).size,
     };
   }, [opportunities]);
 
