@@ -399,7 +399,7 @@ export default function OpportunitiesCenter() {
                       <th className="px-4 py-3 text-center">🟢 Atenderam</th>
                       <th className="px-4 py-3 text-center">🔴 Não Atenderam</th>
                       <th className="px-4 py-3 text-center">📅 Agendados</th>
-                      <th className="px-4 py-3 text-center">🟡 Sem WhatsApp</th>
+                      <th className="px-4 py-3 text-center">⚪ Sem WhatsApp</th>
                       <th className="px-4 py-3 text-center">💬 Em contato</th>
                       <th className="px-4 py-3 text-center">Total</th>
                     </tr>
