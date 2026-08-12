@@ -98,6 +98,7 @@ export default function OpportunitiesCenter() {
         result: status === "contacted" ? "Atendeu" : 
                 status === "no_answer" ? "Não Atendeu" : 
                 status === "no_whatsapp" ? "Sem WhatsApp" :
+                status === "in_contact" ? "Em contato" :
                 status === "scheduled" ? "Agendou" : "Contato"
       });
 
@@ -259,6 +260,7 @@ export default function OpportunitiesCenter() {
       contacted: opportunities.filter(o => o.status === "contacted").length,
       no_answer: opportunities.filter(o => o.status === "no_answer").length,
       no_whatsapp: opportunities.filter(o => o.status === "no_whatsapp").length,
+      in_contact: opportunities.filter(o => o.status === "in_contact").length,
       scheduled: opportunities.filter(o => o.status === "scheduled").length,
     };
   }, [opportunities]);
@@ -270,7 +272,7 @@ export default function OpportunitiesCenter() {
     opportunities.forEach(opp => {
       const userName = opp.profiles?.display_name || "Desconhecido";
       if (!users[userName]) {
-        users[userName] = { name: userName, pending: 0, contacted: 0, no_answer: 0, no_whatsapp: 0, scheduled: 0 };
+        users[userName] = { name: userName, pending: 0, contacted: 0, no_answer: 0, no_whatsapp: 0, in_contact: 0, scheduled: 0 };
       }
       if (opp.status in users[userName]) {
         users[userName][opp.status]++;
@@ -282,6 +284,8 @@ export default function OpportunitiesCenter() {
         users[userName].no_answer++;
       } else if (opp.status === "no_whatsapp") {
         users[userName].no_whatsapp++;
+      } else if (opp.status === "in_contact") {
+        users[userName].in_contact++;
       } else if (opp.status === "scheduled") {
         users[userName].scheduled++;
       }
@@ -396,6 +400,7 @@ export default function OpportunitiesCenter() {
                       <th className="px-4 py-3 text-center">🔴 Não Atenderam</th>
                       <th className="px-4 py-3 text-center">📅 Agendados</th>
                       <th className="px-4 py-3 text-center">📵 Sem WhatsApp</th>
+                      <th className="px-4 py-3 text-center">💬 Em contato</th>
                       <th className="px-4 py-3 text-center">Total</th>
                     </tr>
                   </thead>
@@ -408,6 +413,7 @@ export default function OpportunitiesCenter() {
                         <td className="px-4 py-3 text-center">{user.no_answer}</td>
                         <td className="px-4 py-3 text-center">{user.scheduled}</td>
                         <td className="px-4 py-3 text-center">{user.no_whatsapp || 0}</td>
+                        <td className="px-4 py-3 text-center">{user.in_contact || 0}</td>
                         <td className="px-4 py-3 text-center font-bold">
                           {user.pending + user.contacted + user.no_answer + user.scheduled}
                         </td>

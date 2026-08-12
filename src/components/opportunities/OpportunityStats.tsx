@@ -7,6 +7,7 @@ interface StatsData {
   contacted: number;
   no_answer: number;
   no_whatsapp: number;
+  in_contact: number;
   scheduled: number;
 }
 
@@ -22,11 +23,12 @@ export default function OpportunityStats({ stats, onFilterStatus, activeFilter }
     { key: "contacted", label: "Atenderam", color: "text-green-600", bg: "bg-[#F2FAF5]", border: "border-green-200", count: stats.contacted },
     { key: "no_answer", label: "Não Atenderam", color: "text-red-600", bg: "bg-[#FFF5F5]", border: "border-red-200", count: stats.no_answer },
     { key: "no_whatsapp", label: "Sem WhatsApp", color: "text-rose-700", bg: "bg-rose-50", border: "border-rose-100", count: stats.no_whatsapp },
+    { key: "in_contact", label: "Em contato", color: "text-amber-700", bg: "bg-amber-50", border: "border-amber-100", count: stats.in_contact },
     { key: "scheduled", label: "Agendados", color: "text-blue-600", bg: "bg-[#F0F7FF]", border: "border-blue-200", count: stats.scheduled },
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
       {cards.map((card) => (
         <Card 
           key={card.key}

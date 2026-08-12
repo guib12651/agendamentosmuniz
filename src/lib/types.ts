@@ -102,7 +102,7 @@ export interface Company {
   createdAt: string;
 }
 
-export type OpportunityStatus = "pending" | "contacted" | "no_answer" | "no_whatsapp" | "scheduled" | "converted" | "archived";
+export type OpportunityStatus = "pending" | "contacted" | "no_answer" | "no_whatsapp" | "in_contact" | "scheduled" | "converted" | "archived";
 
 export interface Opportunity {
   id: string;

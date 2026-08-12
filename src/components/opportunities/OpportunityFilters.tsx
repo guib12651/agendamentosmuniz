@@ -57,6 +57,7 @@ export default function OpportunityFilters({
           <SelectItem value="contacted">Atenderam</SelectItem>
           <SelectItem value="no_answer">Não Atendeu</SelectItem>
           <SelectItem value="no_whatsapp">Sem WhatsApp</SelectItem>
+          <SelectItem value="in_contact">Em Contato</SelectItem>
           <SelectItem value="scheduled">Agendados</SelectItem>
           <SelectItem value="converted">Convertidos</SelectItem>
           <SelectItem value="archived">Arquivados</SelectItem>

@@ -157,7 +157,7 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
         </div>
       </CardContent>
 
-      <CardFooter className="p-1.5 sm:p-2 bg-muted/20 grid grid-cols-2 gap-1.5 sm:gap-2">
+      <CardFooter className="p-1.5 sm:p-2 bg-muted/20 grid grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2">
         <Button 
           variant="outline" 
           size="sm" 
@@ -165,6 +165,14 @@ export default function OpportunityCard({ opportunity, onUpdateStatus, onSchedul
           onClick={handleNoWhatsApp}
         >
           <MessageSquare className="w-4 h-4 mr-1" /> Sem WhatsApp
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="bg-amber-500 hover:bg-amber-600 text-white border-none text-[10px] sm:text-xs h-8 sm:h-9 px-2"
+          onClick={() => onUpdateStatus(opportunity.id, "in_contact")}
+        >
+          <MessageSquare className="w-4 h-4 mr-1" /> Em contato
         </Button>
         <Button 
           variant="outline" 
