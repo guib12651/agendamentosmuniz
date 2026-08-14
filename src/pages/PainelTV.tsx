@@ -83,6 +83,7 @@ export default function PainelTV() {
 
       // 1. Fetch Meetings
       const m = await getMeetings(today, today);
+      // O getMeetings já traz arquivados e ativos. Vamos garantir a consistência com a Central Operacional.
       setMeetings(m);
 
       // 2. Daily Stats
