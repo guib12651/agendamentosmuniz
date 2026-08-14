@@ -90,11 +90,11 @@ export default function PainelTV() {
         leads: 0,
         distributed: 0,
         calls: 0,
-        appointments: m.length,
-        present: m.filter(x => x.status === 'compareceu' || x.status === 'visita_realizada').length,
-        absent: m.filter(x => x.status === 'nao_compareceu').length,
-        negotiating: m.filter(x => x.status === 'em_negociacao').length,
-        sales: m.filter(x => x.status === 'venda_concluida').length
+        appointments: m.filter(x => !x.archived).length,
+        present: m.filter(x => !x.archived && (x.status === 'compareceu' || x.status === 'visita_realizada')).length,
+        absent: m.filter(x => !x.archived && x.status === 'nao_compareceu').length,
+        negotiating: m.filter(x => !x.archived && x.status === 'em_negociacao').length,
+        sales: m.filter(x => !x.archived && x.status === 'venda_concluida').length
       };
 
       // Fetch manual leads
@@ -213,8 +213,8 @@ export default function PainelTV() {
         const newRec = payload.new as any;
         console.log("Recognition for TV detected:", newRec);
         
-        // Verificamos se é uma venda (pelo título)
-        if (newRec.title.includes("VENDA") || newRec.title.includes("CONCLUÍDA")) {
+        // Verificamos se é uma venda (pelo título) ou se o log contém palavras-chave de venda
+        if (newRec.title.includes("VENDA") || newRec.title.includes("CONCLUÍDA") || newRec.message?.toUpperCase().includes("FECHOU UMA VENDA")) {
           // Busca o perfil do vendedor (admin_user_id no registro de reconhecimento)
           const { data: profileData } = await supabase
             .from('profiles')
