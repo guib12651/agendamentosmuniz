@@ -138,7 +138,7 @@ export default function PainelTV() {
       if (monthMeetings) {
         // Seller Ranking
         const sellers: Record<string, number> = {};
-        monthMeetings.filter(x => x.status === 'venda_concluida').forEach(x => {
+        monthMeetings.filter(x => !x.archived && x.status === 'venda_concluida').forEach(x => {
           sellers[x.consultant] = (sellers[x.consultant] || 0) + 1;
         });
         const sRanking = Object.entries(sellers)
@@ -156,9 +156,11 @@ export default function PainelTV() {
         monthMeetings.forEach(x => {
           const name = x.pre_seller;
           if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0, avatar_url: avatarMap[name] };
-          preSellers[name].appointments += 1;
-          if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
-            preSellers[name].present += 1;
+          if (!x.archived) {
+            preSellers[name].appointments += 1;
+            if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
+              preSellers[name].present += 1;
+            }
           }
         });
         const psRanking = Object.values(preSellers)
@@ -177,6 +179,7 @@ export default function PainelTV() {
         .from("meetings")
         .select("*")
         .eq("status", "venda_concluida")
+        .eq("archived", false)
         .order("updated_at", { ascending: false })
         .limit(5);
       
