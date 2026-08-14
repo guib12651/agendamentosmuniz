@@ -83,6 +83,7 @@ export default function PainelTV() {
 
       // 1. Fetch Meetings
       const m = await getMeetings(today, today);
+      // O getMeetings já traz arquivados e ativos. Vamos garantir a consistência com a Central Operacional.
       setMeetings(m);
 
       // 2. Daily Stats
@@ -90,11 +91,11 @@ export default function PainelTV() {
         leads: 0,
         distributed: 0,
         calls: 0,
-        appointments: m.length,
-        present: m.filter(x => x.status === 'compareceu' || x.status === 'visita_realizada').length,
-        absent: m.filter(x => x.status === 'nao_compareceu').length,
-        negotiating: m.filter(x => x.status === 'em_negociacao').length,
-        sales: m.filter(x => x.status === 'venda_concluida').length
+        appointments: m.filter(x => !x.archived).length,
+        present: m.filter(x => !x.archived && (x.status === 'compareceu' || x.status === 'visita_realizada')).length,
+        absent: m.filter(x => !x.archived && x.status === 'nao_compareceu').length,
+        negotiating: m.filter(x => !x.archived && x.status === 'em_negociacao').length,
+        sales: m.filter(x => !x.archived && x.status === 'venda_concluida').length
       };
 
       // Fetch manual leads
@@ -138,7 +139,7 @@ export default function PainelTV() {
       if (monthMeetings) {
         // Seller Ranking
         const sellers: Record<string, number> = {};
-        monthMeetings.filter(x => x.status === 'venda_concluida').forEach(x => {
+        monthMeetings.filter(x => !x.archived && x.status === 'venda_concluida').forEach(x => {
           sellers[x.consultant] = (sellers[x.consultant] || 0) + 1;
         });
         const sRanking = Object.entries(sellers)
@@ -156,9 +157,11 @@ export default function PainelTV() {
         monthMeetings.forEach(x => {
           const name = x.pre_seller;
           if (!preSellers[name]) preSellers[name] = { name, appointments: 0, present: 0, avatar_url: avatarMap[name] };
-          preSellers[name].appointments += 1;
-          if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
-            preSellers[name].present += 1;
+          if (!x.archived) {
+            preSellers[name].appointments += 1;
+            if (x.status === 'compareceu' || x.status === 'visita_realizada' || x.status === 'venda_concluida' || x.status === 'em_negociacao') {
+              preSellers[name].present += 1;
+            }
           }
         });
         const psRanking = Object.values(preSellers)
@@ -177,6 +180,7 @@ export default function PainelTV() {
         .from("meetings")
         .select("*")
         .eq("status", "venda_concluida")
+        .eq("archived", false)
         .order("updated_at", { ascending: false })
         .limit(5);
       
@@ -213,8 +217,8 @@ export default function PainelTV() {
         const newRec = payload.new as any;
         console.log("Recognition for TV detected:", newRec);
         
-        // Verificamos se é uma venda (pelo título)
-        if (newRec.title.includes("VENDA") || newRec.title.includes("CONCLUÍDA")) {
+        // Verificamos se é uma venda (pelo título) ou se o log contém palavras-chave de venda
+        if (newRec.title.includes("VENDA") || newRec.title.includes("CONCLUÍDA") || newRec.message?.toUpperCase().includes("FECHOU UMA VENDA")) {
           // Busca o perfil do vendedor (admin_user_id no registro de reconhecimento)
           const { data: profileData } = await supabase
             .from('profiles')
