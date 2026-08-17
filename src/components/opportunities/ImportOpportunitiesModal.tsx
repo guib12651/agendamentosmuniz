@@ -129,7 +129,7 @@ export default function ImportOpportunitiesModal({ isOpen, onClose, onSuccess }:
 
     try {
       const batchId = crypto.randomUUID();
-      const imagesBase64 = await Promise.all(files.map(f => convertToBase64(f)));
+      const imagesBase64 = await Promise.all(files.map(f => compressImage(f)));
       
       // Process images in batches of 5 to avoid timeouts in edge function
       const batchSize = 5;
