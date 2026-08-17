@@ -1026,6 +1026,7 @@ export type Database = {
         Args: { _meeting_id: string; _new_status: string }
         Returns: string[]
       }
+      cleanup_old_notifications: { Args: never; Returns: undefined }
       get_occupied_slots: {
         Args: { _date: string }
         Returns: {
