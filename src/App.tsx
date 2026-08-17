@@ -27,7 +27,21 @@ import { CelebrationOverlay } from "./components/CelebrationOverlay";
 
 
 
-const queryClient = new QueryClient();
+/**
+ * Cache padrão para reduzir refetches redundantes (economia de execuções no backend).
+ * - staleTime 60s: dados considerados frescos por 1 minuto
+ * - sem refetch automático ao focar a janela
+ */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
   const { session, profile, isAdmin, loading, signOut } = useAuth();
