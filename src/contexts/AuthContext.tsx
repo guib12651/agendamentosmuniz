@@ -27,13 +27,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
-    const { data } = await supabase
+  const fetchProfile = async (userId: string, attempt = 0): Promise<void> => {
+    const { data, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)
-      .single();
-    
+      .maybeSingle();
+
+    if (error) {
+      console.error("[Auth] Falha ao carregar perfil:", error.message);
+      // Nova tentativa (rede/sessão ainda propagando)
+      if (attempt < 2) {
+        await new Promise((r) => setTimeout(r, 800));
+        return fetchProfile(userId, attempt + 1);
+      }
+      return;
+    }
+
     if (data) {
       setProfile({
         id: data.id,
