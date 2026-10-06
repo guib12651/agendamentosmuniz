@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      _fk_backup: {
+        Row: {
+          constraint_name: string
+          definition: string
+          id: number
+          table_name: string
+          table_schema: string
+        }
+        Insert: {
+          constraint_name: string
+          definition: string
+          id?: number
+          table_name: string
+          table_schema: string
+        }
+        Update: {
+          constraint_name?: string
+          definition?: string
+          id?: number
+          table_name?: string
+          table_schema?: string
+        }
+        Relationships: []
+      }
       bids: {
         Row: {
           assembly_date: string | null
@@ -1026,7 +1050,6 @@ export type Database = {
         Args: { _meeting_id: string; _new_status: string }
         Returns: string[]
       }
-      cleanup_old_notifications: { Args: never; Returns: undefined }
       get_occupied_slots: {
         Args: { _date: string }
         Returns: {
