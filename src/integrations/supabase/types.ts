@@ -1074,6 +1074,7 @@ export type Database = {
         | "consultant"
         | "commercial_manager"
         | "admin_assistant"
+        | "owner"
       opportunity_status:
         | "not_contacted"
         | "answered"
@@ -1213,6 +1214,7 @@ export const Constants = {
         "consultant",
         "commercial_manager",
         "admin_assistant",
+        "owner",
       ],
       opportunity_status: [
         "not_contacted",
