@@ -1,17 +1,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { decodePushPublicKey, LEGACY_VAPID_PUBLIC_KEY, subscriptionMatchesKey } from "@/lib/pushKeys";
 
-const VAPID_PUBLIC_KEY =
-  "BEG9fPOGlTbfnCSUPPy3au5Q-skjCh4K4rFSE5V1xcVS93z8hptzhwJQYKfFRl_HVb1BEVefb1jDd9cFggJe81Q";
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
-  return outputArray;
-}
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY ?? LEGACY_VAPID_PUBLIC_KEY;
 
 function arrayBufferToBase64(buffer: ArrayBuffer | null): string {
   if (!buffer) return "";
@@ -43,7 +34,7 @@ export function usePushSubscription(userId: string | undefined) {
       try {
         const reg = await navigator.serviceWorker.ready;
         const sub = await reg.pushManager.getSubscription();
-        setIsSubscribed(!!sub);
+        setIsSubscribed(!!sub && subscriptionMatchesKey(sub.options.applicationServerKey, VAPID_PUBLIC_KEY));
       } catch {
         setIsSubscribed(false);
       }
@@ -63,8 +54,16 @@ export function usePushSubscription(userId: string | undefined) {
 
       const reg = await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();
+      if (sub && !subscriptionMatchesKey(sub.options.applicationServerKey, VAPID_PUBLIC_KEY)) {
+        const oldEndpoint = sub.endpoint;
+        if (!(await sub.unsubscribe())) throw new Error("Não foi possível renovar as notificações. Tente novamente.");
+        setIsSubscribed(false);
+        const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", oldEndpoint).eq("user_id", userId);
+        if (error) throw error;
+        sub = null;
+      }
       if (!sub) {
-        const key = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+        const key = decodePushPublicKey(VAPID_PUBLIC_KEY);
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: key.buffer as ArrayBuffer,
@@ -74,6 +73,7 @@ export function usePushSubscription(userId: string | undefined) {
       const json = sub.toJSON();
       const p256dh = json.keys?.p256dh ?? arrayBufferToBase64(sub.getKey("p256dh"));
       const auth = json.keys?.auth ?? arrayBufferToBase64(sub.getKey("auth"));
+      if (!p256dh || !auth) throw new Error("Inscrição de notificações inválida");
 
       const { error } = await supabase
         .from("push_subscriptions")
@@ -81,8 +81,8 @@ export function usePushSubscription(userId: string | undefined) {
           {
             user_id: userId,
             endpoint: sub.endpoint,
-            p256dh: p256dh!,
-            auth: auth!,
+            p256dh,
+            auth,
             user_agent: navigator.userAgent,
           },
           { onConflict: "endpoint" }
@@ -96,9 +96,9 @@ export function usePushSubscription(userId: string | undefined) {
       setIsSubscribed(true);
       setIsLoading(false);
       return { error: null };
-    } catch (e: any) {
+    } catch (e: unknown) {
       setIsLoading(false);
-      return { error: e?.message ?? "Erro ao ativar" };
+      return { error: e instanceof Error ? e.message : "Erro ao ativar" };
     }
   }, [isSupported, userId]);
 
