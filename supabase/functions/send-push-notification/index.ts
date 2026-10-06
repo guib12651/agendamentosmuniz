@@ -5,14 +5,16 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY")!;
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+const VAPID_PRIVATE_KEY = Deno.env.get("VAPID_PRIVATE_KEY");
 const VAPID_SUBJECT = Deno.env.get("VAPID_SUBJECT") ?? "mailto:contato@munizconsultorias.com.br";
 const VAPID_PUBLIC_KEY =
+  Deno.env.get("VAPID_PUBLIC_KEY") ??
   "BEG9fPOGlTbfnCSUPPy3au5Q-skjCh4K4rFSE5V1xcVS93z8hptzhwJQYKfFRl_HVb1BEVefb1jDd9cFggJe81Q";
 
 async function getWebPush() {
+  if (!VAPID_PRIVATE_KEY) throw new Error("Configuração de notificações incompleta");
   const webpush = (await import("npm:web-push@3.6.7")).default;
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
   return webpush;
@@ -29,6 +31,12 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    if (!SUPABASE_URL || !SERVICE_ROLE || !VAPID_PRIVATE_KEY) {
+      return new Response(JSON.stringify({ error: "Configuração de notificações incompleta" }), {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     // Aceita uma única notificação (compatibilidade) ou um lote de ids.
     const body = await req.json().catch(() => ({}));
     const ids: string[] = Array.isArray(body?.notification_ids)
