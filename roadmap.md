@@ -1,4 +1,5 @@
 # Troca das chaves de notificações
-- [ ] Preparar configuração pública e detecção de inscrições com chave antiga.
-- [ ] Preparar função de envio e instruções para gerar chaves localmente.
-- [ ] Validar testes. Ativação externa depende das novas chaves e do deploy pelo usuário.
+- [x] Preparar configuração pública e detecção de inscrições com chave antiga.
+- [x] Preparar função de envio e instruções para gerar chaves localmente.
+- [x] Validar quatro testes e geração local com par correspondente e arquivo privado.
+- [ ] Validar envio real no projeto externo: depende das novas chaves, conexão e implantação pelo usuário.
