@@ -37,7 +37,7 @@ import QuotaForm from "@/components/QuotaForm";
 
 
 export default function Index() {
-  const { profile, isAdmin, signOut } = useAuth();
+  const { profile, isAdmin, isOwner, signOut } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
