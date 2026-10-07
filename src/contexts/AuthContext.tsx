@@ -15,6 +15,7 @@ interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   isAdmin: boolean;
+  isOwner: boolean;
   loading: boolean;
   signIn: (username: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -26,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   const fetchProfile = async (userId: string, attempt = 0): Promise<void> => {
     const { data, error } = await supabase
@@ -43,6 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return;
     }
+
+    // Nível "Dono" vem da tabela de papéis (validado no servidor)
+    const { data: ownerRow } = await supabase
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("role", "owner" as never)
+      .maybeSingle();
+    setIsOwner(!!ownerRow);
 
     if (data) {
       setProfile({
@@ -69,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }, 0);
         } else {
           setProfile(null);
+          setIsOwner(false);
           setLoading(false);
         }
       }
@@ -111,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setIsOwner(false);
   };
 
   return (
@@ -119,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         profile,
         isAdmin: profile?.role === "admin" || profile?.role === "seller",
+        isOwner,
         loading,
         signIn,
         signOut,

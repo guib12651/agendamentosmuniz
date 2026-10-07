@@ -28,7 +28,7 @@ import logo from "@/assets/logo_muniz.png";
 interface UserProfile {
   id: string;
   display_name: string;
-  role: 'admin' | 'pre_seller' | 'seller' | 'consultant' | 'commercial_manager' | 'admin_assistant';
+  role: 'admin' | 'pre_seller' | 'seller' | 'consultant' | 'commercial_manager' | 'admin_assistant' | 'owner';
   is_blocked: boolean;
   email?: string;
   avatar_url?: string | null;

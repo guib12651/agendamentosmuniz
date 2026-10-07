@@ -37,7 +37,7 @@ import QuotaForm from "@/components/QuotaForm";
 
 
 export default function Index() {
-  const { profile, isAdmin, signOut } = useAuth();
+  const { profile, isAdmin, isOwner, signOut } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -334,40 +334,46 @@ export default function Index() {
                     Bloquear
                   </DropdownMenuItem>
                 )}
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate("/fechamentos")}>
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/fechamentos")}>
                     <BarChart3 className="w-4 h-4 mr-2" />
                     Fechamentos
                   </DropdownMenuItem>
-                )}
+)}
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate("/usuarios")}>
                     <UsersIcon className="w-4 h-4 mr-2" />
                     Usuários
                   </DropdownMenuItem>
                 )}
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate("/performance")}>
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/performance")}>
                     <Trophy className="w-4 h-4 mr-2 text-primary" />
                     Performance
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => navigate("/central-operacional")}>
+)}
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/central-operacional")}>
                   <Filter className="w-4 h-4 mr-2 rotate-180" />
                   Central Operacional
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/central-oportunidades")}>
+)}
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/central-oportunidades")}>
                   <Target className="w-4 h-4 mr-2 text-primary" />
                   Central de Oportunidades
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/carteira-leads")}>
+)}
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/carteira-leads")}>
                   <Wallet className="w-4 h-4 mr-2 text-primary" />
                   Carteira de Leads
                 </DropdownMenuItem>
+)}
 
                 {isAdmin && (
                   <>
-                    <DropdownMenuItem onClick={() => navigate("/painel-tv")}>
+                    {isOwner && (<><DropdownMenuItem onClick={() => navigate("/painel-tv")}>
                       <Monitor className="w-4 h-4 mr-2" />
                       Painel TV
                     </DropdownMenuItem>
@@ -375,17 +381,19 @@ export default function Index() {
 
                       <FileText className="w-4 h-4 mr-2" />
                       Cotas
-                    </DropdownMenuItem>
+                    </DropdownMenuItem></>)}
                     <DropdownMenuItem onClick={() => navigate("/lances")}>
                       <Gavel className="w-4 h-4 mr-2" />
                       Lances
                     </DropdownMenuItem>
                   </>
                 )}
-                <DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
+                {isOwner && (
+<DropdownMenuItem onClick={() => navigate("/meus-agendamentos")}>
                   <CalendarCheck className="w-4 h-4 mr-2" />
                   Por dia
                 </DropdownMenuItem>
+)}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
                   <LogOut className="w-4 h-4 mr-2" />

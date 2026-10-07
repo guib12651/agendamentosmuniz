@@ -43,8 +43,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function ProtectedRoute({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
-  const { session, profile, isAdmin, loading, signOut } = useAuth();
+function ProtectedRoute({ children, requireAdmin = false, requireOwner = false }: { children: React.ReactNode, requireAdmin?: boolean, requireOwner?: boolean }) {
+  const { session, profile, isAdmin, isOwner, loading, signOut } = useAuth();
   
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Carregando...</div>;
   if (!session) return <Navigate to="/login" replace />;
@@ -52,6 +52,10 @@ function ProtectedRoute({ children, requireAdmin = false }: { children: React.Re
   if (profile?.is_blocked) {
     signOut();
     return <Navigate to="/login" replace />;
+  }
+
+  if (requireOwner && !isOwner) {
+    return <Navigate to="/" replace />;
   }
 
   if (requireAdmin && !isAdmin) {
@@ -81,21 +85,21 @@ const App = () => (
 
             <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-            <Route path="/fechamentos" element={<ProtectedRoute><Fechamentos /></ProtectedRoute>} />
-            <Route path="/central-operacional" element={<ProtectedRoute><CentralOperacional /></ProtectedRoute>} />
-            <Route path="/meus-agendamentos" element={<ProtectedRoute><MeusAgendamentos /></ProtectedRoute>} />
+            <Route path="/fechamentos" element={<ProtectedRoute requireOwner><Fechamentos /></ProtectedRoute>} />
+            <Route path="/central-operacional" element={<ProtectedRoute requireOwner><CentralOperacional /></ProtectedRoute>} />
+            <Route path="/meus-agendamentos" element={<ProtectedRoute requireOwner><MeusAgendamentos /></ProtectedRoute>} />
             <Route path="/usuarios" element={<ProtectedRoute requireAdmin={true}><GerenciarUsuarios /></ProtectedRoute>} />
-            <Route path="/quotas" element={<ProtectedRoute requireAdmin={true}><Quotas /></ProtectedRoute>} />
+            <Route path="/quotas" element={<ProtectedRoute requireOwner><Quotas /></ProtectedRoute>} />
             <Route path="/lances" element={<ProtectedRoute requireAdmin><Bids /></ProtectedRoute>} />
-            <Route path="/painel-tv" element={<ProtectedRoute requireAdmin><PainelTV /></ProtectedRoute>} />
-            <Route path="/central-oportunidades" element={<ProtectedRoute><OpportunitiesCenter /></ProtectedRoute>} />
+            <Route path="/painel-tv" element={<ProtectedRoute requireOwner><PainelTV /></ProtectedRoute>} />
+            <Route path="/central-oportunidades" element={<ProtectedRoute requireOwner><OpportunitiesCenter /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
 
 
 
             <Route path="/production-sales" element={<ProtectedRoute><ProductionSales /></ProtectedRoute>} />
-            <Route path="/carteira-leads" element={<ProtectedRoute><CarteiraLeads /></ProtectedRoute>} />
-            <Route path="/performance" element={<ProtectedRoute requireAdmin><Performance /></ProtectedRoute>} />
+            <Route path="/carteira-leads" element={<ProtectedRoute requireOwner><CarteiraLeads /></ProtectedRoute>} />
+            <Route path="/performance" element={<ProtectedRoute requireOwner><Performance /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
